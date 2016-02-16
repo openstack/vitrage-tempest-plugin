@@ -11,34 +11,33 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
+from oslo_config import cfg
 from oslo_log import log as logging
 
-import os
-import subprocess
+import vitrage_tempest_tests.tests.utils as utils
+
 import testtools
 
 LOG = logging.getLogger(__name__)
+CONF = cfg.CONF
+logging.register_options(CONF)
+logging.setup(CONF, "vitrage")
+logging.set_defaults(default_log_levels=utils.extra_log_level_defaults)
 
 
 class StopVitrageEnv(testtools.TestCase):
-    """RunVitrageEnv class. Run Vitrage env."""
+    """StopVitrageEnv class. Stop Vitrage env."""
 
     def __init__(self, *args, **kwds):
         super(StopVitrageEnv, self).__init__(*args, **kwds)
-        self.filename = '/etc/vitrage/vitrage.conf'
 
     @staticmethod
     def test_stop_vitrage_processes():
-        f = subprocess.Popen("pgrep vitrage-api",
-                             stdout=subprocess.PIPE, shell=True)
-        text_out, std_error = f.communicate()
-        print (text_out)
+        LOG.debug("Stop vitrage processes")
+        text_out = utils.get_from_terminal("pgrep vitrage-api")
         if text_out != '':
-            os.system("kill -9 " + text_out)
+            utils.run_from_terminal("kill -9 " + text_out)
 
-        f = subprocess.Popen("pgrep vitrage-graph",
-                             stdout=subprocess.PIPE, shell=True)
-        text_out, std_error2 = f.communicate()
-        print (text_out)
-        if text_out != '':
-            os.system("kill -9 " + text_out)
+        text_out2 = utils.get_from_terminal("pgrep vitrage-graph")
+        if text_out2 != '':
+            utils.run_from_terminal("kill -9 " + text_out2)

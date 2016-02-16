@@ -12,15 +12,15 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import os
+import json
+import subprocess
+import vitrage_tempest_tests.tests.utils as utils
 
-import oslo_messaging
-
-from oslo_config import cfg
 from oslo_log import log as logging
+
 from vitrage.api.controllers.v1.topology import TopologyController
+from vitrage.common.constants import VertexProperties as VProps
 from vitrage_tempest_tests.tests.api.base import BaseVitrageTest
-from vitrage_tempest_tests.tests.base_mock import BaseMock
 
 LOG = logging.getLogger(__name__)
 
@@ -35,32 +35,31 @@ class BaseTopologyTest(BaseVitrageTest):
         self.depth = ''
         self.query = ''
         self.root = ''
-
-        """ Get client """
-        transport = oslo_messaging.get_transport(cfg.CONF)
-        cfg.CONF.set_override('rpc_backend', 'rabbit')
-        target = oslo_messaging.Target(topic='rpcapiv1')
-        self.client = oslo_messaging.RPCClient(transport, target)
-
-    def test_get_graph(self):
-        """Wrapper that returns a test graph."""
-        self.graph_type = 'graph'
-        self.graph = self._get_topology()
-        self._validate_graph_correctness()
-        LOG.debug('The graph ' + self.name + ' does not exist')
+        self._get_env_params()
+        self.client = utils.get_client()
 
     def test_get_tree(self):
         """Wrapper that returns a test tree."""
         self.graph_type = 'tree'
         self.graph = self._get_topology()
-        self._validate_graph_correctness()
-        LOG.debug('The graph tree ' + self.name + ' exist')
+
+    def test_get_graph(self):
+        """Wrapper that returns a test graph."""
+        self.graph_type = 'graph'
+        self.graph = self._get_topology()
+
+        if self._validate_graph_correctness() is False:
+            LOG.error('The graph ' + self.name + ' is not correct')
+        else:
+            LOG.info('The graph ' + self.name + ' is correct')
 
     def _get_topology(self):
         """Get Graph objects returned by the v1 client """
         try:
-            g = TopologyController().get_graph(graph_type=self.graph_type)
-
+            g = TopologyController().get_graph(graph_type=self.graph_type,
+                                               depth=self.depth,
+                                               query=self.query,
+                                               root=self.root)
         except Exception as e:
             LOG.exception("Failed to get topology (graph_type = " +
                           self.graph_type + ") %s ", e)
@@ -69,25 +68,47 @@ class BaseTopologyTest(BaseVitrageTest):
         return g
 
     def _validate_graph_correctness(self):
-        """Compare Graph object to graph form os terminal """
-
-        print("The topology graph taken by api is : %s", self.graph)
-
-    def _create_graph_by_mock(self):
-        """Create MOCK Graph and copied to the string """
-        processor = BaseMock.create_processor_with_graph(self)
-        entity_graph = processor.entity_graph
-        a = entity_graph.output_graph()
-        print (a)
-
-    @staticmethod
-    def _show_topology():
-        text_out = os.popen("vitrage topology show").read()
-        print (text_out)
-
-        if "RESOURCE" not in text_out:
-            LOG.info('The topology graph does not exist')
+        """Compare Graph object to graph form terminal """
+        cli_graph = self._show_topology()
+        if cli_graph == '':
+            LOG.error("The topology graph taken from terminal is empty")
             return False
-        else:
-            LOG.info('The topology graph exist')
-            return True
+
+        parsed_topology = json.loads(cli_graph)
+        LOG.debug("The topology graph taken from terminal is : " +
+                  json.dumps(parsed_topology))
+        LOG.debug("The topology graph taken by api is : %s",
+                  json.dumps(self.graph))
+
+        cli_items = sorted(parsed_topology.items())
+        api_items = sorted(self.graph.items())
+
+        for item in cli_items[4][1]:
+            item.pop(VProps.UPDATE_TIMESTAMP, None)
+
+        for item in api_items[4][1]:
+            item.pop(VProps.UPDATE_TIMESTAMP, None)
+
+        return cli_items == api_items
+
+    def _show_topology(self):
+        LOG.debug("The command is : vitrage topology show")
+        p = subprocess.Popen("cd /home/stack/devstack; . openrc " +
+                             self.user + " " + self.tenant_user +
+                             "; vitrage topology show",
+                             shell=True,
+                             executable="/bin/bash",
+                             stdout=subprocess.PIPE,
+                             stderr=subprocess.PIPE)
+        stdout, stderr = p.communicate()
+        if stderr != '':
+            LOG.error("The command output error is : " + stderr)
+        if stdout != '':
+            LOG.debug("The command output is : \n" + stdout)
+            return stdout
+        return None
+
+    def _get_env_params(self):
+        conf = utils.get_conf()
+        self.user = conf.keystone_authtoken.admin_user
+        self.tenant_user = conf.keystone_authtoken.admin_tenant_name

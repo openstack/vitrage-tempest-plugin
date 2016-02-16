@@ -11,13 +11,18 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
+from oslo_config import cfg
 from oslo_log import log as logging
 
-import os
-import re
+import vitrage_tempest_tests.tests.utils as utils
+
 import testtools
 
 LOG = logging.getLogger(__name__)
+CONF = cfg.CONF
+logging.register_options(CONF)
+logging.setup(CONF, "vitrage")
+logging.set_defaults(default_log_levels=utils.extra_log_level_defaults)
 
 
 class RunVitrageEnv(testtools.TestCase):
@@ -26,41 +31,46 @@ class RunVitrageEnv(testtools.TestCase):
     def __init__(self, *args, **kwds):
         super(RunVitrageEnv, self).__init__(*args, **kwds)
         self.filename = '/opt/stack/vitrage/etc/vitrage/vitrage.conf'
-        self.port = '8999'
 
     def test_run_env(self):
-        self._set_env_params()
-        print("The host ip address = " + self.host + " with port " + self.port)
-
-        LOG.info('MARINA!!!')
         if self._show_vitrage_processes() is True:
-            print ("The vitrage processed existed and should be removed")
-            LOG.info('The vitrage processed existed and should be removed')
+            LOG.debug('The vitrage processed existed and should be removed')
             self._stop_vitrage_processes()
 
-        os.system("openstack service create rca" +
-                  " --os-username " + self.user +
-                  " --os-password " + self.password +
-                  " --os-auth-url " + self.url +
-                  " --os-project-name admin" +
-                  " --name vitrage")
-        os.system("openstack endpoint create rca --os-username " + self.user +
-                  " --os-password " + self.password +
-                  " --os-auth-url " + self.url +
-                  " --os-project-name admin" +
-                  " --adminurl http://" + self.host + ":" + self.port +
-                  " --internalurl http://" + self.host + ":" + self.port +
-                  " --publicurl http://" + self.host + ":" + self.port +
-                  " --region RegionOne")
+        self._get_env_params()
 
-        os.chdir('/tmp')
-        os.system("\rm nohup.out")
-        os.system("nohup vitrage-graph &")
-        os.system("nohup vitrage-api &")
+        utils.change_terminal_dir('/home/stack/devstack')
+        utils.run_from_terminal("chmod +x openrc")
+        utils.run_from_terminal("./openrc " + self.user + " " +
+                                self.tenant_user)
+        utils.run_from_terminal("openstack service create rca" +
+                                " --os-username " + self.user +
+                                " --os-password " + self.password +
+                                " --os-auth-url " + self.url +
+                                " --os-project-name admin" +
+                                " --name vitrage")
+        utils.run_from_terminal("openstack endpoint create rca" +
+                                " --os-username " + self.user +
+                                " --os-username " + self.user +
+                                " --os-password " + self.password +
+                                " --os-auth-url " + self.url +
+                                " --os-project-name admin" +
+                                " --adminurl http://" + self.host +
+                                ":" + str(self.port) +
+                                " --internalurl http://" + self.host +
+                                ":" + str(self.port) +
+                                " --publicurl http://" + self.host +
+                                ":" + str(self.port) +
+                                " --region RegionOne")
+
+        utils.run_from_terminal("nohup vitrage-graph > /tmp/nohup-graph.out &")
+        utils.run_from_terminal("nohup vitrage-api > /tmp/nohup-api.out &")
 
         if self._show_vitrage_processes() is False:
             LOG.error("No vitrage processes founded")
             raise ValueError("No vitrage processes founded")
+        else:
+            LOG.info('The vitrage processes exists')
 
         if self._validate_vitrage_processes() is False:
             LOG.error("The vitrage processes are not correct")
@@ -69,88 +79,53 @@ class RunVitrageEnv(testtools.TestCase):
 
     @staticmethod
     def _show_vitrage_processes():
-        text_out = os.popen(
-            "ps -ef | grep vitrage-api | grep -v grep").read()
-        print (text_out)
-
-        text_out2 = os.popen(
-            "ps -ef | grep vitrage-graph | grep -v grep").read()
-        print (text_out2)
+        text_out = utils.get_from_terminal(
+            "ps -ef | grep vitrage-api | grep -v grep")
+        text_out2 = utils.get_from_terminal(
+            "ps -ef | grep vitrage-graph | grep -v grep")
 
         if ("vitrage-api" in text_out) and ("vitrage-graph" in text_out2):
-            LOG.info('The vitrage processes exists')
+            LOG.debug('The vitrage processes exists')
             return True
         elif "vitrage-api" in text_out:
-            LOG.info('Only vitrage-api process exist')
+            LOG.debug('Only vitrage-api process exist')
             return True
         elif "vitrage-graph" in text_out2:
-            LOG.info('Only vitrage-graph process exist')
+            LOG.debug('Only vitrage-graph process exist')
             return True
         else:
-            LOG.info('The vitrage process does not run')
+            LOG.debug('The vitrage process does not run')
             return False
 
-    @staticmethod
-    def _get_field_from_file(pattern, lines_arr):
-        p = re.compile(pattern)
-        for line in lines_arr:
-            m = p.search(line)
-            if m:
-                print("The field value is " + m.group(1))
-                return m.group(1)
-        return None
-
-    def _set_env_params(self):
-        lines_arr = []
-        with open(self.filename, 'r') as the_file:
-            for line in the_file:
-                if "#" not in line and line.strip() != '':
-                    lines_arr.append(line)
-
-        self.user = self._get_field_from_file(
-            "admin_user = (\w+)", lines_arr)
-        text_out = os.popen("echo $OS_USERNAME").read()
-        if text_out not in self.user:
-            os.system("export OS_USERNAME=" + self.user)
-
-        self.tenent_user = self._get_field_from_file(
-            "admin_tenant_name = (\w+)", lines_arr)
-        text_out = os.popen("echo $OS_TENANT_NAME").read()
-        if text_out not in self.tenent_user:
-            os.system("export OS_TENANT_NAME=" + self.tenent_user)
-
-        self.password = self._get_field_from_file(
-            "admin_password = (\w+)", lines_arr)
-        text_out = os.popen("echo $OS_PASSWORD").read()
-        if text_out not in self.password:
-            os.system("export OS_PASSWORD=" + self.password)
-
-        self.host = self._get_field_from_file(
-            "(\d+\.\d+\.\d+\.\d+)", lines_arr)
+    def _get_env_params(self):
+        conf = utils.get_conf()
+        self.port = conf.api.port
+        self.user = conf.keystone_authtoken.admin_user
+        self.tenant_user = conf.keystone_authtoken.admin_tenant_name
+        self.password = conf.keystone_authtoken.admin_password
+        self.identity_uri = conf.keystone_authtoken.identity_uri
+        self.host = utils.get_regex_result(
+            "(\d+\.\d+\.\d+\.\d+)", self.identity_uri)
         self.url = "http://" + self.host + ":5000/v2.0"
-        text_out = os.popen("echo $OS_AUTH_URL").read()
-        if text_out not in self.url:
-            os.system("export OS_AUTH_URL=" + self.url)
 
     @staticmethod
     def _stop_vitrage_processes():
-        text_out = os.popen("pgrep vitrage-api").read()
-        print (text_out)
+        text_out = utils.get_from_terminal("pgrep vitrage-api")
         if text_out != '':
-            LOG.info("The vitrage-api process exist")
-            os.system("kill -9 " + text_out)
+            LOG.debug("The vitrage-api process exist")
+            utils.run_from_terminal("kill -9 " + text_out)
 
-        text_out2 = os.popen("pgrep vitrage-graph").read()
-        print (text_out2)
+        text_out2 = utils.get_from_terminal("pgrep vitrage-graph")
         if text_out2 != '':
-            LOG.info("The vitrage-graph process exist")
-            os.system("kill -9 " + text_out2)
+            LOG.debug("The vitrage-graph process exist")
+            utils.run_from_terminal("kill -9 " + text_out2)
 
     @staticmethod
     def _validate_vitrage_processes():
-        text_out2 = os.popen("grep 'ERROR vitrage' nohup.out").read()
-        if text_out2 != '':
-            LOG.info("The error is : " + text_out2)
-            print("The error is : " + text_out2)
+        errors_out = utils.get_from_terminal(
+            "grep ERROR /tmp/nohup-graph.out | " +
+            "grep ERROR /tmp/nohup-api.out | grep -v \'ERROR %\'")
+        if errors_out != '':
+            LOG.error("The errors are : " + errors_out)
             return False
         return True

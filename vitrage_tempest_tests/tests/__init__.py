@@ -12,4 +12,18 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-__author__ = 'stack'
+from oslo_config import cfg
+
+OPTS = [
+    cfg.StrOpt('admin_user',
+               default='admin',
+               help='admin_user'),
+    cfg.StrOpt('admin_password',
+               default='password',
+               help='admin_password'),
+    cfg.StrOpt('admin_tenant_name',
+               default='admin',
+               help='admin_tenant_name'),
+    cfg.StrOpt('identity_uri',
+               help='identity_uri'),
+]
