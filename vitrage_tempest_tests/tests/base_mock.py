@@ -11,7 +11,10 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
+
 import testtools
+
+from vitrage.entity_graph.initialization_status import InitializationStatus
 from vitrage.entity_graph.processor import processor as proc
 from vitrage.tests.mocks import mock_syncronizer as mock_sync
 
@@ -21,7 +24,7 @@ class BaseMock(testtools.TestCase):
 
     def create_processor_with_graph(self):
         events = self._create_mock_events()
-        processor = proc.Processor()
+        processor = proc.Processor(InitializationStatus())
 
         for event in events:
             processor.process_event(event)
