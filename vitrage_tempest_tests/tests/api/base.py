@@ -26,7 +26,7 @@ class BaseVitrageTest(BaseTest):
 
     def _create_graph_by_mock(self):
         """Create MOCK Graph and copied to the string """
-        processor = BaseMock.create_processor_with_graph(self)
+        processor = BaseMock.create_processor_with_graph()
         entity_graph = processor.entity_graph
         mock_graph_output = entity_graph.output_graph()
         LOG.info("The mock graph is : " + mock_graph_output)
