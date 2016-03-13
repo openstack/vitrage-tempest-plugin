@@ -18,15 +18,15 @@ from vitrage_tempest_tests.tests.base_mock import BaseMock
 LOG = logging.getLogger(__name__)
 
 
-class BaseVitrageTest(BaseTest):
+class BaseVitrageTest(BaseTest, BaseMock):
     """Base test class for Vitrage API tests."""
 
-    def __init__(self, *args, **kwds):
-        super(BaseVitrageTest, self).__init__(*args, **kwds)
+    def __init__(self, *args, **kwargs):
+        super(BaseVitrageTest, self).__init__(*args, **kwargs)
 
     def _create_graph_by_mock(self):
         """Create MOCK Graph and copied to the string """
-        processor = BaseMock.create_processor_with_graph()
+        processor = self.create_processor_with_graph()
         entity_graph = processor.entity_graph
         mock_graph_output = entity_graph.output_graph()
         LOG.info("The mock graph is : " + mock_graph_output)
