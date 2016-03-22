@@ -31,10 +31,10 @@ class BaseMock(testtools.TestCase):
     ]
 
     def create_processor_with_graph(self):
-        self.conf = cfg.ConfigOpts()
-        self.conf.register_opts(self.PROCESSOR_OPTS, group='entity_graph')
+        conf = cfg.ConfigOpts()
+        conf.register_opts(self.PROCESSOR_OPTS, group='entity_graph')
         events = self._create_mock_events()
-        processor = proc.Processor(self.conf, InitializationStatus())
+        processor = proc.Processor(conf, InitializationStatus())
 
         for event in events:
             processor.process_event(event)
