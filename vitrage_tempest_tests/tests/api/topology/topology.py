@@ -40,23 +40,21 @@ class BaseTopologyTest(BaseVitrageTest):
 
     def test_get_tree(self):
         """Wrapper that returns a test tree."""
-        self.graph_type = 'tree'
-        self.graph = self._get_topology()
+        self._get_topology('tree')
 
     def test_get_graph(self):
         """Wrapper that returns a test graph."""
-        self.graph_type = 'graph'
-        self.graph = self._get_topology()
+        self._get_topology('graph')
 
         if self._validate_graph_correctness() is False:
             LOG.error('The graph ' + self.name + ' is not correct')
         else:
             LOG.info('The graph ' + self.name + ' is correct')
 
-    def _get_topology(self):
+    def _get_topology(self, graph_type):
         """Get Graph objects returned by the v1 client """
         try:
-            g = TopologyController().get_graph(graph_type=self.graph_type,
+            g = TopologyController().get_graph(graph_type=graph_type,
                                                depth=self.depth,
                                                query=self.query,
                                                root=self.root)
