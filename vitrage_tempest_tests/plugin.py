@@ -16,7 +16,9 @@
 
 import os
 
+# noinspection PyPackageRequirements
 from tempest import config
+# noinspection PyPackageRequirements
 from tempest.test_discover import plugins
 
 from vitrage_tempest_tests import config as config_rca_engine

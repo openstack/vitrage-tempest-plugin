@@ -12,6 +12,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+# noinspection PyPackageRequirements
 import testtools
 
 from oslo_config import cfg

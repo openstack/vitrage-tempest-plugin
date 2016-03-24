@@ -11,12 +11,13 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
+
 from oslo_config import cfg
 from oslo_log import log as logging
 
-import vitrage_tempest_tests.tests.utils as utils
-
+# noinspection PyPackageRequirements
 import testtools
+import vitrage_tempest_tests.tests.utils as utils
 
 LOG = logging.getLogger(__name__)
 CONF = cfg.CONF
