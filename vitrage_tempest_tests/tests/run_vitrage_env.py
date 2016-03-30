@@ -11,11 +11,9 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
-
 from oslo_config import cfg
 from oslo_log import log as logging
 
-# noinspection PyPackageRequirements
 import testtools
 import vitrage_tempest_tests.tests.utils as utils
 
@@ -41,21 +39,21 @@ class RunVitrageEnv(testtools.TestCase):
         self._get_env_params()
 
         utils.change_terminal_dir('/home/stack/devstack')
-        utils.run_from_terminal("chmod +x openrc")
-        utils.run_from_terminal("./openrc " + self.user + " " +
-                                self.tenant_user)
+        # utils.run_from_terminal("chmod +x openrc")
+        utils.get_from_terminal_enabled_bash(". openrc " + self.user + " " +
+                                             self.user)
         utils.run_from_terminal("openstack service create rca" +
-                                " --os-username " + self.user +
-                                " --os-password " + self.password +
-                                " --os-auth-url " + self.url +
-                                " --os-project-name admin" +
+                                # " --os-username " + self.user +
+                                # " --os-password " + self.password +
+                                # " --os-auth-url " + self.url +
+                                # " --os-project-name admin" +
                                 " --name vitrage")
         utils.run_from_terminal("openstack endpoint create rca" +
-                                " --os-username " + self.user +
-                                " --os-username " + self.user +
-                                " --os-password " + self.password +
-                                " --os-auth-url " + self.url +
-                                " --os-project-name admin" +
+                                # " --os-username " + self.user +
+                                # " --os-username " + self.user +
+                                # " --os-password " + self.password +
+                                # " --os-auth-url " + self.url +
+                                # " --os-project-name admin" +
                                 " --adminurl http://" + self.host +
                                 ":" + str(self.port) +
                                 " --internalurl http://" + self.host +
@@ -101,13 +99,12 @@ class RunVitrageEnv(testtools.TestCase):
     def _get_env_params(self):
         conf = utils.get_conf()
         self.port = conf.api.port
-        self.user = conf.keystone_authtoken.admin_user
-        self.tenant_user = conf.keystone_authtoken.admin_tenant_name
-        self.password = conf.keystone_authtoken.admin_password
-        self.identity_uri = conf.keystone_authtoken.identity_uri
+        self.user = conf.service_credentials.user
+        self.password = conf.service_credentials.password
+        self.url = conf.service_credentials.auth_url + "/v2.0"
         self.host = utils.get_regex_result(
-            "(\d+\.\d+\.\d+\.\d+)", self.identity_uri)
-        self.url = "http://" + self.host + ":5000/v2.0"
+            "(\d+\.\d+\.\d+\.\d+)", self.url)
+        self.identity_uri = conf.keystone_authtoken.identity_uri
 
     @staticmethod
     def _stop_vitrage_processes():
