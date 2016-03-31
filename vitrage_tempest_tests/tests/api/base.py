@@ -12,7 +12,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 from oslo_log import log as logging
-from vitrage.tests.base import BaseTest
+from oslotest import base
 from vitrage_tempest_tests.tests.base_mock import BaseMock
 
 import vitrage_tempest_tests.tests.utils as utils
@@ -20,15 +20,16 @@ import vitrage_tempest_tests.tests.utils as utils
 LOG = logging.getLogger(__name__)
 
 
-class BaseVitrageTest(BaseTest, BaseMock):
+class BaseVitrageTest(base.BaseTestCase):
     """Base test class for Vitrage API tests."""
 
-    def __init__(self, *args, **kwargs):
-        super(BaseVitrageTest, self).__init__(*args, **kwargs)
+    def __init__(self, *args, **kwds):
+        super(BaseVitrageTest, self).__init__(*args, **kwds)
+        self.mock_client = BaseMock()
 
     def _create_graph_by_mock(self):
         """Create MOCK Graph and copied to the string """
-        processor = self.create_processor_with_graph()
+        processor = self.mock_client.create_processor_with_graph()
         entity_graph = processor.entity_graph
         mock_graph_output = entity_graph.output_graph()
         LOG.info("The mock graph is : " + mock_graph_output)
