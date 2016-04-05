@@ -22,9 +22,11 @@ LOG = logging.getLogger(__name__)
 
 class BaseVitrageTest(base.BaseTestCase):
     """Base test class for Vitrage API tests."""
-    def setUp(self):
-        super(BaseVitrageTest, self).setUp()
-        self.conf = utils.get_conf()
+
+    @classmethod
+    def setUpClass(cls):
+        super(BaseVitrageTest, cls).setUpClass()
+        cls.conf = utils.get_conf()
 
     def _create_graph_by_mock(self):
         """Create MOCK Graph and copied to the string """

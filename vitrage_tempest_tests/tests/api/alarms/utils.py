@@ -12,12 +12,12 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 # import json
+
 import vitrage_tempest_tests.tests.utils as utils
 
 from oslo_log import log as logging
 
 from vitrage.api.controllers.v1.alarms import AlarmsController
-# from vitrage.common.constants import VertexProperties as VProps
 from vitrage_tempest_tests.tests.api.base import BaseVitrageTest
 
 LOG = logging.getLogger(__name__)

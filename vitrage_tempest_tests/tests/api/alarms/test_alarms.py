@@ -11,6 +11,7 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
+
 from oslo_log import log as logging
 
 from vitrage_tempest_tests.tests.api.alarms.utils import AlarmsHelper
@@ -21,9 +22,11 @@ LOG = logging.getLogger(__name__)
 
 class BaseAlarmsTest(BaseVitrageTest):
     """Alarms test class for Vitrage API tests."""
-    def setUp(self):
-        super(BaseAlarmsTest, self).setUp()
-        self.client = AlarmsHelper()
+
+    @classmethod
+    def setUpClass(cls):
+        super(BaseAlarmsTest, cls).setUpClass()
+        cls.client = AlarmsHelper()
 
     def test_compare_alarms(self):
         """Wrapper that returns a test graph."""

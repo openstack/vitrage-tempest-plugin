@@ -11,6 +11,7 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
+
 from oslo_log import log as logging
 
 from vitrage_tempest_tests.tests.api.base import BaseVitrageTest
@@ -23,9 +24,10 @@ LOG = logging.getLogger(__name__)
 class BaseTopologyTest(BaseVitrageTest):
     """Topology test class for Vitrage API tests."""
 
-    def setUp(self):
-        super(BaseTopologyTest, self).setUp()
-        self.topology_client = TopologyHelper()
+    @classmethod
+    def setUpClass(cls):
+        super(BaseTopologyTest, cls).setUpClass()
+        cls.topology_client = TopologyHelper()
 
     def test_compare_graphs(self):
         """Wrapper that returns a test graph."""
