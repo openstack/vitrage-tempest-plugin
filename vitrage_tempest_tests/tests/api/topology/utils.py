@@ -26,13 +26,12 @@ LOG = logging.getLogger(__name__)
 class TopologyHelper(BaseVitrageTest):
     """Topology test class for Vitrage API tests."""
 
-    def __init__(self):
-        super(TopologyHelper, self).__init__()
+    def setUp(self):
+        super(TopologyHelper, self).setUp()
+        self.client = utils.get_client()
         self.depth = ''
         self.query = ''
         self.root = ''
-        self._get_env_params()
-        self.client = utils.get_client()
 
     def get_api_topology(self, graph_type):
         """Get Graph objects returned by the v1 client """
@@ -48,17 +47,12 @@ class TopologyHelper(BaseVitrageTest):
 
         return api_graph
 
-    def _get_env_params(self):
-        conf = utils.get_conf()
-        self.user = conf.service_credentials.user
-
     def show_cli_topology(self):
         """Get Graph objects returned by cli """
         LOG.debug("The command is : vitrage topology show")
-        return utils.run_vitrage_command(
-            "cd /home/stack/devstack; . openrc " +
-            self.user + " " + self.user +
-            "; vitrage topology show")
+
+        return utils.run_vitrage_command_with_user(
+            "vitrage topology show", self.conf.service_credentials.user)
 
     def create_machines(self, machine_number):
         flavor_id = self.get_flavor_id_from_list()

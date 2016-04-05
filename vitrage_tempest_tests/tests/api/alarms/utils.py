@@ -26,13 +26,8 @@ LOG = logging.getLogger(__name__)
 class AlarmsHelper(BaseVitrageTest):
     """Alarms test class for Vitrage API tests."""
 
-    def __init__(self):
-        super(AlarmsHelper, self).__init__()
-        self.depth = ''
-        self.query = ''
-        self.root = ''
-        self._get_env_params()
-        self.client = utils.get_client()
+    def setUp(self):
+        super(AlarmsHelper, self).setUp()
 
     @staticmethod
     def get_api_alarms():
@@ -44,10 +39,10 @@ class AlarmsHelper(BaseVitrageTest):
             return None
         return alarms
 
-    @staticmethod
-    def get_all_alarms():
+    def get_all_alarms(self):
         """Get Alarms returned by the cli """
-        return utils.run_vitrage_command('vitrage alarms list')
+        return utils.run_vitrage_command_with_user(
+            'vitrage alarms list', self.conf.service_credentials.user)
 
     @staticmethod
     def filter_alarms(alarms_list, component):
@@ -67,7 +62,7 @@ class AlarmsHelper(BaseVitrageTest):
         switcher = {
             "nova": self._nova_alarms(),
             "nagios": self._nagios_alarms(),
-            "ceilometer": self._ceilometer_alarm(),
+            "aodh": self._aodh_alarm(),
         }
 
         """ Get the function from switcher dictionary """
@@ -76,8 +71,8 @@ class AlarmsHelper(BaseVitrageTest):
         return func()
 
     def _nova_alarms(self):
-        flavor_id = self._get_flavor_id_from_list()
-        image_id = self._get_image_id_from_list()
+        flavor_id = self.get_flavor_id_from_list()
+        image_id = self.get_image_id_from_list()
 
         self.create_vm_with_exist_image("alarm_vm", flavor_id, image_id)
 
@@ -86,7 +81,7 @@ class AlarmsHelper(BaseVitrageTest):
         return "Not supported yet"
 
     @staticmethod
-    def _ceilometer_alarm():
+    def _aodh_alarm():
         return "Not supported yet"
 
     @staticmethod
