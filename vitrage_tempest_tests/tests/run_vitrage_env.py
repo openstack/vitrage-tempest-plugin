@@ -13,8 +13,8 @@
 #    under the License.
 from oslo_config import cfg
 from oslo_log import log as logging
+from oslotest import base
 
-import testtools
 import vitrage_tempest_tests.tests.utils as utils
 
 LOG = logging.getLogger(__name__)
@@ -24,12 +24,11 @@ logging.setup(CONF, "vitrage")
 logging.set_defaults(default_log_levels=utils.extra_log_level_defaults)
 
 
-class RunVitrageEnv(testtools.TestCase):
+class RunVitrageEnv(base.BaseTestCase):
     """RunVitrageEnv class. Run Vitrage env."""
 
     def __init__(self, *args, **kwds):
         super(RunVitrageEnv, self).__init__(*args, **kwds)
-        self.filename = '/opt/stack/vitrage/etc/vitrage/vitrage.conf'
 
     def test_run_env(self):
         if self._show_vitrage_processes() is True:
@@ -39,14 +38,9 @@ class RunVitrageEnv(testtools.TestCase):
         self._get_env_params()
 
         utils.change_terminal_dir('/home/stack/devstack')
-        # utils.run_from_terminal("chmod +x openrc")
-        utils.get_from_terminal_enabled_bash(". openrc " + self.user + " " +
-                                             self.user)
+        utils.run_vitrage_command(". openrc " + self.user + " " +
+                                  self.user)
         utils.run_from_terminal("openstack service create rca" +
-                                # " --os-username " + self.user +
-                                # " --os-password " + self.password +
-                                # " --os-auth-url " + self.url +
-                                # " --os-project-name admin" +
                                 " --name vitrage")
         utils.run_from_terminal("openstack endpoint create rca" +
                                 # " --os-username " + self.user +

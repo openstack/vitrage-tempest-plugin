@@ -15,15 +15,6 @@
 from oslo_config import cfg
 
 OPTS = [
-    cfg.StrOpt('admin_user',
-               default='admin',
-               help='admin_user'),
-    cfg.StrOpt('admin_password',
-               default='password',
-               help='admin_password'),
-    cfg.StrOpt('admin_tenant_name',
-               default='admin',
-               help='admin_tenant_name'),
-    cfg.StrOpt('identity_uri',
-               help='identity_uri'),
+    cfg.StrOpt('auth_url',
+               help='auth_url'),
 ]

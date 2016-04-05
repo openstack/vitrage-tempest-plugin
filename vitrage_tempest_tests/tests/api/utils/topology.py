@@ -26,8 +26,8 @@ LOG = logging.getLogger(__name__)
 class TopologyHelper(BaseVitrageTest):
     """Topology test class for Vitrage API tests."""
 
-    def __init__(self, *args, **kwds):
-        super(TopologyHelper, self).__init__(*args, **kwds)
+    def __init__(self):
+        super(TopologyHelper, self).__init__()
         self.depth = ''
         self.query = ''
         self.root = ''
@@ -43,7 +43,7 @@ class TopologyHelper(BaseVitrageTest):
                                                        root=self.root)
         except Exception as e:
             LOG.exception("Failed to get topology (graph_type = " +
-                          self.graph_type + ") %s ", e)
+                          graph_type + ") %s ", e)
             return None
 
         return api_graph

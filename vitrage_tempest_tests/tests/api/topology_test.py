@@ -12,8 +12,9 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 from oslo_log import log as logging
+
 from vitrage_tempest_tests.tests.api.base import BaseVitrageTest
-from vitrage_tempest_tests.tests.api.topology.topology_helper \
+from vitrage_tempest_tests.tests.api.utils.topology \
     import TopologyHelper
 
 LOG = logging.getLogger(__name__)
@@ -22,8 +23,8 @@ LOG = logging.getLogger(__name__)
 class BaseTopologyTest(BaseVitrageTest):
     """Topology test class for Vitrage API tests."""
 
-    def __init__(self, *args, **kwds):
-        super(BaseTopologyTest, self).__init__(*args, **kwds)
+    def __init__(self):
+        super(BaseTopologyTest, self).__init__()
         self.name = 'tempest_graph'
         self.topology_client = TopologyHelper()
 
@@ -42,7 +43,8 @@ class BaseTopologyTest(BaseVitrageTest):
         resources = self.topology_client.create_machines(4)
         cli_graph = self.topology_client.show_cli_topology()
 
-        if self.validate_graph_correctness(cli_graph, resources) is False:
+        if self.topology_client.validate_graph_correctness(
+                cli_graph, resources) is False:
             LOG.error('The graph ' + self.name + ' is not correct')
         else:
             LOG.info('The graph ' + self.name + ' is correct')
@@ -52,7 +54,8 @@ class BaseTopologyTest(BaseVitrageTest):
         resources = self.topology_client.create_volume()
         cli_graph = self.topology_client.show_cli_topology()
 
-        if self.validate_graph_correctness(cli_graph, resources) is False:
+        if self.topology_client.validate_graph_correctness(
+                cli_graph, resources) is False:
             LOG.error('The graph ' + self.name + ' is not correct')
         else:
             LOG.info('The graph ' + self.name + ' is correct')

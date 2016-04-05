@@ -14,9 +14,8 @@
 
 from oslo_config import cfg
 from oslo_log import log as logging
+from oslotest import base
 
-# noinspection PyPackageRequirements
-import testtools
 import vitrage_tempest_tests.tests.utils as utils
 
 LOG = logging.getLogger(__name__)
@@ -26,7 +25,7 @@ logging.setup(CONF, "vitrage")
 logging.set_defaults(default_log_levels=utils.extra_log_level_defaults)
 
 
-class StopVitrageEnv(testtools.TestCase):
+class StopVitrageEnv(base.BaseTestCase):
     """StopVitrageEnv class. Stop Vitrage env."""
 
     def __init__(self, *args, **kwds):
