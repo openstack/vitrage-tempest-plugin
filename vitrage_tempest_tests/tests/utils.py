@@ -18,6 +18,7 @@ from vitrage import service
 import os
 import oslo_messaging
 import re
+import subprocess
 import vitrage_tempest_tests.tests
 
 extra_log_level_defaults = [
@@ -50,6 +51,21 @@ def get_from_terminal(command):
     if text_out != '':
         LOG.debug("The command output is : \n" + text_out)
     return text_out
+
+
+def run_vitrage_command(command):
+    p = subprocess.Popen(command,
+                         shell=True,
+                         executable="/bin/bash",
+                         stdout=subprocess.PIPE,
+                         stderr=subprocess.PIPE)
+    stdout, stderr = p.communicate()
+    if stderr != '':
+        LOG.error("The command output error is : " + stderr)
+    if stdout != '':
+        LOG.debug("The command output is : \n" + stdout)
+        return stdout
+    return None
 
 
 def run_from_terminal(command):

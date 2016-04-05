@@ -35,10 +35,4 @@ class StopVitrageEnv(testtools.TestCase):
     @staticmethod
     def test_stop_vitrage_processes():
         LOG.debug("Stop vitrage processes")
-        text_out = utils.get_from_terminal("pgrep vitrage-api")
-        if text_out != '':
-            utils.run_from_terminal("kill -9 " + text_out)
-
-        text_out2 = utils.get_from_terminal("pgrep vitrage-graph")
-        if text_out2 != '':
-            utils.run_from_terminal("kill -9 " + text_out2)
+        utils.run_from_terminal("pkill vitrage")
