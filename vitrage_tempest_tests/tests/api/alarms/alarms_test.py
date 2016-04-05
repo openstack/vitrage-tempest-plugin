@@ -13,26 +13,24 @@
 #    under the License.
 from oslo_log import log as logging
 
+from vitrage_tempest_tests.tests.api.alarms.utils import AlarmsHelper
 from vitrage_tempest_tests.tests.api.base import BaseVitrageTest
-from vitrage_tempest_tests.tests.api.utils.alarms \
-    import AlarmsHelper
 
 LOG = logging.getLogger(__name__)
 
 
 class BaseAlarmsTest(BaseVitrageTest):
     """Alarms test class for Vitrage API tests."""
-
-    def __init__(self):
-        super(BaseAlarmsTest, self).__init__()
-        self.alarms_client = AlarmsHelper()
+    def setUp(self):
+        super(BaseAlarmsTest, self).setUp()
+        self.client = AlarmsHelper()
 
     def test_compare_alarms(self):
         """Wrapper that returns a test graph."""
-        api_alarms = self.alarms_client.get_api_alarms()
-        cli_alarms = self.alarms_client.get_all_alarms()
+        api_alarms = self.client.get_api_alarms()
+        cli_alarms = self.client.get_all_alarms()
 
-        if self.alarms_client.compare_alarms_lists(
+        if self.client.compare_alarms_lists(
                 api_alarms, cli_alarms) is False:
             LOG.error('The alarms list is not correct')
         else:
@@ -40,11 +38,11 @@ class BaseAlarmsTest(BaseVitrageTest):
 
     def test_nova_alarms(self):
         """Wrapper that returns test nova alarms."""
-        self.alarms_client.create_alarms_per_component("nova")
-        alarms = self.alarms_client.get_all_alarms()
-        nova_alarms = self.alarms_client.filter_alarms(alarms, "nova")
+        self.self.client.create_alarms_per_component('nova')
+        alarms = self.client.get_all_alarms()
+        nova_alarms = self.client.filter_alarms(alarms, "nova")
 
-        if self.alarms_client.validate_alarms_correctness(
+        if self.client.validate_alarms_correctness(
                 nova_alarms, "nova") is False:
             LOG.error('The nova alarms are not correct')
         else:
@@ -52,11 +50,11 @@ class BaseAlarmsTest(BaseVitrageTest):
 
     def test_nagios_alarms(self):
         """Wrapper that returns test nagios alarms."""
-        self.alarms_client.create_alarms_per_component("nagios")
-        alarms = self.alarms_client.get_all_alarms()
-        nagios_alarms = self.alarms_client.filter_alarms(alarms, "nagios")
+        self.client.create_alarms_per_component('nagios')
+        alarms = self.client.get_all_alarms()
+        nagios_alarms = self.client.filter_alarms(alarms, "nagios")
 
-        if self.alarms_client.validate_alarms_correctness(
+        if self.client.validate_alarms_correctness(
                 nagios_alarms, "nagios") is False:
             LOG.error('The nagios alarms are not correct')
         else:
@@ -64,11 +62,11 @@ class BaseAlarmsTest(BaseVitrageTest):
 
     def test_aodh_alarms(self):
         """Wrapper that returns test aodh alarms."""
-        self.alarms_client.create_alarms_per_component("aodh")
-        alarms = self.alarms_client.get_all_alarms()
-        aodh_alarms = self.alarms_client.filter_alarms(alarms, "aodh")
+        self.client.create_alarms_per_component('aodh')
+        alarms = self.client.get_all_alarms()
+        aodh_alarms = self.client.filter_alarms(alarms, "aodh")
 
-        if self.alarms_client.validate_alarms_correctness(
+        if self.client.validate_alarms_correctness(
                 aodh_alarms, "aodh") is False:
             LOG.error('The aodh alarms are not correct')
         else:

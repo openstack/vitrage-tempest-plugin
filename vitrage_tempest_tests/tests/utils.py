@@ -68,6 +68,13 @@ def run_vitrage_command(command):
     return None
 
 
+def run_vitrage_command_with_user(command, user):
+    run_vitrage_command(
+        "cd /home/stack/devstack; . openrc " +
+        user + " " + user +
+        "; " + command)
+
+
 def run_from_terminal(command):
     proc = os.popen(command)
     text_out = proc.read()

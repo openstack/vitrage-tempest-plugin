@@ -14,7 +14,7 @@
 from oslo_log import log as logging
 
 from vitrage_tempest_tests.tests.api.base import BaseVitrageTest
-from vitrage_tempest_tests.tests.api.utils.topology \
+from vitrage_tempest_tests.tests.api.topology.utils \
     import TopologyHelper
 
 LOG = logging.getLogger(__name__)
@@ -23,9 +23,8 @@ LOG = logging.getLogger(__name__)
 class BaseTopologyTest(BaseVitrageTest):
     """Topology test class for Vitrage API tests."""
 
-    def __init__(self):
-        super(BaseTopologyTest, self).__init__()
-        self.name = 'tempest_graph'
+    def setUp(self):
+        super(BaseTopologyTest, self).setUp()
         self.topology_client = TopologyHelper()
 
     def test_compare_graphs(self):
@@ -34,9 +33,9 @@ class BaseTopologyTest(BaseVitrageTest):
         cli_graph = self.topology_client.show_cli_topology()
 
         if self.topology_client.compare_graphs(api_graph, cli_graph) is False:
-            LOG.error('The graph ' + self.name + ' is not correct')
+            LOG.error('The graph tempest_graph is not correct')
         else:
-            LOG.info('The graph ' + self.name + ' is correct')
+            LOG.info('The graph tempest_graph is correct')
 
     def test_get_tree_with_vms(self):
         """Wrapper that returns a test tree with created vm's"""

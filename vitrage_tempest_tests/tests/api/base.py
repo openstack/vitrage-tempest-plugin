@@ -22,13 +22,13 @@ LOG = logging.getLogger(__name__)
 
 class BaseVitrageTest(base.BaseTestCase):
     """Base test class for Vitrage API tests."""
-
-    def __init__(self, *args, **kwds):
-        super(BaseVitrageTest, self).__init__(*args, **kwds)
-        self.mock_client = BaseMock()
+    def setUp(self):
+        super(BaseVitrageTest, self).setUp()
+        self.conf = utils.get_conf()
 
     def _create_graph_by_mock(self):
         """Create MOCK Graph and copied to the string """
+        self.mock_client = BaseMock()
         processor = self.mock_client.create_processor_with_graph()
         entity_graph = processor.entity_graph
         mock_graph_output = entity_graph.output_graph()
