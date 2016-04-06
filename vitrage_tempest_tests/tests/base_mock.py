@@ -19,7 +19,7 @@ from oslo_config import cfg
 
 from vitrage.entity_graph.initialization_status import InitializationStatus
 from vitrage.entity_graph.processor import processor as proc
-from vitrage.tests.mocks import mock_syncronizer as mock_sync
+from vitrage.tests.mocks import mock_driver as mock_sync
 from vitrage.tests.mocks import utils
 
 
@@ -27,8 +27,8 @@ class BaseMock(testtools.TestCase):
     """Base test class for Vitrage API tests."""
 
     PROCESSOR_OPTS = [
-        cfg.StrOpt('states_plugins_dir',
-                   default=utils.get_resources_dir() + '/states_plugins'),
+        cfg.StrOpt('states_datasources_dir',
+                   default=utils.get_resources_dir() + '/datasources_states'),
     ]
 
     def create_processor_with_graph(self):
