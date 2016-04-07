@@ -55,7 +55,14 @@ def get_from_terminal(command):
 
 
 def run_vitrage_command(command):
-    p = subprocess.Popen(command,
+    auth_url = '--os-auth-url http://10.41.251.201:5000/v2.0'
+    user = '--os-user-name admin'
+    password = '--os-password password'
+    project_name = '--os-project-name admin'
+    full_command = '%s %s %s %s %s' % \
+                   (command, user, password, project_name, auth_url)
+
+    p = subprocess.Popen(full_command,
                          shell=True,
                          executable="/bin/bash",
                          stdout=subprocess.PIPE,
@@ -71,7 +78,7 @@ def run_vitrage_command(command):
 
 def run_vitrage_command_with_user(command, user):
     run_vitrage_command(
-        "cd /home/stack/devstack; . openrc " +
+        "cd /openstack/devstack; . openrc " +
         user + " " + user +
         "; " + command)
 

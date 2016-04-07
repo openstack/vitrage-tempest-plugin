@@ -27,8 +27,8 @@ LOG = logging.getLogger(__name__)
 class TopologyHelper(BaseVitrageTest):
     """Topology test class for Vitrage API tests."""
 
-    def setUp(self):
-        super(TopologyHelper, self).setUp()
+    def __init__(self):
+        super(TopologyHelper, self).__init__()
         self.client = utils.get_client()
         self.depth = ''
         self.query = ''
@@ -54,18 +54,6 @@ class TopologyHelper(BaseVitrageTest):
 
         return utils.run_vitrage_command_with_user(
             "vitrage topology show", self.conf.service_credentials.user)
-
-    def create_machines(self, machine_number):
-        flavor_id = self.get_flavor_id_from_list()
-        image_id = self.get_image_id_from_list()
-
-        resources = []
-        for r in range(start=0, stop=machine_number, step=1):
-            self.create_vm_with_exist_image("vm_for_test_" + str(r),
-                                            flavor_id, image_id)
-            resources.append("vm_for_test_" + str(r))
-
-        return resources
 
     def create_volume(self):
         flavor_id = self.get_flavor_id_from_list()
