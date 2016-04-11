@@ -27,8 +27,8 @@ class BaseMock(testtools.TestCase):
     """Base test class for Vitrage API tests."""
 
     PROCESSOR_OPTS = [
-        cfg.StrOpt('states_datasources_dir',
-                   default=utils.get_resources_dir() + '/datasources_states'),
+        cfg.StrOpt('datasources_values_dir',
+                   default=utils.get_resources_dir() + '/datasources_values'),
     ]
 
     def create_processor_with_graph(self):
