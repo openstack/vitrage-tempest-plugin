@@ -13,10 +13,14 @@
 #    under the License.
 
 import json
+import os
+import os.path
 import time
 
 from oslo_log import log as logging
+from tempest import test
 
+from vitrage import clients
 from vitrage.common.constants import EntityCategory
 from vitrage.common.constants import VertexProperties as VProps
 from vitrage.datasources import CINDER_VOLUME_DATASOURCE
@@ -24,16 +28,19 @@ from vitrage.datasources import NOVA_HOST_DATASOURCE
 from vitrage.datasources import NOVA_INSTANCE_DATASOURCE
 from vitrage.datasources import NOVA_ZONE_DATASOURCE
 from vitrage.datasources import OPENSTACK_NODE
+from vitrage.datasources.static_physical import SWITCH
 from vitrage.graph import Edge
 from vitrage.graph import NXGraph
 from vitrage.graph import Vertex
-from vitrage_tempest_tests.tests.api.topology.base import BaseTopologyTest
-import vitrage_tempest_tests.tests.utils as utils
+from vitrage import keystone_client
+from vitrage import service
+from vitrage_tempest_tests.tests import OPTS
+from vitrageclient import client as v_client
 
 LOG = logging.getLogger(__name__)
 
 
-class TestTopology(BaseTopologyTest):
+class BaseTopologyTest(test.BaseTestCase):
     """Topology test class for Vitrage API tests."""
 
     NUM_ENTITIES_PER_TYPE = 'num_vertices'
@@ -41,71 +48,16 @@ class TestTopology(BaseTopologyTest):
 
     @classmethod
     def setUpClass(cls):
-        super(TestTopology, cls).setUpClass()
-
-    def test_compare_api_and_cli(self):
-        """Wrapper that returns a test graph."""
-
-        api_graph = self.vitrage_client.topology.get()
-        cli_graph = utils.run_vitrage_command('vitrage topology show')
-        self.assertEqual(True, self._compare_graphs(api_graph, cli_graph))
-
-    def test_default_graph(self):
-        try:
-            # create entities
-            self._create_entities(num_instances=3, num_volumes=1)
-            api_graph = self.vitrage_client.topology.get()
-            graph = self._create_graph_from_graph_dictionary(api_graph)
-            entities = self._entities_validation_data(
-                host_entities=1, host_edges=4,
-                instance_entities=3, instance_edges=4,
-                volume_entities=1, volume_edges=1)
-            self._validate_graph_correctness(graph, 7, 6, entities)
-        finally:
-            self._rollback_to_default()
-
-    def test_graph_with_query(self):
-        try:
-            # create entities
-            self._create_entities(num_instances=3, num_volumes=1)
-            api_graph = self.vitrage_client.topology.get(
-                query=self._graph_query())
-            graph = self._create_graph_from_graph_dictionary(api_graph)
-            entities = self._entities_validation_data(
-                host_entities=1, host_edges=4,
-                instance_entities=3, instance_edges=3)
-            self._validate_graph_correctness(graph, 6, 5, entities)
-        finally:
-            self._rollback_to_default()
-
-    def test_default_tree(self):
-        try:
-            # create entities
-            self._create_entities(num_instances=3, num_volumes=1)
-            api_graph = self.vitrage_client.topology.get(graph_type='tree')
-            graph = self._create_graph_from_tree_dictionary(api_graph)
-            entities = self._entities_validation_data(
-                host_entities=1, host_edges=4,
-                instance_entities=3, instance_edges=3)
-            self._validate_graph_correctness(graph, 6, 5, entities)
-        finally:
-            self._rollback_to_default()
-
-    def test_tree_with_query(self):
-        try:
-            # create entities
-            self._create_entities(num_instances=3, end_sleep=10)
-            api_graph = self.vitrage_client.topology.get(
-                graph_type='tree', query=self._tree_query())
-            graph = self._create_graph_from_tree_dictionary(api_graph)
-            entities = self._entities_validation_data(
-                host_entities=1, host_edges=1)
-            self._validate_graph_correctness(graph, 3, 2, entities)
-        finally:
-            self._rollback_to_default()
+        super(BaseTopologyTest, cls).setUpClass()
+        cls.conf = service.prepare_service([])
+        cls.conf.register_opts(list(OPTS), group='keystone_authtoken')
+        cls.vitrage_client = \
+            v_client.Client('1', session=keystone_client.get_session(cls.conf))
+        cls.nova_client = clients.nova_client(cls.conf)
+        cls.cinder_client = clients.cinder_client(cls.conf)
 
     def _rollback_to_default(self):
-        self._delete_entities(instance=True, volume=True)
+        self._delete_entities(instance=True, volume=True, static_physical=True)
         api_graph = self.vitrage_client.topology.get()
         graph = self._create_graph_from_graph_dictionary(api_graph)
         entities = self._entities_validation_data()
@@ -131,7 +83,10 @@ class TestTopology(BaseTopologyTest):
         # entity graph processor
         time.sleep(end_sleep)
 
-    def _delete_entities(self, instance=False, volume=False):
+    def _delete_entities(self,
+                         instance=False,
+                         volume=False,
+                         static_physical=False):
         if volume:
             self._delete_volumes()
             self._wait_for_status(30,
@@ -144,15 +99,25 @@ class TestTopology(BaseTopologyTest):
                                   self._check_num_instances,
                                   num_instances=0)
 
+        if static_physical:
+            self._delete_switches()
+            time.sleep(2)
+
         # waiting until all the entities deletion were processed by the
         # entity graph processor
         time.sleep(5)
+
+    def _delete_switches(self):
+        path = '/etc/vitrage/static_datasources/tempest_configuration.yaml'
+        if os.path.exists(path):
+            os.remove(path)
 
     def _entities_validation_data(self, node_entities=1, node_edges=1,
                                   zone_entities=1, zone_edges=2,
                                   host_entities=1, host_edges=1,
                                   instance_entities=0, instance_edges=0,
-                                  volume_entities=0, volume_edges=0):
+                                  volume_entities=0, volume_edges=0,
+                                  switch_entities=0, switch_edges=0):
         return [
             {VProps.TYPE: OPENSTACK_NODE,
              self.NUM_ENTITIES_PER_TYPE: node_entities,
@@ -168,7 +133,10 @@ class TestTopology(BaseTopologyTest):
              self.NUM_EDGES_PER_TYPE: instance_edges},
             {VProps.TYPE: CINDER_VOLUME_DATASOURCE,
              self.NUM_ENTITIES_PER_TYPE: volume_entities,
-             self.NUM_EDGES_PER_TYPE: volume_edges}
+             self.NUM_EDGES_PER_TYPE: volume_edges},
+            {VProps.TYPE: SWITCH,
+             self.NUM_ENTITIES_PER_TYPE: switch_entities,
+             self.NUM_EDGES_PER_TYPE: switch_edges}
         ]
 
     def _validate_graph_correctness(self,

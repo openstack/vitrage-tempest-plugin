@@ -12,6 +12,8 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import socket
+
 from oslo_config import cfg
 from oslo_log import log as logging
 from vitrage import service
@@ -55,7 +57,8 @@ def get_from_terminal(command):
 
 
 def run_vitrage_command(command):
-    auth_url = '--os-auth-url http://10.41.251.201:5000/v2.0'
+    local_ip = socket.gethostbyname(socket.gethostname())
+    auth_url = '--os-auth-url http://%s:5000/v2.0' % local_ip
     user = '--os-user-name admin'
     password = '--os-password password'
     project_name = '--os-project-name admin'

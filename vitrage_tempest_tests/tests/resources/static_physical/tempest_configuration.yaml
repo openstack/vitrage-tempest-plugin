@@ -1,0 +1,19 @@
+entities:
+  - type: switch
+    name: switch-1
+    id: 12345
+    state: available
+    relationships:
+      - type: nova.host
+        name: tmp-devstack
+        id: tmp-devstack
+        relation_type: attached
+  - type: switch
+    name: switch-2
+    id: 23456
+    state: available
+    relationships:
+      - type: nova.host
+        name: tmp-devstack
+        id: tmp-devstack
+        relation_type: attached
