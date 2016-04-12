@@ -27,7 +27,7 @@ from vitrage.datasources import CINDER_VOLUME_DATASOURCE
 from vitrage.datasources import NOVA_HOST_DATASOURCE
 from vitrage.datasources import NOVA_INSTANCE_DATASOURCE
 from vitrage.datasources import NOVA_ZONE_DATASOURCE
-from vitrage.datasources import OPENSTACK_NODE
+from vitrage.datasources import OPENSTACK_CLUSTER
 from vitrage.datasources.static_physical import SWITCH
 from vitrage.graph import Edge
 from vitrage.graph import NXGraph
@@ -112,16 +112,16 @@ class BaseTopologyTest(test.BaseTestCase):
         if os.path.exists(path):
             os.remove(path)
 
-    def _entities_validation_data(self, node_entities=1, node_edges=1,
+    def _entities_validation_data(self, cluster_entities=1, cluster_edges=1,
                                   zone_entities=1, zone_edges=2,
                                   host_entities=1, host_edges=1,
                                   instance_entities=0, instance_edges=0,
                                   volume_entities=0, volume_edges=0,
                                   switch_entities=0, switch_edges=0):
         return [
-            {VProps.TYPE: OPENSTACK_NODE,
-             self.NUM_ENTITIES_PER_TYPE: node_entities,
-             self.NUM_EDGES_PER_TYPE: node_edges},
+            {VProps.TYPE: OPENSTACK_CLUSTER,
+             self.NUM_ENTITIES_PER_TYPE: cluster_entities,
+             self.NUM_EDGES_PER_TYPE: cluster_edges},
             {VProps.TYPE: NOVA_ZONE_DATASOURCE,
              self.NUM_ENTITIES_PER_TYPE: zone_entities,
              self.NUM_EDGES_PER_TYPE: zone_edges},
@@ -284,7 +284,7 @@ class BaseTopologyTest(test.BaseTestCase):
         return '{"and": [{"==": {"category": "RESOURCE"}},' \
                '{"==": {"is_deleted": false}},' \
                '{"==": {"is_placeholder": false}},' \
-               '{"or": [{"==": {"type": "openstack.node"}},' \
+               '{"or": [{"==": {"type": "openstack.cluster"}},' \
                '{"==": {"type": "nova.instance"}},' \
                '{"==": {"type": "nova.host"}},' \
                '{"==": {"type": "nova.zone"}}]}]}'
@@ -294,6 +294,6 @@ class BaseTopologyTest(test.BaseTestCase):
         return '{"and": [{"==": {"category": "RESOURCE"}},' \
                '{"==": {"is_deleted": false}},' \
                '{"==": {"is_placeholder": false}},' \
-               '{"or": [{"==": {"type": "openstack.node"}},' \
+               '{"or": [{"==": {"type": "openstack.cluster"}},' \
                '{"==": {"type": "nova.host"}},' \
                '{"==": {"type": "nova.zone"}}]}]}'
