@@ -79,11 +79,8 @@ def run_vitrage_command(command):
     return None
 
 
-def run_vitrage_command_with_user(command, user):
-    run_vitrage_command(
-        "cd /openstack/devstack; . openrc " +
-        user + " " + user +
-        "; " + command)
+def run_vitrage_command_as_admin(command):
+    run_vitrage_command(command)
 
 
 def run_from_terminal(command):

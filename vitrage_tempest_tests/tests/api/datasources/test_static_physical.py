@@ -12,18 +12,18 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import os
 import socket
 import time
 
 from oslo_log import log as logging
-
-from vitrage_tempest_tests.tests.api.topology.base import BaseTopologyTest
+from vitrage_tempest_tests.tests.api.base import BaseApiTest
 
 
 LOG = logging.getLogger(__name__)
 
 
-class TestStaticPhysical(BaseTopologyTest):
+class TestStaticPhysical(BaseApiTest):
 
     @classmethod
     def setUpClass(cls):
@@ -40,7 +40,7 @@ class TestStaticPhysical(BaseTopologyTest):
                 switch_entities=2, switch_edges=2)
             self._validate_graph_correctness(graph, 5, 4, entities)
         finally:
-            self._rollback_to_default()
+            self._delete_switches()
 
     @staticmethod
     def _create_switches():
@@ -59,4 +59,12 @@ class TestStaticPhysical(BaseTopologyTest):
         new_file.write(template_data)
         new_file.close()
 
-        time.sleep(7)
+        time.sleep(25)
+
+    @staticmethod
+    def _delete_switches():
+        path = '/etc/vitrage/static_datasources/tempest_configuration.yaml'
+        if os.path.exists(path):
+            os.remove(path)
+
+        time.sleep(25)

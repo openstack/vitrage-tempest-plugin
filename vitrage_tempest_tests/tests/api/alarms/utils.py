@@ -41,8 +41,7 @@ class AlarmsHelper(BaseVitrageTest):
 
     def get_all_alarms(self):
         """Get Alarms returned by the cli """
-        return utils.run_vitrage_command_with_user(
-            'vitrage alarms list', self.conf.service_credentials.user)
+        return utils.run_vitrage_command_as_admin('vitrage alarms list')
 
     @staticmethod
     def filter_alarms(alarms_list, component):

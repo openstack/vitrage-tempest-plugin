@@ -13,7 +13,6 @@
 # under the License.
 
 from oslo_log import log as logging
-
 from vitrage_tempest_tests.tests.api.topology.base import BaseTopologyTest
 
 LOG = logging.getLogger(__name__)
