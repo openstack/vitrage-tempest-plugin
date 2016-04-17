@@ -45,6 +45,7 @@ class BaseApiTest(base.BaseTestCase):
     NUM_VERTICES_PER_TYPE = 'num_vertices'
     NUM_EDGES_PER_TYPE = 'num_edges_per_type'
 
+    # noinspection PyPep8Naming
     @classmethod
     def setUpClass(cls):
         super(BaseApiTest, cls).setUpClass()
