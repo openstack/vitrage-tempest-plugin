@@ -26,6 +26,7 @@ LOG = logging.getLogger(__name__)
 class AlarmsHelper(BaseVitrageTest):
     """Alarms test class for Vitrage API tests."""
 
+    # noinspection PyPep8Naming
     def setUp(self):
         super(AlarmsHelper, self).setUp()
 

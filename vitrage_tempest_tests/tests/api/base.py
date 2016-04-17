@@ -128,11 +128,11 @@ class BaseApiTest(base.BaseTestCase):
         graph = NXGraph()
 
         nodes = api_graph['nodes']
-        for i in xrange(len(nodes)):
+        for i in range(len(nodes)):
             graph.add_vertex(Vertex(str(i), nodes[i]))
 
         edges = api_graph['links']
-        for i in xrange(len(edges)):
+        for i in range(len(edges)):
             graph.add_edge(Edge(str(edges[i]['source']),
                                 str(edges[i]['target']),
                                 edges[i]['relationship_type']))
