@@ -28,9 +28,15 @@ extra_log_level_defaults = [
     'vitrage_tempest_tests.tests.utils=INFO',
     'vitrage_tempest_tests.tests.run_vitrage_env=INFO',
     'vitrage_tempest_tests.tests.stop_vitrage_env=INFO',
-    'vitrage_tempest_tests.tests.api.topology.topology=INFO',
+    'vitrage_tempest_tests.tests.api.base=INFO',
+    'vitrage_tempest_tests.tests.api.topology.test_topology=INFO',
+    'vitrage_tempest_tests.tests.api.alarms.test_alarms=INFO',
+    'vitrage_tempest_tests.tests.api.topology.utils=INFO',
+    'vitrage_tempest_tests.tests.api.alarms.utils=INFO',
+    'vitrage.service=WARN',
     'vitrage.api.controllers.v1.topology=WARN',
-    'oslo_messaging._drivers.amqpdriver=WARN'
+    'oslo_messaging._drivers.amqpdriver=ERROR',
+    'oslo_config.cfg=ERROR'
 ]
 
 LOG = logging.getLogger(__name__)
@@ -56,12 +62,12 @@ def get_from_terminal(command):
     return text_out
 
 
-def run_vitrage_command(command):
-    local_ip = socket.gethostbyname(socket.gethostname())
-    auth_url = '--os-auth-url http://%s:5000/v2.0' % local_ip
-    user = '--os-user-name admin'
-    password = '--os-password password'
-    project_name = '--os-project-name admin'
+def run_vitrage_command_with_params(command, auth_url, user, password,
+                                    project_name):
+    auth_url = '--os-auth-url ' + auth_url
+    user = '--os-user-name ' + user
+    password = '--os-password ' + password
+    project_name = '--os-project-name ' + project_name
     full_command = '%s %s %s %s %s' % \
                    (command, user, password, project_name, auth_url)
 
@@ -79,8 +85,12 @@ def run_vitrage_command(command):
     return None
 
 
-def run_vitrage_command_as_admin(command):
-    run_vitrage_command(command)
+def run_vitrage_command(command):
+    local_ip = socket.gethostbyname(socket.gethostname())
+    auth_url = 'http://%s:5000/v2.0' % local_ip
+    return run_vitrage_command_with_params(command=command, auth_url=auth_url,
+                                           user='admin', password='password',
+                                           project_name='admin')
 
 
 def run_from_terminal(command):

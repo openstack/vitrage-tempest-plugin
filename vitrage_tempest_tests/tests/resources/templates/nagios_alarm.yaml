@@ -1,0 +1,57 @@
+metadata:
+ id: first_deduced_alarm_ever_nagios
+definitions:
+ entities:
+  - entity:
+     category: ALARM
+     name: Uptime
+     template_id: alarm_1
+  - entity:
+     category: RESOURCE
+     type: nova.instance
+     template_id: instance
+  - entity:
+     category: RESOURCE
+     type: nova.host
+     template_id: host
+  - entity:
+     category: ALARM
+     name: another_nagios_alarm
+     template_id: alarm_2
+ relationships:
+  - relationship:
+     source: alarm_1
+     target: host
+     relationship_type: on
+     template_id : alarm_on_host
+  - relationship:
+     source: alarm_2
+     target: instance
+     relationship_type: on
+     template_id : alarm_on_instance
+  - relationship:
+     source: host
+     target: instance
+     relationship_type: contains
+     template_id: host_contains_instance
+scenarios:
+ - scenario:
+    condition: alarm_on_host and host_contains_instance
+    actions:
+     - action:
+        action_type: raise_alarm
+        action_target:
+         target: instance   
+        properties: 
+         alarm_name: another_nagios_alarm
+         severity: warning  
+ - scenario:
+    condition: alarm_on_host and alarm_on_instance and host_contains_instance
+    actions:
+     - action:
+        action_type: add_causal_relationship
+        action_target:
+         source: alarm_1
+         target: alarm_2
+
+

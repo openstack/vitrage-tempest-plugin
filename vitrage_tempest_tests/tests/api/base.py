@@ -31,7 +31,6 @@ from vitrage.graph import Edge
 from vitrage.graph import NXGraph
 from vitrage.graph import Vertex
 from vitrage import keystone_client
-from vitrage import service
 from vitrage_tempest_tests.tests import OPTS
 import vitrage_tempest_tests.tests.utils as utils
 from vitrageclient import client as v_client
@@ -49,7 +48,7 @@ class BaseApiTest(base.BaseTestCase):
     @classmethod
     def setUpClass(cls):
         super(BaseApiTest, cls).setUpClass()
-        cls.conf = service.prepare_service([])
+        cls.conf = utils.get_conf()
         cls.conf.register_opts(list(OPTS), group='keystone_authtoken')
         cls.vitrage_client = \
             v_client.Client('1', session=keystone_client.get_session(cls.conf))
