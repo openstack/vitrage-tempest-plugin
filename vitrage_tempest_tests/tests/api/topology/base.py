@@ -45,6 +45,7 @@ class BaseTopologyTest(BaseApiTest):
             self._create_volume_and_attach('volume-1', 1,
                                            resources[0].__dict__['id'],
                                            '/tmp/vda')
+
         # waiting until all the entities creation were processed by the
         # entity graph processor
         time.sleep(end_sleep)
@@ -55,7 +56,7 @@ class BaseTopologyTest(BaseApiTest):
 
         # waiting until all the entities deletion were processed by the
         # entity graph processor
-        time.sleep(5)
+        time.sleep(2)
 
     @staticmethod
     def _compare_graphs(api_graph, cli_graph):

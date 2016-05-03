@@ -42,6 +42,8 @@ class TestAodhAlarm(BaseApiTest):
                 instance_entities=1, instance_edges=2,
                 aodh_entities=1, aodh_edges=1)
             self._validate_graph_correctness(graph, 5, 4, entities)
+        except Exception as e:
+            LOG.exception(e)
         finally:
             self._delete_ceilometer_alarms()
             self._delete_instances()
@@ -56,28 +58,35 @@ class TestAodhAlarm(BaseApiTest):
                 host_entities=1, host_edges=1,
                 aodh_entities=1, aodh_edges=0)
             self._validate_graph_correctness(graph, 4, 2, entities)
+        except Exception as e:
+            LOG.exception(e)
         finally:
             self._delete_ceilometer_alarms()
 
     def _create_ceilometer_alarm(self, resource_id=None):
         aodh_request = self._aodh_request(resource_id=resource_id)
         self.ceilometer_client.alarms.create(**aodh_request)
-        self._wait_for_status(20,
+        self._wait_for_status(30,
                               self._check_num_alarms,
-                              num_alarms=1)
+                              num_alarms=1,
+                              state='alarm')
         time.sleep(25)
 
     def _delete_ceilometer_alarms(self):
         alarms = self.ceilometer_client.alarms.list()
         for alarm in alarms:
             self.ceilometer_client.alarms.delete(alarm.alarm_id)
-        self._wait_for_status(20,
+        self._wait_for_status(30,
                               self._check_num_alarms,
                               num_alarms=0)
         time.sleep(25)
 
-    def _check_num_alarms(self, num_alarms=0):
-        return len(self.ceilometer_client.alarms.list()) == num_alarms
+    def _check_num_alarms(self, num_alarms=0, state=''):
+        if len(self.ceilometer_client.alarms.list()) != num_alarms:
+            return False
+
+        return all(alarm.__dict__['state'].upper() == state.upper()
+                   for alarm in self.ceilometer_client.alarms.list())
 
     def _aodh_request(self, resource_id=None):
         query = []

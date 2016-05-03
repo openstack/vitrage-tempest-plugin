@@ -58,14 +58,15 @@ class BaseApiTest(base.BaseTestCase):
     def _create_volume_and_attach(self, name, size, instance_id, mount_point):
         volume = self.cinder_client.volumes.create(display_name=name,
                                                    size=size)
-        time.sleep(3)
+        time.sleep(2)
         self.cinder_client.volumes.attach(volume=volume,
                                           instance_uuid=instance_id,
                                           mountpoint=mount_point)
 
-        self._wait_for_status(20,
+        self._wait_for_status(30,
                               self._check_num_volumes,
-                              num_volumes=1)
+                              num_volumes=1,
+                              state='in-use')
 
         time.sleep(2)
 
@@ -80,9 +81,10 @@ class BaseApiTest(base.BaseTestCase):
             flavor=flavors_list[0],
             image=images_list[0]) for index in range(num_instances)]
 
-        self._wait_for_status(20,
+        self._wait_for_status(30,
                               self._check_num_instances,
-                              num_instances=num_instances)
+                              num_instances=num_instances,
+                              state='active')
         time.sleep(2)
 
         return resources
@@ -95,7 +97,7 @@ class BaseApiTest(base.BaseTestCase):
             except Exception:
                 pass
 
-        self._wait_for_status(20,
+        self._wait_for_status(30,
                               self._check_num_instances,
                               num_instances=0)
 
@@ -116,11 +118,20 @@ class BaseApiTest(base.BaseTestCase):
 
         time.sleep(2)
 
-    def _check_num_instances(self, num_instances=0):
-        return len(self.nova_client.servers.list()) == num_instances
+    def _check_num_instances(self, num_instances=0, state=''):
+        if len(self.nova_client.servers.list()) != num_instances:
+            return False
 
-    def _check_num_volumes(self, num_volumes=0):
-        return len(self.cinder_client.volumes.list()) == num_volumes
+        return all(instance.__dict__['status'].upper() == state.upper()
+                   for instance in self.nova_client.servers.list())
+
+    def _check_num_volumes(self, num_volumes=0, state=''):
+        if len(self.cinder_client.volumes.list()) != num_volumes:
+            return False
+
+        return all(volume.__dict__['status'].upper() == state.upper() and
+                   len(volume.__dict__['attachments']) == 1
+                   for volume in self.cinder_client.volumes.list())
 
     @staticmethod
     def _create_graph_from_graph_dictionary(api_graph):
