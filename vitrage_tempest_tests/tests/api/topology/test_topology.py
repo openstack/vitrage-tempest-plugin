@@ -45,6 +45,8 @@ class TestTopology(BaseTopologyTest):
                 instance_entities=3, instance_edges=4,
                 volume_entities=1, volume_edges=1)
             self._validate_graph_correctness(graph, 7, 6, entities)
+        except Exception as e:
+            LOG.exception(e)
         finally:
             self._rollback_to_default()
 
@@ -59,6 +61,8 @@ class TestTopology(BaseTopologyTest):
                 host_entities=1, host_edges=4,
                 instance_entities=3, instance_edges=3)
             self._validate_graph_correctness(graph, 6, 5, entities)
+        except Exception as e:
+            LOG.exception(e)
         finally:
             self._rollback_to_default()
 
@@ -72,18 +76,22 @@ class TestTopology(BaseTopologyTest):
                 host_entities=1, host_edges=4,
                 instance_entities=3, instance_edges=3)
             self._validate_graph_correctness(graph, 6, 5, entities)
+        except Exception as e:
+            LOG.exception(e)
         finally:
             self._rollback_to_default()
 
     def test_tree_with_query(self):
         try:
             # create entities
-            self._create_entities(num_instances=3, end_sleep=10)
+            self._create_entities(num_instances=3)
             api_graph = self.vitrage_client.topology.get(
                 graph_type='tree', query=self._tree_query())
             graph = self._create_graph_from_tree_dictionary(api_graph)
             entities = self._entities_validation_data(
                 host_entities=1, host_edges=1)
             self._validate_graph_correctness(graph, 3, 2, entities)
+        except Exception as e:
+            LOG.exception(e)
         finally:
             self._rollback_to_default()

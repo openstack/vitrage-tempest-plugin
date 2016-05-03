@@ -39,6 +39,8 @@ class TestStaticPhysical(BaseApiTest):
                 host_entities=1, host_edges=3,
                 switch_entities=2, switch_edges=2)
             self._validate_graph_correctness(graph, 5, 4, entities)
+        except Exception as e:
+            LOG.exception(e)
         finally:
             self._delete_switches()
 

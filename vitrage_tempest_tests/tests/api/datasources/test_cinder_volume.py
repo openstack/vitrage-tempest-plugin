@@ -35,5 +35,7 @@ class TestCinderVolume(BaseTopologyTest):
                 instance_entities=3, instance_edges=4,
                 volume_entities=1, volume_edges=1)
             self._validate_graph_correctness(graph, 7, 6, entities)
+        except Exception as e:
+            LOG.exception(e)
         finally:
             self._rollback_to_default()

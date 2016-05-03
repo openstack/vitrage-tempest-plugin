@@ -34,5 +34,7 @@ class TestNova(BaseTopologyTest):
                 host_entities=1, host_edges=4,
                 instance_entities=3, instance_edges=3)
             self._validate_graph_correctness(graph, 6, 5, entities)
+        except Exception as e:
+            LOG.exception(e)
         finally:
             self._rollback_to_default()
