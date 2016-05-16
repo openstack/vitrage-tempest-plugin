@@ -95,3 +95,56 @@ class TestTopology(BaseTopologyTest):
             LOG.exception(e)
         finally:
             self._rollback_to_default()
+
+    def test_tree_with_depth_exclude_instance(self):
+        try:
+            # create entities
+            self._create_entities(num_instances=3)
+            api_graph = self.vitrage_client.topology.get(
+                limit=2, graph_type='tree')
+            graph = self._create_graph_from_tree_dictionary(api_graph)
+            entities = self._entities_validation_data(
+                host_entities=1, host_edges=1)
+            self._validate_graph_correctness(graph, 3, 2, entities)
+        finally:
+            self._rollback_to_default()
+
+    def test_tree_with_depth_include_instance(self):
+        try:
+            # create entities
+            self._create_entities(num_instances=3)
+            api_graph = self.vitrage_client.topology.get(
+                limit=3, graph_type='tree')
+            graph = self._create_graph_from_tree_dictionary(api_graph)
+            entities = self._entities_validation_data(
+                host_entities=1, host_edges=4,
+                instance_entities=3, instance_edges=3)
+            self._validate_graph_correctness(graph, 6, 5, entities)
+        finally:
+            self._rollback_to_default()
+
+    def test_graph_with_depth_exclude_instance(self):
+        try:
+            # create entities
+            self._create_entities(num_instances=3)
+            api_graph = self.vitrage_client.topology.get(limit=2)
+            graph = self._create_graph_from_graph_dictionary(api_graph)
+            entities = self._entities_validation_data(
+                host_entities=1, host_edges=1)
+            self._validate_graph_correctness(graph, 3, 2, entities)
+        finally:
+            self._rollback_to_default()
+
+    def test_graph_with_depth_include_instance(self):
+        try:
+            # create entities
+            self._create_entities(num_instances=3, num_volumes=1)
+            api_graph = self.vitrage_client.topology.get(limit=4)
+            graph = self._create_graph_from_graph_dictionary(api_graph)
+            entities = self._entities_validation_data(
+                host_entities=1, host_edges=4,
+                instance_entities=3, instance_edges=4,
+                volume_entities=1, volume_edges=1)
+            self._validate_graph_correctness(graph, 7, 6, entities)
+        finally:
+            self._rollback_to_default()
