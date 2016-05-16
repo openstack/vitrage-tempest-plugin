@@ -88,8 +88,10 @@ def run_vitrage_command_with_params(command, auth_url, user, password,
 def run_vitrage_command(command):
     local_ip = socket.gethostbyname(socket.gethostname())
     auth_url = 'http://%s:5000/v2.0' % local_ip
-    return run_vitrage_command_with_params(command=command, auth_url=auth_url,
-                                           user='admin', password='password',
+    return run_vitrage_command_with_params(command=command,
+                                           auth_url=auth_url,
+                                           user='admin',
+                                           password='secretadmin',
                                            project_name='admin')
 
 
