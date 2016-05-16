@@ -41,7 +41,7 @@ extra_log_level_defaults = [
 
 LOG = logging.getLogger(__name__)
 CONF = cfg.CONF
-logging.register_options(CONF)
+# logging.register_options(CONF)
 logging.setup(CONF, "vitrage")
 logging.set_defaults(default_log_levels=extra_log_level_defaults)
 
