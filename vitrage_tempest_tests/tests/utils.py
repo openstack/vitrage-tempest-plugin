@@ -24,26 +24,26 @@ import re
 import subprocess
 import vitrage_tempest_tests.tests
 
-extra_log_level_defaults = [
-    'vitrage_tempest_tests.tests.utils=INFO',
-    'vitrage_tempest_tests.tests.run_vitrage_env=INFO',
-    'vitrage_tempest_tests.tests.stop_vitrage_env=INFO',
-    'vitrage_tempest_tests.tests.api.base=INFO',
-    'vitrage_tempest_tests.tests.api.topology.test_topology=INFO',
-    'vitrage_tempest_tests.tests.api.alarms.test_alarms=INFO',
-    'vitrage_tempest_tests.tests.api.topology.utils=INFO',
-    'vitrage_tempest_tests.tests.api.alarms.utils=INFO',
-    'vitrage.service=WARN',
-    'vitrage.api.controllers.v1.topology=WARN',
-    'oslo_messaging._drivers.amqpdriver=ERROR',
-    'oslo_config.cfg=ERROR'
-]
+# extra_log_level_defaults = [
+#     'vitrage_tempest_tests.tests.utils=INFO',
+#     'vitrage_tempest_tests.tests.run_vitrage_env=INFO',
+#     'vitrage_tempest_tests.tests.stop_vitrage_env=INFO',
+#     'vitrage_tempest_tests.tests.api.base=INFO',
+#     'vitrage_tempest_tests.tests.api.topology.test_topology=INFO',
+#     'vitrage_tempest_tests.tests.api.alarms.test_alarms=INFO',
+#     'vitrage_tempest_tests.tests.api.topology.utils=INFO',
+#     'vitrage_tempest_tests.tests.api.alarms.utils=INFO',
+#     'vitrage.service=WARN',
+#     'vitrage.api.controllers.v1.topology=WARN',
+#     'oslo_messaging._drivers.amqpdriver=ERROR',
+#     'oslo_config.cfg=ERROR'
+# ]
 
 LOG = logging.getLogger(__name__)
-CONF = cfg.CONF
-logging.register_options(CONF)
-logging.setup(CONF, "vitrage")
-logging.set_defaults(default_log_levels=extra_log_level_defaults)
+# CONF = cfg.CONF
+# logging.register_options(CONF)
+# logging.setup(CONF, "vitrage")
+# logging.set_defaults(default_log_levels=extra_log_level_defaults)
 
 
 def opts():
@@ -56,9 +56,6 @@ def get_from_terminal(command):
     proc = os.popen(command)
     text_out = proc.read()
     proc.close()
-    LOG.debug("The command is : " + command)
-    if text_out != '':
-        LOG.debug("The command output is : \n" + text_out)
     return text_out
 
 
@@ -77,12 +74,7 @@ def run_vitrage_command_with_params(command, auth_url, user, password,
                          stdout=subprocess.PIPE,
                          stderr=subprocess.PIPE)
     stdout, stderr = p.communicate()
-    if stderr != '':
-        LOG.error("The command output error is : " + stderr)
-    if stdout != '':
-        LOG.debug("The command output is : \n" + stdout)
-        return stdout
-    return None
+    return stdout
 
 
 def run_vitrage_command(command):
@@ -97,11 +89,7 @@ def run_vitrage_command(command):
 
 def run_from_terminal(command):
     proc = os.popen(command)
-    text_out = proc.read()
     proc.close()
-    LOG.debug("The command is : " + command)
-    if text_out != '':
-        LOG.debug("The command output is : \n" + text_out)
 
 
 def change_terminal_dir(path):
