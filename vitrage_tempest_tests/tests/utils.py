@@ -12,8 +12,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import socket
-
 from oslo_config import cfg
 from oslo_log import log as logging
 from vitrage import service
@@ -24,26 +22,7 @@ import re
 import subprocess
 import vitrage_tempest_tests.tests
 
-# extra_log_level_defaults = [
-#     'vitrage_tempest_tests.tests.utils=INFO',
-#     'vitrage_tempest_tests.tests.run_vitrage_env=INFO',
-#     'vitrage_tempest_tests.tests.stop_vitrage_env=INFO',
-#     'vitrage_tempest_tests.tests.api.base=INFO',
-#     'vitrage_tempest_tests.tests.api.topology.test_topology=INFO',
-#     'vitrage_tempest_tests.tests.api.alarms.test_alarms=INFO',
-#     'vitrage_tempest_tests.tests.api.topology.utils=INFO',
-#     'vitrage_tempest_tests.tests.api.alarms.utils=INFO',
-#     'vitrage.service=WARN',
-#     'vitrage.api.controllers.v1.topology=WARN',
-#     'oslo_messaging._drivers.amqpdriver=ERROR',
-#     'oslo_config.cfg=ERROR'
-# ]
-
 LOG = logging.getLogger(__name__)
-# CONF = cfg.CONF
-# logging.register_options(CONF)
-# logging.setup(CONF, "vitrage")
-# logging.set_defaults(default_log_levels=extra_log_level_defaults)
 
 
 def opts():
@@ -59,32 +38,14 @@ def get_from_terminal(command):
     return text_out
 
 
-def run_vitrage_command_with_params(command, auth_url, user, password,
-                                    project_name):
-    auth_url = '--os-auth-url ' + auth_url
-    user = '--os-user-name ' + user
-    password = '--os-password ' + password
-    project_name = '--os-project-name ' + project_name
-    full_command = '%s %s %s %s %s' % \
-                   (command, user, password, project_name, auth_url)
-
-    p = subprocess.Popen(full_command,
+def run_vitrage_command(command):
+    p = subprocess.Popen(command,
                          shell=True,
                          executable="/bin/bash",
                          stdout=subprocess.PIPE,
                          stderr=subprocess.PIPE)
     stdout, stderr = p.communicate()
     return stdout
-
-
-def run_vitrage_command(command):
-    local_ip = socket.gethostbyname(socket.gethostname())
-    auth_url = 'http://%s:5000/v2.0' % local_ip
-    return run_vitrage_command_with_params(command=command,
-                                           auth_url=auth_url,
-                                           user='admin',
-                                           password='secretadmin',
-                                           project_name='admin')
 
 
 def run_from_terminal(command):
