@@ -148,3 +148,28 @@ class TestTopology(BaseTopologyTest):
             self._validate_graph_correctness(graph, 7, 6, entities)
         finally:
             self._rollback_to_default()
+
+    def test_graph_with_no_match_query(self):
+        try:
+            # create entities
+            self._create_entities(num_instances=3, num_volumes=1)
+            api_graph = self.vitrage_client.topology.get(
+                query=self._graph_no_match_query())
+            self.assertEqual(
+                0,
+                len(api_graph['nodes']), 'num of vertex node')
+            self.assertEqual(
+                0,
+                len(api_graph['links']), 'num of edges')
+        finally:
+            self._rollback_to_default()
+
+    def test_tree_with_no_match_query(self):
+        try:
+            # create entities
+            self._create_entities(num_instances=3)
+            api_graph = self.vitrage_client.topology.get(
+                graph_type='tree', query=self._tree_no_match_query())
+            self.assertEqual({}, api_graph)
+        finally:
+            self._rollback_to_default()
