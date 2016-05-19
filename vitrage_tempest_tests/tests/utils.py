@@ -42,24 +42,26 @@ def get_from_terminal(command):
 
 def run_vitrage_command(command):
     local_ip = socket.gethostbyname(socket.gethostname())
-    auth_url = os.environ['OS_AUTH_URL'] if os.environ.get('OS_AUTH_URL') \
-        else 'http://%s:5000/v2.0' % local_ip
+    auth_url = os.environ['OS_AUTH_URL'] if \
+        os.environ.get('OS_AUTH_URL') else 'http://%s:5000/v2.0' % local_ip
     auth_url_param = '--os-auth-url ' + auth_url
 
-    user = os.environ['OS_USERNAME'] if os.environ.get('OS_AUTH_URL') \
-        else 'admin'
+    user = os.environ['OS_USERNAME'] if \
+        os.environ.get('OS_USERNAME') else 'admin'
     user_param = '--os-user-name ' + user
 
-    password = os.environ['OS_PASSWORD'] if os.environ.get('OS_AUTH_URL') \
-        else 'secretadmin'
+    password = os.environ['OS_PASSWORD'] if \
+        os.environ.get('OS_PASSWORD') else 'secretadmin'
     password_param = '--os-password ' + password
 
-    proj_name = os.environ['OS_TENANT_NAME'] if os.environ.get('OS_AUTH_URL') \
-        else 'admin'
-    project_name_param = '--os-project-name ' + proj_name
+    project_name = os.environ['OS_TENANT_NAME'] if \
+        os.environ.get('OS_TENANT_NAME') else 'admin'
+    project_name_param = '--os-project-name ' + project_name
 
     full_command = '%s %s %s %s %s' % (command, user_param, password_param,
                                        project_name_param, auth_url_param)
+
+    LOG.info('Full command: %s', full_command)
 
     p = subprocess.Popen(full_command,
                          shell=True,
