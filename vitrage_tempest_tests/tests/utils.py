@@ -12,6 +12,8 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import socket
+
 from oslo_config import cfg
 from oslo_log import log as logging
 from vitrage import service
@@ -39,7 +41,27 @@ def get_from_terminal(command):
 
 
 def run_vitrage_command(command):
-    p = subprocess.Popen(command,
+    local_ip = socket.gethostbyname(socket.gethostname())
+    auth_url = os.environ['OS_AUTH_URL'] if os.environ.get('OS_AUTH_URL') \
+        else 'http://%s:5000/v2.0' % local_ip
+    auth_url_param = '--os-auth-url ' + auth_url
+
+    user = os.environ['OS_USERNAME'] if os.environ.get('OS_AUTH_URL') \
+        else 'admin'
+    user_param = '--os-user-name ' + user
+
+    password = os.environ['OS_PASSWORD'] if os.environ.get('OS_AUTH_URL') \
+        else 'secretadmin'
+    password_param = '--os-password ' + password
+
+    proj_name = os.environ['OS_TENANT_NAME'] if os.environ.get('OS_AUTH_URL') \
+        else 'admin'
+    project_name_param = '--os-project-name ' + proj_name
+
+    full_command = '%s %s %s %s %s' % (command, user_param, password_param,
+                                       project_name_param, auth_url_param)
+
+    p = subprocess.Popen(full_command,
                          shell=True,
                          executable="/bin/bash",
                          stdout=subprocess.PIPE,
