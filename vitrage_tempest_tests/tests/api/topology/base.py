@@ -99,3 +99,22 @@ class BaseTopologyTest(BaseApiTest):
                '{"or": [{"==": {"type": "openstack.cluster"}},' \
                '{"==": {"type": "nova.host"}},' \
                '{"==": {"type": "nova.zone"}}]}]}'
+
+    @staticmethod
+    def _graph_no_match_query():
+        return '{"and": [{"==": {"category": "test"}},' \
+               '{"==": {"is_deleted": false}},' \
+               '{"==": {"is_placeholder": false}},' \
+               '{"or": [{"==": {"type": "openstack.cluster"}},' \
+               '{"==": {"type": "nova.instance"}},' \
+               '{"==": {"type": "nova.host"}},' \
+               '{"==": {"type": "nova.zone"}}]}]}'
+
+    @staticmethod
+    def _tree_no_match_query():
+        return '{"and": [{"==": {"category": "test"}},' \
+               '{"==": {"is_deleted": false}},' \
+               '{"==": {"is_placeholder": false}},' \
+               '{"or": [{"==": {"type": "openstack.cluster"}},' \
+               '{"==": {"type": "nova.host"}},' \
+               '{"==": {"type": "nova.zone"}}]}]}'
