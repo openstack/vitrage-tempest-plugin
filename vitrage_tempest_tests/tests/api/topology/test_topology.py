@@ -39,6 +39,7 @@ class TestTopology(BaseTopologyTest):
             # create entities
             self._create_entities(num_instances=3, num_volumes=1)
             api_graph = self.vitrage_client.topology.get()
+            self.assertIsNotNone(api_graph)
             graph = self._create_graph_from_graph_dictionary(api_graph)
             entities = self._entities_validation_data(
                 host_entities=1, host_edges=4,
@@ -56,6 +57,7 @@ class TestTopology(BaseTopologyTest):
             self._create_entities(num_instances=3, num_volumes=1)
             api_graph = self.vitrage_client.topology.get(
                 query=self._graph_query())
+            self.assertIsNotNone(api_graph)
             graph = self._create_graph_from_graph_dictionary(api_graph)
             entities = self._entities_validation_data(
                 host_entities=1, host_edges=4,
@@ -71,6 +73,7 @@ class TestTopology(BaseTopologyTest):
             # create entities
             self._create_entities(num_instances=3, num_volumes=1)
             api_graph = self.vitrage_client.topology.get(graph_type='tree')
+            self.assertIsNotNone(api_graph)
             graph = self._create_graph_from_tree_dictionary(api_graph)
             entities = self._entities_validation_data(
                 host_entities=1, host_edges=4,
@@ -87,6 +90,7 @@ class TestTopology(BaseTopologyTest):
             self._create_entities(num_instances=3)
             api_graph = self.vitrage_client.topology.get(
                 graph_type='tree', query=self._tree_query())
+            self.assertIsNotNone(api_graph)
             graph = self._create_graph_from_tree_dictionary(api_graph)
             entities = self._entities_validation_data(
                 host_entities=1, host_edges=1)
@@ -102,6 +106,7 @@ class TestTopology(BaseTopologyTest):
             self._create_entities(num_instances=3)
             api_graph = self.vitrage_client.topology.get(
                 limit=2, graph_type='tree')
+            self.assertIsNotNone(api_graph)
             graph = self._create_graph_from_tree_dictionary(api_graph)
             entities = self._entities_validation_data(
                 host_entities=1, host_edges=1)
@@ -115,6 +120,7 @@ class TestTopology(BaseTopologyTest):
             self._create_entities(num_instances=3)
             api_graph = self.vitrage_client.topology.get(
                 limit=3, graph_type='tree')
+            self.assertIsNotNone(api_graph)
             graph = self._create_graph_from_tree_dictionary(api_graph)
             entities = self._entities_validation_data(
                 host_entities=1, host_edges=4,
@@ -128,6 +134,7 @@ class TestTopology(BaseTopologyTest):
             # create entities
             self._create_entities(num_instances=3)
             api_graph = self.vitrage_client.topology.get(limit=2)
+            self.assertIsNotNone(api_graph)
             graph = self._create_graph_from_graph_dictionary(api_graph)
             entities = self._entities_validation_data(
                 host_entities=1, host_edges=1)
@@ -140,6 +147,7 @@ class TestTopology(BaseTopologyTest):
             # create entities
             self._create_entities(num_instances=3, num_volumes=1)
             api_graph = self.vitrage_client.topology.get(limit=4)
+            self.assertIsNotNone(api_graph)
             graph = self._create_graph_from_graph_dictionary(api_graph)
             entities = self._entities_validation_data(
                 host_entities=1, host_edges=4,
