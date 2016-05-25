@@ -11,7 +11,6 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
-
 import time
 
 from oslo_log import log as logging
@@ -32,8 +31,10 @@ from vitrage.graph import NXGraph
 from vitrage.graph import Vertex
 from vitrage import keystone_client
 from vitrage_tempest_tests.tests import OPTS
-import vitrage_tempest_tests.tests.utils as utils
 from vitrageclient import client as v_client
+
+import vitrage_tempest_tests.tests.utils as utils
+
 
 LOG = logging.getLogger(__name__)
 
@@ -50,6 +51,7 @@ class BaseApiTest(base.BaseTestCase):
         super(BaseApiTest, cls).setUpClass()
         cls.conf = utils.get_conf()
         cls.conf.register_opts(list(OPTS), group='keystone_authtoken')
+
         cls.vitrage_client = \
             v_client.Client('1', session=keystone_client.get_session(cls.conf))
         cls.nova_client = clients.nova_client(cls.conf)
@@ -71,6 +73,13 @@ class BaseApiTest(base.BaseTestCase):
         time.sleep(2)
 
         return volume
+
+    def _get_host(self):
+        topology = self.vitrage_client.topology.get()
+        for item in topology['nodes']:
+            if item[VProps.TYPE] == NOVA_HOST_DATASOURCE:
+                return item
+        return None
 
     def _create_instances(self, num_instances):
         flavors_list = self.nova_client.flavors.list()
