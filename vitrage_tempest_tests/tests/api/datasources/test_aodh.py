@@ -11,19 +11,15 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-
-import random
-import time
-
 from oslo_log import log as logging
 
 from vitrage import clients
-from vitrage_tempest_tests.tests.api.base import BaseApiTest
+from vitrage_tempest_tests.tests.api.alarms.base import BaseAlarmsTest
 
 LOG = logging.getLogger(__name__)
 
 
-class TestAodhAlarm(BaseApiTest):
+class TestAodhAlarm(BaseAlarmsTest):
 
     @classmethod
     def setUpClass(cls):
@@ -62,51 +58,6 @@ class TestAodhAlarm(BaseApiTest):
             LOG.exception(e)
         finally:
             self._delete_ceilometer_alarms()
-
-    def _create_ceilometer_alarm(self, resource_id=None):
-        aodh_request = self._aodh_request(resource_id=resource_id)
-        self.ceilometer_client.alarms.create(**aodh_request)
-        self._wait_for_status(30,
-                              self._check_num_alarms,
-                              num_alarms=1,
-                              state='alarm')
-        time.sleep(25)
-
-    def _delete_ceilometer_alarms(self):
-        alarms = self.ceilometer_client.alarms.list()
-        for alarm in alarms:
-            self.ceilometer_client.alarms.delete(alarm.alarm_id)
-        self._wait_for_status(30,
-                              self._check_num_alarms,
-                              num_alarms=0)
-        time.sleep(25)
-
-    def _check_num_alarms(self, num_alarms=0, state=''):
-        if len(self.ceilometer_client.alarms.list()) != num_alarms:
-            return False
-
-        return all(alarm.__dict__['state'].upper() == state.upper()
-                   for alarm in self.ceilometer_client.alarms.list())
-
-    def _aodh_request(self, resource_id=None):
-        query = []
-        if resource_id:
-            query = [
-                dict(
-                    field=u'resource_id',
-                    type='',
-                    op=u'eq',
-                    value=resource_id)
-            ]
-
-        random_name = '%s-%s' % ('test', random.randrange(0, 100000, 1))
-        return dict(
-            name=random_name,
-            description=u'test alarm',
-            event_rule=dict(query=query),
-            severity='low',
-            state='alarm',  # ok/alarm/insufficient data
-            type=u'event')
 
     def _find_instance_resource_id(self):
         servers = self.nova_client.servers.list()

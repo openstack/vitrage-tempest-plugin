@@ -67,14 +67,18 @@ def run_vitrage_command(command, conf):
                                        project_name_param, auth_url_param)
 
     LOG.info('Full command: %s', full_command)
-
     p = subprocess.Popen(full_command,
                          shell=True,
                          executable="/bin/bash",
                          stdout=subprocess.PIPE,
                          stderr=subprocess.PIPE)
     stdout, stderr = p.communicate()
-    return stdout
+    if stderr != '':
+        LOG.error("The command output error is : " + stderr)
+    if stdout != '':
+        LOG.debug("The command output is : \n" + stdout)
+        return stdout
+    return None
 
 
 def get_property_value(environment_name, conf_name, default_value, conf):
@@ -114,16 +118,6 @@ def get_client():
     return oslo_messaging.RPCClient(transport, target)
 
 
-def get_regex_from_array(pattern, lines_arr):
-    p = re.compile(pattern)
-    for line in lines_arr:
-        m = p.search(line)
-        if m:
-            LOG.debug("The field value is " + m.group(1))
-            return m.group(1)
-    return None
-
-
 def get_regex_result(pattern, text):
     p = re.compile(pattern)
     m = p.search(text)
@@ -131,3 +125,7 @@ def get_regex_result(pattern, text):
         LOG.debug("The regex value is " + m.group(1))
         return m.group(1)
     return None
+
+
+def uni2str(text):
+    return text.encode('ascii', 'ignore')
