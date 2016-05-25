@@ -52,7 +52,8 @@ class BaseAlarmsTest(BaseApiTest):
         """Wrapper that returns a test graph."""
         self._create_instances(num_instances=3)
         api_alarms = self.vitrage_client.alarms.list(vitrage_id=None)
-        cli_alarms = utils.run_vitrage_command('vitrage alarms list')
+        cli_alarms = utils.run_vitrage_command('vitrage alarms list',
+                                               self.conf)
         self.assertEqual(True,
                          self._compare_alarms_lists(api_alarms, cli_alarms))
         self._delete_instances()

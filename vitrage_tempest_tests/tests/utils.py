@@ -15,6 +15,7 @@
 import socket
 
 from oslo_config import cfg
+from oslo_config.cfg import NoSuchOptError
 from oslo_log import log as logging
 from vitrage import service
 
@@ -40,22 +41,26 @@ def get_from_terminal(command):
     return text_out
 
 
-def run_vitrage_command(command):
+def run_vitrage_command(command, conf):
+    # AUTH_URL
     local_ip = socket.gethostbyname(socket.gethostname())
-    auth_url = os.environ['OS_AUTH_URL'] if \
-        os.environ.get('OS_AUTH_URL') else 'http://%s:5000/v2.0' % local_ip
+    auth_url = get_property_value('OS_AUTH_URL', 'auth_url',
+                                  'http://%s:5000/v2.0' % local_ip, conf)
     auth_url_param = '--os-auth-url ' + auth_url
 
-    user = os.environ['OS_USERNAME'] if \
-        os.environ.get('OS_USERNAME') else 'admin'
+    # USERNAME
+    user = get_property_value('OS_USERNAME', 'username',
+                              'admin', conf)
     user_param = '--os-user-name ' + user
 
-    password = os.environ['OS_PASSWORD'] if \
-        os.environ.get('OS_PASSWORD') else 'secretadmin'
+    # PASSWORD
+    password = get_property_value('OS_PASSWORD', 'password',
+                                  'secretadmin', conf)
     password_param = '--os-password ' + password
 
-    project_name = os.environ['OS_TENANT_NAME'] if \
-        os.environ.get('OS_TENANT_NAME') else 'admin'
+    # PROJECT_NAME
+    project_name = get_property_value('OS_TENANT_NAME', 'project_name',
+                                      'admin', conf)
     project_name_param = '--os-project-name ' + project_name
 
     full_command = '%s %s %s %s %s' % (command, user_param, password_param,
@@ -70,6 +75,19 @@ def run_vitrage_command(command):
                          stderr=subprocess.PIPE)
     stdout, stderr = p.communicate()
     return stdout
+
+
+def get_property_value(environment_name, conf_name, default_value, conf):
+    if os.environ.get(environment_name):
+        return os.environ[environment_name]
+
+    try:
+        return conf.service_credentials[conf_name]
+    except NoSuchOptError:
+        LOG.debug("Configuration doesn't exist: service_credentials.%s",
+                  conf_name)
+
+    return default_value
 
 
 def run_from_terminal(command):

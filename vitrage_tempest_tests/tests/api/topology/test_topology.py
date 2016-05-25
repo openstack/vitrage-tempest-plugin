@@ -31,7 +31,8 @@ class TestTopology(BaseTopologyTest):
         """Wrapper that returns a test graph."""
 
         api_graph = self.vitrage_client.topology.get()
-        cli_graph = utils.run_vitrage_command('vitrage topology show')
+        cli_graph = utils.run_vitrage_command('vitrage topology show',
+                                              self.conf)
         self.assertEqual(True, self._compare_graphs(api_graph, cli_graph))
 
     def test_default_graph(self):
