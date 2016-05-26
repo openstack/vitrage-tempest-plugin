@@ -67,18 +67,14 @@ def run_vitrage_command(command, conf):
                                        project_name_param, auth_url_param)
 
     LOG.info('Full command: %s', full_command)
+
     p = subprocess.Popen(full_command,
                          shell=True,
                          executable="/bin/bash",
                          stdout=subprocess.PIPE,
                          stderr=subprocess.PIPE)
     stdout, stderr = p.communicate()
-    if stderr != '':
-        LOG.error("The command output error is : " + stderr)
-    if stdout != '':
-        LOG.debug("The command output is : \n" + stdout)
-        return stdout
-    return None
+    return stdout
 
 
 def get_property_value(environment_name, conf_name, default_value, conf):
