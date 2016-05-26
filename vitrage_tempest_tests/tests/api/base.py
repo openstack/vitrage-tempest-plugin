@@ -35,7 +35,6 @@ from vitrageclient import client as v_client
 
 import vitrage_tempest_tests.tests.utils as utils
 
-
 LOG = logging.getLogger(__name__)
 
 
@@ -76,10 +75,9 @@ class BaseApiTest(base.BaseTestCase):
 
     def _get_host(self):
         topology = self.vitrage_client.topology.get()
-        for item in topology['nodes']:
-            if item[VProps.TYPE] == NOVA_HOST_DATASOURCE:
-                return item
-        return None
+        host = filter(lambda item: item[VProps.TYPE] == NOVA_HOST_DATASOURCE,
+                      topology['nodes'])
+        return host[0]
 
     def _create_instances(self, num_instances):
         flavors_list = self.nova_client.flavors.list()
@@ -276,3 +274,7 @@ class BaseApiTest(base.BaseTestCase):
                              num_edges,
                              '%s%s' % ('Num edges is incorrect for: %s',
                                        entity[VProps.TYPE]))
+
+    @staticmethod
+    def _get_value(item, key):
+        return utils.uni2str(item[key])

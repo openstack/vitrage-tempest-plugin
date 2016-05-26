@@ -16,8 +16,6 @@ import time
 
 from oslo_log import log as logging
 from vitrage import clients
-from vitrage.common.constants import EntityCategory
-from vitrage.common.constants import VertexProperties
 
 from vitrage_tempest_tests.tests.api.base import BaseApiTest
 
@@ -43,11 +41,8 @@ class BaseAlarmsTest(BaseApiTest):
         filtered_alarms_list = []
         for item in alarms_list:
             verification = 0
-            category = utils.uni2str(item[VertexProperties.CATEGORY])
             for index in range(len(keys)):
-                key = utils.uni2str(item[keys[index]])
-                if category == EntityCategory.ALARM \
-                        and key == values[index]:
+                if utils.uni2str(item[keys[index]]) == values[index]:
                     verification += 1
                 else:
                     break
