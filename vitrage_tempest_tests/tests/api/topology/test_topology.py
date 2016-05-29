@@ -18,6 +18,13 @@ from vitrage_tempest_tests.tests.api.topology.base import BaseTopologyTest
 import vitrage_tempest_tests.tests.utils as utils
 
 LOG = logging.getLogger(__name__)
+NOVA_QUERY = '{"and": [{"==": {"category": "RESOURCE"}},' \
+             '{"==": {"is_deleted": false}},' \
+             '{"==": {"is_placeholder": false}},' \
+             '{"or": [{"==": {"type": "openstack.cluster"}},' \
+             '{"==": {"type": "nova.instance"}},' \
+             '{"==": {"type": "nova.host"}},' \
+             '{"==": {"type": "nova.zone"}}]}]}'
 
 
 class TestTopology(BaseTopologyTest):
@@ -69,11 +76,12 @@ class TestTopology(BaseTopologyTest):
         finally:
             self._rollback_to_default()
 
-    def test_default_tree(self):
+    def test_nova_tree(self):
         try:
             # create entities
             self._create_entities(num_instances=3, num_volumes=1)
-            api_graph = self.vitrage_client.topology.get(graph_type='tree')
+            api_graph = self.vitrage_client.topology.get(graph_type='tree',
+                                                         query=NOVA_QUERY)
             self.assertIsNotNone(api_graph)
             graph = self._create_graph_from_tree_dictionary(api_graph)
             entities = self._entities_validation_data(
@@ -106,7 +114,7 @@ class TestTopology(BaseTopologyTest):
             # create entities
             self._create_entities(num_instances=3)
             api_graph = self.vitrage_client.topology.get(
-                limit=2, graph_type='tree')
+                limit=2, graph_type='tree', query=NOVA_QUERY)
             self.assertIsNotNone(api_graph)
             graph = self._create_graph_from_tree_dictionary(api_graph)
             entities = self._entities_validation_data(
@@ -120,7 +128,7 @@ class TestTopology(BaseTopologyTest):
             # create entities
             self._create_entities(num_instances=3)
             api_graph = self.vitrage_client.topology.get(
-                limit=3, graph_type='tree')
+                limit=3, graph_type='tree', query=NOVA_QUERY)
             self.assertIsNotNone(api_graph)
             graph = self._create_graph_from_tree_dictionary(api_graph)
             entities = self._entities_validation_data(
