@@ -50,14 +50,16 @@ class TestStaticPhysical(BaseApiTest):
 
         # template file
         file_path = '/opt/stack/vitrage/vitrage_tempest_tests/tests/' \
-                    'resources/static_physical/tempest_configuration.yaml'
+                    'resources/static_physical/' \
+                    'static_physical_configuration.yaml'
         with open(file_path, 'rb') as f:
             template_data = f.read()
         template_data = template_data.replace('tmp-devstack', hostname)
 
         # new file
         new_file = open(
-            '/etc/vitrage/static_datasources/tempest_configuration.yaml', 'wb')
+            '/etc/vitrage/static_datasources/'
+            'static_physical_configuration.yaml', 'wb')
         new_file.write(template_data)
         new_file.close()
 
@@ -65,7 +67,8 @@ class TestStaticPhysical(BaseApiTest):
 
     @staticmethod
     def _delete_switches():
-        path = '/etc/vitrage/static_datasources/tempest_configuration.yaml'
+        path = '/etc/vitrage/static_datasources/' \
+               'static_physical_configuration.yaml'
         if os.path.exists(path):
             os.remove(path)
 
