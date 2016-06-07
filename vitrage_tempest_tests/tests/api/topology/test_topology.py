@@ -16,6 +16,7 @@ from oslo_log import log as logging
 
 from vitrage_tempest_tests.tests.api.topology.base import BaseTopologyTest
 import vitrage_tempest_tests.tests.utils as utils
+from vitrageclient.exc import ClientException
 
 LOG = logging.getLogger(__name__)
 NOVA_QUERY = '{"and": [{"==": {"category": "RESOURCE"}},' \
@@ -138,11 +139,12 @@ class TestTopology(BaseTopologyTest):
         finally:
             self._rollback_to_default()
 
-    def test_graph_with_depth_exclude_instance(self):
+    def test_graph_with_root_and_depth_exclude_instance(self):
         try:
             # create entities
             self._create_entities(num_instances=3)
-            api_graph = self.vitrage_client.topology.get(limit=2)
+            api_graph = self.vitrage_client.topology.get(
+                limit=2, root="RESOURCE:openstack.cluster")
             self.assertIsNotNone(api_graph)
             graph = self._create_graph_from_graph_dictionary(api_graph)
             entities = self._entities_validation_data(
@@ -151,11 +153,12 @@ class TestTopology(BaseTopologyTest):
         finally:
             self._rollback_to_default()
 
-    def test_graph_with_depth_include_instance(self):
+    def test_graph_with_root_and_depth_include_instance(self):
         try:
             # create entities
             self._create_entities(num_instances=3, num_volumes=1)
-            api_graph = self.vitrage_client.topology.get(limit=4)
+            api_graph = self.vitrage_client.topology.get(
+                limit=4, root="RESOURCE:openstack.cluster")
             self.assertIsNotNone(api_graph)
             graph = self._create_graph_from_graph_dictionary(api_graph)
             entities = self._entities_validation_data(
@@ -163,6 +166,19 @@ class TestTopology(BaseTopologyTest):
                 instance_entities=3, instance_edges=4,
                 volume_entities=1, volume_edges=1)
             self._validate_graph_correctness(graph, 7, 6, entities)
+        finally:
+            self._rollback_to_default()
+
+    def test_graph_with_depth_and_no_root(self):
+        try:
+            # create entities
+            self._create_entities(num_instances=3, num_volumes=1)
+            self.vitrage_client.topology.get(limit=2)
+        except ClientException as e:
+            self.assertEqual(403, e.code)
+            self.assertEqual(
+                e.message,
+                "Graph-type 'graph' requires a 'root' with 'depth'")
         finally:
             self._rollback_to_default()
 
