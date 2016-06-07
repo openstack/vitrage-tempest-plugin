@@ -11,6 +11,7 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
+
 import time
 
 from oslo_log import log as logging
@@ -31,9 +32,8 @@ from vitrage.graph import NXGraph
 from vitrage.graph import Vertex
 from vitrage import keystone_client
 from vitrage_tempest_tests.tests import OPTS
-from vitrageclient import client as v_client
-
 import vitrage_tempest_tests.tests.utils as utils
+from vitrageclient import client as v_client
 
 LOG = logging.getLogger(__name__)
 
@@ -55,6 +55,21 @@ class BaseApiTest(base.BaseTestCase):
             v_client.Client('1', session=keystone_client.get_session(cls.conf))
         cls.nova_client = clients.nova_client(cls.conf)
         cls.cinder_client = clients.cinder_client(cls.conf)
+
+    @staticmethod
+    def _filter_list_by_pairs_parameters(origin_list,
+                                         keys, values):
+        filtered_list = []
+        for item in origin_list:
+            verification = 0
+            for index in range(len(keys)):
+                if utils.uni2str(item[keys[index]]) == values[index]:
+                    verification += 1
+                else:
+                    break
+            if verification == len(keys):
+                filtered_list.append(item)
+        return filtered_list
 
     def _create_volume_and_attach(self, name, size, instance_id, mount_point):
         volume = self.cinder_client.volumes.create(display_name=name,
@@ -250,8 +265,8 @@ class BaseApiTest(base.BaseTestCase):
                                     num_entities,
                                     num_edges,
                                     entities):
-        self.assertIsNot(None, graph)
-        self.assertIsNot(None, entities)
+        self.assertIsNotNone(graph)
+        self.assertIsNotNone(entities)
         self.assertEqual(num_entities, graph.num_vertices())
         self.assertEqual(num_edges, graph.num_edges())
 
