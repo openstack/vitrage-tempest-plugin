@@ -40,7 +40,7 @@ class TestTopology(BaseTopologyTest):
         api_graph = self.vitrage_client.topology.get()
         cli_graph = utils.run_vitrage_command('vitrage topology show',
                                               self.conf)
-        self.assertEqual(True, self._compare_graphs(api_graph, cli_graph))
+        self._compare_graphs(api_graph, cli_graph)
 
     def test_default_graph(self):
         try:

@@ -11,15 +11,14 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
+
 import random
 import time
 
 from oslo_log import log as logging
+
 from vitrage import clients
-
 from vitrage_tempest_tests.tests.api.base import BaseApiTest
-
-import vitrage_tempest_tests.tests.utils as utils
 
 LOG = logging.getLogger(__name__)
 
@@ -34,21 +33,6 @@ class BaseAlarmsTest(BaseApiTest):
     def setUpClass(cls):
         super(BaseAlarmsTest, cls).setUpClass()
         cls.ceilometer_client = clients.ceilometer_client(cls.conf)
-
-    @staticmethod
-    def _filter_alarms_by_parameter(alarms_list,
-                                    keys, values):
-        filtered_alarms_list = []
-        for item in alarms_list:
-            verification = 0
-            for index in range(len(keys)):
-                if utils.uni2str(item[keys[index]]) == values[index]:
-                    verification += 1
-                else:
-                    break
-            if verification == len(keys):
-                filtered_alarms_list.append(item)
-        return filtered_alarms_list
 
     def _create_ceilometer_alarm(self, resource_id=None,
                                  name=None, unic=True):

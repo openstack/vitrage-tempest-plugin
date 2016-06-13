@@ -20,6 +20,7 @@ from oslo_log import log as logging
 from vitrage.common.constants import VertexProperties as VProps
 from vitrage_tempest_tests.tests.api.base import BaseApiTest
 
+
 LOG = logging.getLogger(__name__)
 
 
@@ -41,9 +42,10 @@ class BaseTopologyTest(BaseApiTest):
         if num_instances > 0:
             resources = self._create_instances(num_instances)
 
+        self.assertNotEqual(len(resources), 0, 'The instances list is empty')
         if num_volumes > 0:
             self._create_volume_and_attach('volume-1', 1,
-                                           resources[0].__dict__['id'],
+                                           resources[0].id,
                                            '/tmp/vda')
 
         # waiting until all the entities creation were processed by the
@@ -58,15 +60,12 @@ class BaseTopologyTest(BaseApiTest):
         # entity graph processor
         time.sleep(2)
 
-    @staticmethod
-    def _compare_graphs(api_graph, cli_graph):
+    def _compare_graphs(self, api_graph, cli_graph):
         """Compare Graph object to graph form terminal """
-        if not api_graph:
-            LOG.error("The topology graph taken from rest api is empty")
-            return False
-        if not cli_graph:
-            LOG.error("The topology graph taken from terminal is empty")
-            return False
+        self.assertNotEqual(len(api_graph), 0,
+                            'The topology graph taken from rest api is empty')
+        self.assertNotEqual(len(cli_graph), 0,
+                            'The topology graph taken from terminal is empty')
 
         parsed_topology = json.loads(cli_graph)
 
@@ -79,7 +78,7 @@ class BaseTopologyTest(BaseApiTest):
         for item in sorted_api_graph[4][1]:
             item.pop(VProps.UPDATE_TIMESTAMP, None)
 
-        return sorted_cli_graph == sorted_api_graph
+        self.assertEqual(sorted_cli_graph, sorted_api_graph)
 
     @staticmethod
     def _graph_query():
