@@ -11,6 +11,7 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
+
 import time
 
 from oslo_log import log as logging
@@ -21,6 +22,8 @@ from vitrage.common.constants import EntityCategory
 from vitrage.common.constants import VertexProperties as VProps
 from vitrage.datasources import AODH_DATASOURCE
 from vitrage.datasources import CINDER_VOLUME_DATASOURCE
+from vitrage.datasources.neutron.network import NEUTRON_NETWORK_DATASOURCE
+from vitrage.datasources.neutron.port import NEUTRON_PORT_DATASOURCE
 from vitrage.datasources import NOVA_HOST_DATASOURCE
 from vitrage.datasources import NOVA_INSTANCE_DATASOURCE
 from vitrage.datasources import NOVA_ZONE_DATASOURCE
@@ -241,6 +244,20 @@ class BaseApiTest(base.BaseTestCase):
                  VProps.TYPE: AODH_DATASOURCE,
                  self.NUM_VERTICES_PER_TYPE: kwargs.get('aodh_entities', 0),
                  self.NUM_EDGES_PER_TYPE: kwargs.get('aodh_edges', 0)}
+        validation_data.append(props)
+
+        # neutron.network
+        props = {VProps.CATEGORY: EntityCategory.RESOURCE,
+                 VProps.TYPE: NEUTRON_NETWORK_DATASOURCE,
+                 self.NUM_VERTICES_PER_TYPE: kwargs.get('network_entities', 0),
+                 self.NUM_EDGES_PER_TYPE: kwargs.get('network_edges', 0)}
+        validation_data.append(props)
+
+        # neutron.port
+        props = {VProps.CATEGORY: EntityCategory.RESOURCE,
+                 VProps.TYPE: NEUTRON_PORT_DATASOURCE,
+                 self.NUM_VERTICES_PER_TYPE: kwargs.get('port_entities', 0),
+                 self.NUM_EDGES_PER_TYPE: kwargs.get('port_edges', 0)}
         validation_data.append(props)
 
         return validation_data
