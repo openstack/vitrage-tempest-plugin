@@ -1,0 +1,100 @@
+# Copyright 2016 - Nokia
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License. You may obtain
+# a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
+
+from oslo_log import log as logging
+
+from vitrage.common.constants import VertexProperties as VProps
+from vitrage_tempest_tests.tests.api.topology.base import BaseTopologyTest
+
+LOG = logging.getLogger(__name__)
+INSTANCE_NUM = 3
+
+
+class TestNeutronNetwork(BaseTopologyTest):
+    @classmethod
+    def setUpClass(cls):
+        super(TestNeutronNetwork, cls).setUpClass()
+
+    def test_neutron(self):
+        """neutron test
+
+        This test validate correctness topology graph with neutron module
+        """
+        try:
+            # create entities
+            instances = self._create_instances(
+                num_instances=INSTANCE_NUM, set_public_network=True)
+            network_list = self.neutron_client.list_networks()['networks']
+            port_list = self.neutron_client.list_ports()['ports']
+
+            network_name = self._get_network_name(instances[0], network_list)
+            port_to_inst_edges = self._port_to_inst_edges(
+                instances, network_name, port_list)
+            port_to_network_edges = self._port_to_network_edges(
+                network_list, port_list)
+
+            api_graph = self.vitrage_client.topology.get()
+            graph = self._create_graph_from_graph_dictionary(api_graph)
+            entities = self._entities_validation_data(
+                host_entities=1,
+                host_edges=1 + INSTANCE_NUM,
+                instance_entities=INSTANCE_NUM,
+                instance_edges=INSTANCE_NUM + port_to_inst_edges,
+                network_entities=len(network_list),
+                network_edges=port_to_network_edges,
+                port_entities=len(port_list),
+                port_edges=port_to_inst_edges + port_to_network_edges)
+            expected_entities = \
+                3 + INSTANCE_NUM + len(network_list) + len(port_list)
+            expected_edges = \
+                2 + INSTANCE_NUM + port_to_inst_edges + port_to_network_edges
+            self._validate_graph_correctness(
+                graph, expected_entities, expected_edges, entities)
+        except Exception as e:
+            LOG.exception(e)
+        finally:
+            self._delete_instances()
+
+    @staticmethod
+    def _get_network_name(instance, networks):
+        for network in networks:
+            try:
+                if len(instance.networks[network[VProps.NAME]]) > 0:
+                    return network[VProps.NAME]
+            except Exception:
+                pass
+        return None
+
+    @staticmethod
+    def _port_to_inst_edges(instances, network_name, ports):
+        counter = 0
+        for vm in instances:
+            for port in ports:
+                ips_number = 0
+                for vm_ip in vm.addresses[network_name]:
+                    for port_ip in port['fixed_ips']:
+                        if vm_ip['addr'] == port_ip['ip_address']:
+                            ips_number += 1
+                            break
+                if ips_number == len(vm.addresses[network_name]):
+                    counter += 1
+                    break
+        return counter
+
+    def _port_to_network_edges(self, networks, ports):
+        counter = 0
+        for net in networks:
+            counter += len(self._filter_list_by_pairs_parameters(
+                ports, ['network_id'], [net['id']]))
+        return counter

@@ -57,6 +57,7 @@ class BaseApiTest(base.BaseTestCase):
             v_client.Client('1', session=keystone_client.get_session(cls.conf))
         cls.nova_client = clients.nova_client(cls.conf)
         cls.cinder_client = clients.cinder_client(cls.conf)
+        cls.neutron_client = clients.neutron_client(cls.conf)
 
     @staticmethod
     def _filter_list_by_pairs_parameters(origin_list,
@@ -96,14 +97,20 @@ class BaseApiTest(base.BaseTestCase):
                       topology['nodes'])
         return host[0]
 
-    def _create_instances(self, num_instances):
+    def _create_instances(self, num_instances, set_public_network=False):
+        kwargs = {}
         flavors_list = self.nova_client.flavors.list()
         images_list = self.nova_client.images.list()
+        if set_public_network:
+            public_net = self._get_public_network()
+            if public_net:
+                kwargs.update({"networks": [{'uuid': public_net['id']}]})
 
         resources = [self.nova_client.servers.create(
             name='%s-%s' % ('vm', index),
             flavor=flavors_list[0],
-            image=images_list[0]) for index in range(num_instances)]
+            image=images_list[0],
+            **kwargs) for index in range(num_instances)]
 
         self._wait_for_status(30,
                               self._check_num_instances,
@@ -234,45 +241,60 @@ class BaseApiTest(base.BaseTestCase):
         # nova.instance
         props = {VProps.CATEGORY: EntityCategory.RESOURCE,
                  VProps.TYPE: NOVA_INSTANCE_DATASOURCE,
-                 self.NUM_VERTICES_PER_TYPE: kwargs.get('instance_entities',
-                                                        0),
-                 self.NUM_EDGES_PER_TYPE: kwargs.get('instance_edges', 0)}
+                 self.NUM_VERTICES_PER_TYPE: kwargs.get(
+                     'instance_entities', 0),
+                 self.NUM_EDGES_PER_TYPE: kwargs.get(
+                     'instance_edges', 0)}
         validation_data.append(props)
 
         # cinder.volume
         props = {VProps.CATEGORY: EntityCategory.RESOURCE,
                  VProps.TYPE: CINDER_VOLUME_DATASOURCE,
-                 self.NUM_VERTICES_PER_TYPE: kwargs.get('volume_entities', 0),
-                 self.NUM_EDGES_PER_TYPE: kwargs.get('volume_edges', 0)}
+                 self.NUM_VERTICES_PER_TYPE: kwargs.get(
+                     'volume_entities', 0),
+                 self.NUM_EDGES_PER_TYPE: kwargs.get(
+                     'volume_edges', 0)}
         validation_data.append(props)
 
         # switch
-        props = {VProps.CATEGORY: EntityCategory.RESOURCE,
-                 VProps.TYPE: SWITCH,
-                 self.NUM_VERTICES_PER_TYPE: kwargs.get('switch_entities', 0),
-                 self.NUM_EDGES_PER_TYPE: kwargs.get('switch_edges', 0)}
-        validation_data.append(props)
+        if kwargs.get('switch_entities') is not None:
+            props = {VProps.CATEGORY: EntityCategory.RESOURCE,
+                     VProps.TYPE: SWITCH,
+                     self.NUM_VERTICES_PER_TYPE: kwargs.get(
+                         'switch_entities', 0),
+                     self.NUM_EDGES_PER_TYPE: kwargs.get(
+                         'switch_edges', 0)}
+            validation_data.append(props)
 
         # aodh
-        props = {VProps.CATEGORY: EntityCategory.ALARM,
-                 VProps.TYPE: AODH_DATASOURCE,
-                 self.NUM_VERTICES_PER_TYPE: kwargs.get('aodh_entities', 0),
-                 self.NUM_EDGES_PER_TYPE: kwargs.get('aodh_edges', 0)}
-        validation_data.append(props)
+        if kwargs.get('aodh_entities') is not None:
+            props = {VProps.CATEGORY: EntityCategory.ALARM,
+                     VProps.TYPE: AODH_DATASOURCE,
+                     self.NUM_VERTICES_PER_TYPE: kwargs.get(
+                         'aodh_entities', 0),
+                     self.NUM_EDGES_PER_TYPE: kwargs.get(
+                         'aodh_edges', 0)}
+            validation_data.append(props)
 
         # neutron.network
-        props = {VProps.CATEGORY: EntityCategory.RESOURCE,
-                 VProps.TYPE: NEUTRON_NETWORK_DATASOURCE,
-                 self.NUM_VERTICES_PER_TYPE: kwargs.get('network_entities', 0),
-                 self.NUM_EDGES_PER_TYPE: kwargs.get('network_edges', 0)}
-        validation_data.append(props)
+        if kwargs.get('network_entities') is not None:
+            props = {VProps.CATEGORY: EntityCategory.RESOURCE,
+                     VProps.TYPE: NEUTRON_NETWORK_DATASOURCE,
+                     self.NUM_VERTICES_PER_TYPE: kwargs.get(
+                         'network_entities', 0),
+                     self.NUM_EDGES_PER_TYPE: kwargs.get(
+                         'network_edges', 0)}
+            validation_data.append(props)
 
         # neutron.port
-        props = {VProps.CATEGORY: EntityCategory.RESOURCE,
-                 VProps.TYPE: NEUTRON_PORT_DATASOURCE,
-                 self.NUM_VERTICES_PER_TYPE: kwargs.get('port_entities', 0),
-                 self.NUM_EDGES_PER_TYPE: kwargs.get('port_edges', 0)}
-        validation_data.append(props)
+        if kwargs.get('port_entities') is not None:
+            props = {VProps.CATEGORY: EntityCategory.RESOURCE,
+                     VProps.TYPE: NEUTRON_PORT_DATASOURCE,
+                     self.NUM_VERTICES_PER_TYPE: kwargs.get(
+                         'port_entities', 0),
+                     self.NUM_EDGES_PER_TYPE: kwargs.get(
+                         'port_edges', 0)}
+            validation_data.append(props)
 
         return validation_data
 
@@ -309,3 +331,12 @@ class BaseApiTest(base.BaseTestCase):
     @staticmethod
     def _get_value(item, key):
         return utils.uni2str(item[key])
+
+    def _get_public_network(self):
+        networks = self.neutron_client.list_networks()
+        public_nets = filter(
+            lambda item: self._get_value(item, VProps.NAME) == 'public',
+            networks['networks'])
+        if not public_nets:
+            return None
+        return public_nets[0]
