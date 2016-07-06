@@ -1,5 +1,5 @@
 metadata:
- id: host_aodh_alarm
+ name: host_aodh_alarm
 definitions:
  entities:
   - entity:
