@@ -257,24 +257,22 @@ class BaseApiTest(base.BaseTestCase):
         validation_data.append(props)
 
         # switch
-        if kwargs.get('switch_entities') is not None:
-            props = {VProps.CATEGORY: EntityCategory.RESOURCE,
-                     VProps.TYPE: SWITCH,
-                     self.NUM_VERTICES_PER_TYPE: kwargs.get(
-                         'switch_entities', 0),
-                     self.NUM_EDGES_PER_TYPE: kwargs.get(
-                         'switch_edges', 0)}
-            validation_data.append(props)
+        props = {VProps.CATEGORY: EntityCategory.RESOURCE,
+                 VProps.TYPE: SWITCH,
+                 self.NUM_VERTICES_PER_TYPE: kwargs.get(
+                     'switch_entities', 0),
+                 self.NUM_EDGES_PER_TYPE: kwargs.get(
+                     'switch_edges', 0)}
+        validation_data.append(props)
 
         # aodh
-        if kwargs.get('aodh_entities') is not None:
-            props = {VProps.CATEGORY: EntityCategory.ALARM,
-                     VProps.TYPE: AODH_DATASOURCE,
-                     self.NUM_VERTICES_PER_TYPE: kwargs.get(
-                         'aodh_entities', 0),
-                     self.NUM_EDGES_PER_TYPE: kwargs.get(
-                         'aodh_edges', 0)}
-            validation_data.append(props)
+        props = {VProps.CATEGORY: EntityCategory.ALARM,
+                 VProps.TYPE: AODH_DATASOURCE,
+                 self.NUM_VERTICES_PER_TYPE: kwargs.get(
+                     'aodh_entities', 0),
+                 self.NUM_EDGES_PER_TYPE: kwargs.get(
+                     'aodh_edges', 0)}
+        validation_data.append(props)
 
         # neutron.network
         if kwargs.get('network_entities') is not None:

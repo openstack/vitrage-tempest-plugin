@@ -226,22 +226,20 @@ class TestTopology(BaseTopologyTest):
         """
         try:
             # create entities
-            self._create_entities(num_instances=NUM_INSTANCE,
-                                  num_volumes=NUM_VOLUME)
+            self._create_entities(num_instances=NUM_INSTANCE)
             api_graph = self.vitrage_client.topology.get(
-                limit=4, root='RESOURCE:openstack.cluster')
+                limit=3, root='RESOURCE:openstack.cluster')
             self.assertIsNotNone(api_graph)
             graph = self._create_graph_from_graph_dictionary(api_graph)
             entities = self._entities_validation_data(
                 host_entities=1,
                 host_edges=NUM_INSTANCE + 1,
                 instance_entities=NUM_INSTANCE,
-                instance_edges=NUM_INSTANCE + NUM_VOLUME,
-                volume_entities=NUM_VOLUME,
-                volume_edges=NUM_VOLUME)
-            self._validate_graph_correctness(
-                graph, 3 + NUM_INSTANCE + NUM_VOLUME,
-                2 + NUM_INSTANCE + NUM_VOLUME, entities)
+                instance_edges=NUM_INSTANCE)
+            self._validate_graph_correctness(graph,
+                                             3 + NUM_INSTANCE,
+                                             2 + NUM_INSTANCE,
+                                             entities)
         except Exception as e:
             LOG.exception(e)
         finally:
@@ -256,7 +254,8 @@ class TestTopology(BaseTopologyTest):
         try:
             # create entities
             self._create_entities(num_instances=3, num_volumes=1)
-            self.vitrage_client.topology.get(limit=2)
+            self.vitrage_client.topology.get(limit=2,
+                                             root='RESOURCE:openstack.cluster')
         except ClientException as e:
             self.assertEqual(403, e.code)
             self.assertEqual(
