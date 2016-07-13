@@ -24,6 +24,7 @@ LOG = logging.getLogger(__name__)
 
 
 class TestStaticPhysical(BaseApiTest):
+    NUM_SWITCH = 2
 
     @classmethod
     def setUpClass(cls):
@@ -31,14 +32,28 @@ class TestStaticPhysical(BaseApiTest):
 
     def test_switches(self):
         try:
-            # create entities
+            # Action
             self._create_switches()
+
+            # Calculate expected results
             api_graph = self.vitrage_client.topology.get()
+            self.assertIsNotNone(api_graph)
             graph = self._create_graph_from_graph_dictionary(api_graph)
             entities = self._entities_validation_data(
-                host_entities=1, host_edges=3,
-                switch_entities=2, switch_edges=2)
-            self._validate_graph_correctness(graph, 5, 4, entities)
+                host_entities=1,
+                host_edges=1 + self.NUM_SWITCH,
+                switch_entities=self.NUM_SWITCH,
+                switch_edges=self.NUM_SWITCH)
+            num_entities = self.num_default_entities + self.NUM_SWITCH + \
+                self.num_default_networks + self.num_default_ports
+            num_edges = self.num_default_edges + self.NUM_SWITCH + \
+                self.num_default_ports
+
+            # Test Assertions
+            self._validate_graph_correctness(graph,
+                                             num_entities,
+                                             num_edges,
+                                             entities)
         except Exception as e:
             LOG.exception(e)
         finally:

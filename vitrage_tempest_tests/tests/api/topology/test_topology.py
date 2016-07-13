@@ -19,8 +19,6 @@ import vitrage_tempest_tests.tests.utils as utils
 from vitrageclient.exc import ClientException
 
 LOG = logging.getLogger(__name__)
-NUM_INSTANCE = 3
-NUM_VOLUME = 1
 NOVA_QUERY = '{"and": [{"==": {"category": "RESOURCE"}},' \
              '{"==": {"is_deleted": false}},' \
              '{"==": {"is_placeholder": false}},' \
@@ -33,13 +31,12 @@ NOVA_QUERY = '{"and": [{"==": {"category": "RESOURCE"}},' \
 class TestTopology(BaseTopologyTest):
     """Topology test class for Vitrage API tests."""
 
+    NUM_INSTANCE = 3
+    NUM_VOLUME = 1
+
     @classmethod
     def setUpClass(cls):
         super(TestTopology, cls).setUpClass()
-        cls.default_networks = \
-            len(cls.neutron_client.list_networks()['networks'])
-        cls.default_ports = \
-            len(cls.neutron_client.list_ports()['ports'])
 
     def test_compare_api_and_cli(self):
         """compare_api_and_cli
@@ -58,25 +55,32 @@ class TestTopology(BaseTopologyTest):
         This test validate correctness of default topology graph
         """
         try:
-            # create entities
-            self._create_entities(num_instances=NUM_INSTANCE,
-                                  num_volumes=NUM_VOLUME)
+            # Action
+            self._create_entities(num_instances=self.NUM_INSTANCE,
+                                  num_volumes=self.NUM_VOLUME)
+
+            # Calculate expected results
             api_graph = self.vitrage_client.topology.get()
             self.assertIsNotNone(api_graph)
             graph = self._create_graph_from_graph_dictionary(api_graph)
             entities = self._entities_validation_data(
                 host_entities=1,
-                host_edges=NUM_INSTANCE + 1,
-                instance_entities=NUM_INSTANCE,
-                instance_edges=2 * NUM_INSTANCE + NUM_VOLUME,
-                volume_entities=NUM_VOLUME,
-                volume_edges=NUM_VOLUME)
-            self._validate_graph_correctness(
-                graph,
-                3 + 2 * NUM_INSTANCE + NUM_VOLUME +
-                self.default_networks + self.default_ports,
-                2 + 3 * NUM_INSTANCE + NUM_VOLUME + self.default_ports,
-                entities)
+                host_edges=self.NUM_INSTANCE + 1,
+                instance_entities=self.NUM_INSTANCE,
+                instance_edges=2 * self.NUM_INSTANCE + self.NUM_VOLUME,
+                volume_entities=self.NUM_VOLUME,
+                volume_edges=self.NUM_VOLUME)
+            num_entities = self.num_default_entities + self.NUM_VOLUME + \
+                2 * self.NUM_INSTANCE + self.num_default_networks + \
+                self.num_default_ports
+            num_edges = self.num_default_edges + 3 * self.NUM_INSTANCE + \
+                self.NUM_VOLUME + self.num_default_ports
+
+            # Test Assertions
+            self._validate_graph_correctness(graph,
+                                             num_entities,
+                                             num_edges,
+                                             entities)
         except Exception as e:
             LOG.exception(e)
         finally:
@@ -89,19 +93,28 @@ class TestTopology(BaseTopologyTest):
         with query
         """
         try:
-            # create entities
-            self._create_entities(num_instances=NUM_INSTANCE,
-                                  num_volumes=NUM_VOLUME)
+            # Action
+            self._create_entities(num_instances=self.NUM_INSTANCE,
+                                  num_volumes=self.NUM_VOLUME)
+
+            # Calculate expected results
             api_graph = self.vitrage_client.topology.get(
                 query=self._graph_query())
             self.assertIsNotNone(api_graph)
             graph = self._create_graph_from_graph_dictionary(api_graph)
             entities = self._entities_validation_data(
                 host_entities=1,
-                host_edges=NUM_INSTANCE + 1,
-                instance_entities=NUM_INSTANCE,
-                instance_edges=NUM_INSTANCE)
-            self._validate_graph_correctness(graph, 6, 5, entities)
+                host_edges=self.NUM_INSTANCE + 1,
+                instance_entities=self.NUM_INSTANCE,
+                instance_edges=self.NUM_INSTANCE)
+            num_entities = self.num_default_entities + self.NUM_INSTANCE
+            num_edges = self.num_default_edges + self.NUM_INSTANCE
+
+            # Test Assertions
+            self._validate_graph_correctness(graph,
+                                             num_entities,
+                                             num_edges,
+                                             entities)
         except Exception as e:
             LOG.exception(e)
         finally:
@@ -113,19 +126,28 @@ class TestTopology(BaseTopologyTest):
         This test validate correctness of topology tree
         """
         try:
-            # create entities
-            self._create_entities(num_instances=NUM_INSTANCE,
-                                  num_volumes=NUM_VOLUME)
+            # Action
+            self._create_entities(num_instances=self.NUM_INSTANCE,
+                                  num_volumes=self.NUM_VOLUME)
+
+            # Calculate expected results
             api_graph = self.vitrage_client.topology.get(
                 graph_type='tree', query=NOVA_QUERY)
             self.assertIsNotNone(api_graph)
             graph = self._create_graph_from_tree_dictionary(api_graph)
             entities = self._entities_validation_data(
                 host_entities=1,
-                host_edges=NUM_INSTANCE + 1,
-                instance_entities=NUM_INSTANCE,
-                instance_edges=NUM_INSTANCE)
-            self._validate_graph_correctness(graph, 6, 5, entities)
+                host_edges=self.NUM_INSTANCE + 1,
+                instance_entities=self.NUM_INSTANCE,
+                instance_edges=self.NUM_INSTANCE)
+            num_entities = self.num_default_entities + self.NUM_INSTANCE
+            num_edges = self.num_default_edges + self.NUM_INSTANCE
+
+            # Test Assertions
+            self._validate_graph_correctness(graph,
+                                             num_entities,
+                                             num_edges,
+                                             entities)
         except Exception as e:
             LOG.exception(e)
         finally:
@@ -138,15 +160,22 @@ class TestTopology(BaseTopologyTest):
         with query
         """
         try:
-            # create entities
-            self._create_entities(num_instances=NUM_INSTANCE)
+            # Action
+            self._create_entities(num_instances=self.NUM_INSTANCE)
+
+            # Calculate expected results
             api_graph = self.vitrage_client.topology.get(
                 graph_type='tree', query=self._tree_query())
             self.assertIsNotNone(api_graph)
             graph = self._create_graph_from_tree_dictionary(api_graph)
             entities = self._entities_validation_data(
                 host_entities=1, host_edges=1)
-            self._validate_graph_correctness(graph, 3, 2, entities)
+
+            # Test Assertions
+            self._validate_graph_correctness(graph,
+                                             self.num_default_entities,
+                                             self.num_default_edges,
+                                             entities)
         except Exception as e:
             LOG.exception(e)
         finally:
@@ -159,15 +188,22 @@ class TestTopology(BaseTopologyTest):
         with query
         """
         try:
-            # create entities
-            self._create_entities(num_instances=NUM_INSTANCE)
+            # Action
+            self._create_entities(num_instances=self.NUM_INSTANCE)
+
+            # Calculate expected results
             api_graph = self.vitrage_client.topology.get(
                 limit=2, graph_type='tree', query=NOVA_QUERY)
             self.assertIsNotNone(api_graph)
             graph = self._create_graph_from_tree_dictionary(api_graph)
             entities = self._entities_validation_data(
                 host_entities=1, host_edges=1)
-            self._validate_graph_correctness(graph, 3, 2, entities)
+
+            # Test Assertions
+            self._validate_graph_correctness(graph,
+                                             self.num_default_entities,
+                                             self.num_default_edges,
+                                             entities)
         except Exception as e:
             LOG.exception(e)
         finally:
@@ -180,18 +216,27 @@ class TestTopology(BaseTopologyTest):
         with query
         """
         try:
-            # create entities
-            self._create_entities(num_instances=NUM_INSTANCE)
+            # Action
+            self._create_entities(num_instances=self.NUM_INSTANCE)
+
+            # Calculate expected results
             api_graph = self.vitrage_client.topology.get(
                 limit=3, graph_type='tree', query=NOVA_QUERY)
             self.assertIsNotNone(api_graph)
             graph = self._create_graph_from_tree_dictionary(api_graph)
             entities = self._entities_validation_data(
                 host_entities=1,
-                host_edges=NUM_INSTANCE + 1,
-                instance_entities=NUM_INSTANCE,
-                instance_edges=NUM_INSTANCE)
-            self._validate_graph_correctness(graph, 6, 5, entities)
+                host_edges=self.NUM_INSTANCE + 1,
+                instance_entities=self.NUM_INSTANCE,
+                instance_edges=self.NUM_INSTANCE)
+            num_entities = self.num_default_entities + self.NUM_INSTANCE
+            num_edges = self.num_default_edges + self.NUM_INSTANCE
+
+            # Test Assertions
+            self._validate_graph_correctness(graph,
+                                             num_entities,
+                                             num_edges,
+                                             entities)
         except Exception as e:
             LOG.exception(e)
         finally:
@@ -204,15 +249,22 @@ class TestTopology(BaseTopologyTest):
         with root and depth exclude instance
        """
         try:
-            # create entities
-            self._create_entities(num_instances=NUM_INSTANCE)
+            # Action
+            self._create_entities(num_instances=self.NUM_INSTANCE)
+
+            # Calculate expected results
             api_graph = self.vitrage_client.topology.get(
                 limit=2, root='RESOURCE:openstack.cluster')
             self.assertIsNotNone(api_graph)
             graph = self._create_graph_from_graph_dictionary(api_graph)
             entities = self._entities_validation_data(
                 host_entities=1, host_edges=1)
-            self._validate_graph_correctness(graph, 3, 2, entities)
+
+            # Test Assertions
+            self._validate_graph_correctness(graph,
+                                             self.num_default_entities,
+                                             self.num_default_edges,
+                                             entities)
         except Exception as e:
             LOG.exception(e)
         finally:
@@ -225,20 +277,26 @@ class TestTopology(BaseTopologyTest):
         with root and depth include instance
         """
         try:
-            # create entities
-            self._create_entities(num_instances=NUM_INSTANCE)
+            # Action
+            self._create_entities(num_instances=self.NUM_INSTANCE)
+
+            # Calculate expected results
             api_graph = self.vitrage_client.topology.get(
                 limit=3, root='RESOURCE:openstack.cluster')
             self.assertIsNotNone(api_graph)
             graph = self._create_graph_from_graph_dictionary(api_graph)
             entities = self._entities_validation_data(
                 host_entities=1,
-                host_edges=NUM_INSTANCE + 1,
-                instance_entities=NUM_INSTANCE,
-                instance_edges=NUM_INSTANCE)
+                host_edges=self.NUM_INSTANCE + 1,
+                instance_entities=self.NUM_INSTANCE,
+                instance_edges=self.NUM_INSTANCE)
+            num_entities = self.num_default_entities + self.NUM_INSTANCE
+            num_edges = self.num_default_edges + self.NUM_INSTANCE
+
+            # Test Assertions
             self._validate_graph_correctness(graph,
-                                             3 + NUM_INSTANCE,
-                                             2 + NUM_INSTANCE,
+                                             num_entities,
+                                             num_edges,
                                              entities)
         except Exception as e:
             LOG.exception(e)
@@ -252,8 +310,11 @@ class TestTopology(BaseTopologyTest):
         graph with depth and without root
         """
         try:
-            # create entities
-            self._create_entities(num_instances=3, num_volumes=1)
+            # Action
+            self._create_entities(num_instances=self.NUM_INSTANCE,
+                                  num_volumes=self.NUM_VOLUME)
+
+            # Calculate expected results
             self.vitrage_client.topology.get(limit=2,
                                              root='RESOURCE:openstack.cluster')
         except ClientException as e:
@@ -271,11 +332,15 @@ class TestTopology(BaseTopologyTest):
         with no match query
         """
         try:
-            # create entities
-            self._create_entities(num_instances=NUM_INSTANCE,
-                                  num_volumes=NUM_VOLUME)
+            # Action
+            self._create_entities(num_instances=self.NUM_INSTANCE,
+                                  num_volumes=self.NUM_VOLUME)
+
+            # Calculate expected results
             api_graph = self.vitrage_client.topology.get(
                 query=self._graph_no_match_query())
+
+            # Test Assertions
             self.assertEqual(
                 0,
                 len(api_graph['nodes']), 'num of vertex node')
@@ -294,10 +359,14 @@ class TestTopology(BaseTopologyTest):
         with no match query
         """
         try:
-            # create entities
-            self._create_entities(num_instances=NUM_INSTANCE)
+            # Action
+            self._create_entities(num_instances=self.NUM_INSTANCE)
+
+            # Calculate expected results
             api_graph = self.vitrage_client.topology.get(
                 graph_type='tree', query=self._tree_no_match_query())
+
+            # Test Assertions
             self.assertEqual({}, api_graph)
         except Exception as e:
             LOG.exception(e)

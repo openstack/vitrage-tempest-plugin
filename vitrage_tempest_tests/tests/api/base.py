@@ -59,6 +59,13 @@ class BaseApiTest(base.BaseTestCase):
         cls.cinder_client = clients.cinder_client(cls.conf)
         cls.neutron_client = clients.neutron_client(cls.conf)
 
+        cls.num_default_networks = \
+            len(cls.neutron_client.list_networks()['networks'])
+        cls.num_default_ports = \
+            len(cls.neutron_client.list_ports()['ports'])
+        cls.num_default_entities = 3
+        cls.num_default_edges = 2
+
     @staticmethod
     def _filter_list_by_pairs_parameters(origin_list,
                                          keys, values):
@@ -75,7 +82,7 @@ class BaseApiTest(base.BaseTestCase):
         return filtered_list
 
     def _create_volume_and_attach(self, name, size, instance_id, mount_point):
-        volume = self.cinder_client.volumes.create(display_name=name,
+        volume = self.cinder_client.volumes.create(name=name,
                                                    size=size)
         time.sleep(2)
         self.cinder_client.volumes.attach(volume=volume,

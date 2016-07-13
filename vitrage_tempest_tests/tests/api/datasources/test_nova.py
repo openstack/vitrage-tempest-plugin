@@ -19,6 +19,7 @@ LOG = logging.getLogger(__name__)
 
 
 class TestNova(BaseTopologyTest):
+    NUM_INSTANCE = 3
 
     @classmethod
     def setUpClass(cls):
@@ -26,14 +27,29 @@ class TestNova(BaseTopologyTest):
 
     def test_nova_entities(self):
         try:
-            # create entities
-            self._create_entities(num_instances=3, end_sleep=10)
+            # Action
+            self._create_entities(num_instances=self.NUM_INSTANCE)
+
+            # Calculate expected results
             api_graph = self.vitrage_client.topology.get()
+            self.assertIsNotNone(api_graph)
             graph = self._create_graph_from_graph_dictionary(api_graph)
             entities = self._entities_validation_data(
-                host_entities=1, host_edges=4,
-                instance_entities=3, instance_edges=3)
-            self._validate_graph_correctness(graph, 6, 5, entities)
+                host_entities=1,
+                host_edges=1 + self.NUM_INSTANCE,
+                instance_entities=self.NUM_INSTANCE,
+                instance_edges=2 * self.NUM_INSTANCE)
+            num_entities = self.num_default_entities + \
+                2 * self.NUM_INSTANCE + \
+                self.num_default_networks + self.num_default_ports
+            num_edges = self.num_default_edges + 3 * self.NUM_INSTANCE + \
+                self.num_default_ports
+
+            # Test Assertions
+            self._validate_graph_correctness(graph,
+                                             num_entities,
+                                             num_edges,
+                                             entities)
         except Exception as e:
             LOG.exception(e)
         finally:

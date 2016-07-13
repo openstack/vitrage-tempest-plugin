@@ -18,49 +18,50 @@ from vitrage.common.constants import VertexProperties as VProps
 from vitrage_tempest_tests.tests.api.topology.base import BaseTopologyTest
 
 LOG = logging.getLogger(__name__)
-INSTANCE_NUM = 3
 
 
-class TestNeutronNetwork(BaseTopologyTest):
+class TestNeutron(BaseTopologyTest):
+    NUM_INSTANCE = 3
+
     @classmethod
     def setUpClass(cls):
-        super(TestNeutronNetwork, cls).setUpClass()
+        super(TestNeutron, cls).setUpClass()
 
     def test_neutron(self):
         """neutron test
 
         This test validate correctness topology graph with neutron module
         """
+
         try:
-            # create entities
-            instances = self._create_instances(
-                num_instances=INSTANCE_NUM, set_public_network=True)
-            network_list = self.neutron_client.list_networks()['networks']
-            port_list = self.neutron_client.list_ports()['ports']
+            # Action
+            self._create_instances(num_instances=self.NUM_INSTANCE,
+                                   set_public_network=True)
 
-            network_name = self._get_network_name(instances[0], network_list)
-            port_to_inst_edges = self._port_to_inst_edges(
-                instances, network_name, port_list)
-            port_to_network_edges = self._port_to_network_edges(
-                network_list, port_list)
-
+            # Calculate expected results
             api_graph = self.vitrage_client.topology.get()
+            self.assertIsNotNone(api_graph)
             graph = self._create_graph_from_graph_dictionary(api_graph)
             entities = self._entities_validation_data(
                 host_entities=1,
-                host_edges=1 + INSTANCE_NUM,
-                instance_entities=INSTANCE_NUM,
-                instance_edges=INSTANCE_NUM + port_to_inst_edges,
-                network_entities=len(network_list),
-                network_edges=port_to_network_edges,
-                port_entities=len(port_list),
-                port_edges=port_to_inst_edges + port_to_network_edges)
-            expected_entities = \
-                3 + INSTANCE_NUM + len(network_list) + len(port_list)
-            expected_edges = \
-                2 + INSTANCE_NUM + port_to_inst_edges + port_to_network_edges
-            self._validate_graph_correctness(
-                graph, expected_entities, expected_edges, entities)
+                host_edges=1 + self.NUM_INSTANCE,
+                instance_entities=self.NUM_INSTANCE,
+                instance_edges=2 * self.NUM_INSTANCE,
+                network_entities=self.num_default_networks,
+                network_edges=self.num_default_ports + self.NUM_INSTANCE,
+                port_entities=self.num_default_ports + self.NUM_INSTANCE,
+                port_edges=self.num_default_ports + 2 * self.NUM_INSTANCE)
+            num_entities = self.num_default_entities + \
+                2 * self.NUM_INSTANCE + \
+                self.num_default_networks + self.num_default_ports
+            num_edges = self.num_default_edges + 3 * self.NUM_INSTANCE + \
+                self.num_default_ports
+
+            # Test Assertions
+            self._validate_graph_correctness(graph,
+                                             num_entities,
+                                             num_edges,
+                                             entities)
         except Exception as e:
             LOG.exception(e)
         finally:
