@@ -1,5 +1,5 @@
 metadata:
- id: first_deduced_alarm_ever_nagios
+ name: first_deduced_alarm_ever_nagios
 definitions:
  entities:
   - entity:

@@ -1,0 +1,27 @@
+metadata:
+ name: corrupted_template
+definitions:
+ entities:
+  - entity:
+     category: RESOURCE
+     type: nova.host
+     template_id: host
+  - entity:
+     category: RESOURCE
+     type: nova.instance
+     template_id: instance
+ relationships:
+  - relationship:
+     source: host
+     target: instance
+     relationship_type: contains
+     template_id: host_contains_instance
+scenarios:
+ - scenario:
+    condition: alarm_on_host and host_contains_instance and alarm_on_instance
+    actions:
+     - action:
+        action_type: add_causal_relationship
+        action_target:
+         source: host_alarm
+         target: instance_alarm
