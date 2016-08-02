@@ -34,7 +34,6 @@ class TestCinderVolume(BaseTopologyTest):
 
             # Calculate expected results
             api_graph = self.vitrage_client.topology.get()
-            self.assertIsNotNone(api_graph)
             graph = self._create_graph_from_graph_dictionary(api_graph)
             entities = self._entities_validation_data(
                 host_entities=1,
@@ -54,7 +53,5 @@ class TestCinderVolume(BaseTopologyTest):
                                              num_entities,
                                              num_edges,
                                              entities)
-        except Exception as e:
-            LOG.exception(e)
         finally:
             self._rollback_to_default()

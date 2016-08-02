@@ -33,7 +33,7 @@ from vitrage.graph import Edge
 from vitrage.graph import NXGraph
 from vitrage.graph import Vertex
 from vitrage import keystone_client
-from vitrage_tempest_tests.tests import OPTS
+from vitrage import service
 import vitrage_tempest_tests.tests.utils as utils
 from vitrageclient import client as v_client
 
@@ -50,8 +50,7 @@ class BaseApiTest(base.BaseTestCase):
     @classmethod
     def setUpClass(cls):
         super(BaseApiTest, cls).setUpClass()
-        cls.conf = utils.get_conf()
-        cls.conf.register_opts(list(OPTS), group='keystone_authtoken')
+        cls.conf = service.prepare_service([])
 
         cls.vitrage_client = \
             v_client.Client('1', session=keystone_client.get_session(cls.conf))
@@ -171,8 +170,8 @@ class BaseApiTest(base.BaseTestCase):
                    len(volume.__dict__['attachments']) == 1
                    for volume in self.cinder_client.volumes.list())
 
-    @staticmethod
-    def _create_graph_from_graph_dictionary(api_graph):
+    def _create_graph_from_graph_dictionary(self, api_graph):
+        self.assertIsNotNone(api_graph)
         graph = NXGraph()
 
         nodes = api_graph['nodes']

@@ -37,7 +37,6 @@ class TestStaticPhysical(BaseApiTest):
 
             # Calculate expected results
             api_graph = self.vitrage_client.topology.get()
-            self.assertIsNotNone(api_graph)
             graph = self._create_graph_from_graph_dictionary(api_graph)
             entities = self._entities_validation_data(
                 host_entities=1,
@@ -54,8 +53,6 @@ class TestStaticPhysical(BaseApiTest):
                                              num_entities,
                                              num_edges,
                                              entities)
-        except Exception as e:
-            LOG.exception(e)
         finally:
             self._delete_switches()
 
@@ -64,9 +61,7 @@ class TestStaticPhysical(BaseApiTest):
         hostname = socket.gethostname()
 
         # template file
-        file_path = '/opt/stack/vitrage/vitrage_tempest_tests/tests/' \
-                    'resources/static_physical/' \
-                    'static_physical_configuration.yaml'
+        file_path = '/etc/vitrage/static_physical_configuration.yaml'
         with open(file_path, 'rb') as f:
             template_data = f.read()
         template_data = template_data.replace('tmp-devstack', hostname)

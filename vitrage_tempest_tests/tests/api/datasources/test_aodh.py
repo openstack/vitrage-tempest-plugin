@@ -11,9 +11,9 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+
 from oslo_log import log as logging
 
-from vitrage import clients
 from vitrage_tempest_tests.tests.api.alarms.base import BaseAlarmsTest
 
 LOG = logging.getLogger(__name__)
@@ -26,7 +26,6 @@ class TestAodhAlarm(BaseAlarmsTest):
     @classmethod
     def setUpClass(cls):
         super(TestAodhAlarm, cls).setUpClass()
-        cls.ceilometer_client = clients.ceilometer_client(cls.conf)
 
     def test_alarm_with_resource_id(self):
         try:
@@ -36,7 +35,6 @@ class TestAodhAlarm(BaseAlarmsTest):
 
             # Calculate expected results
             api_graph = self.vitrage_client.topology.get()
-            self.assertIsNotNone(api_graph)
             graph = self._create_graph_from_graph_dictionary(api_graph)
             entities = self._entities_validation_data(
                 host_entities=1,
@@ -56,8 +54,6 @@ class TestAodhAlarm(BaseAlarmsTest):
                                              num_entities,
                                              num_edges,
                                              entities)
-        except Exception as e:
-            LOG.exception(e)
         finally:
             self._delete_ceilometer_alarms()
             self._delete_instances()
@@ -69,7 +65,6 @@ class TestAodhAlarm(BaseAlarmsTest):
 
             # Calculate expected results
             api_graph = self.vitrage_client.topology.get()
-            self.assertIsNotNone(api_graph)
             graph = self._create_graph_from_graph_dictionary(api_graph)
             entities = self._entities_validation_data(
                 host_entities=1,
@@ -85,8 +80,6 @@ class TestAodhAlarm(BaseAlarmsTest):
                                              num_entities,
                                              num_edges,
                                              entities)
-        except Exception as e:
-            LOG.exception(e)
         finally:
             self._delete_ceilometer_alarms()
 

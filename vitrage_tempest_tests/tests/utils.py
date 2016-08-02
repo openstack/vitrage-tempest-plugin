@@ -17,21 +17,13 @@ import socket
 from oslo_config import cfg
 from oslo_config.cfg import NoSuchOptError
 from oslo_log import log as logging
-from vitrage import service
 
 import os
 import oslo_messaging
 import re
 import subprocess
-import vitrage_tempest_tests.tests
 
 LOG = logging.getLogger(__name__)
-
-
-def opts():
-    return [
-        ('keystone_authtoken', vitrage_tempest_tests.tests.OPTS)
-    ]
 
 
 def get_from_terminal(command):
@@ -98,13 +90,6 @@ def run_from_terminal(command):
 def change_terminal_dir(path):
     os.chdir(path)
     LOG.debug("The path is : " + path)
-
-
-def get_conf():
-    conf = service.prepare_service([])
-    for group, options in opts():
-        conf.register_opts(list(options), group=group)
-    return conf
 
 
 def get_client():

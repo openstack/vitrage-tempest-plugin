@@ -12,9 +12,4 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from oslo_config import cfg
-
-OPTS = [
-    cfg.StrOpt('auth_url',
-               help='auth_url'),
-]
+__author__ = 'stack'

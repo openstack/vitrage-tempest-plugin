@@ -61,7 +61,6 @@ class TestTopology(BaseTopologyTest):
 
             # Calculate expected results
             api_graph = self.vitrage_client.topology.get()
-            self.assertIsNotNone(api_graph)
             graph = self._create_graph_from_graph_dictionary(api_graph)
             entities = self._entities_validation_data(
                 host_entities=1,
@@ -81,8 +80,6 @@ class TestTopology(BaseTopologyTest):
                                              num_entities,
                                              num_edges,
                                              entities)
-        except Exception as e:
-            LOG.exception(e)
         finally:
             self._rollback_to_default()
 
@@ -100,7 +97,6 @@ class TestTopology(BaseTopologyTest):
             # Calculate expected results
             api_graph = self.vitrage_client.topology.get(
                 query=self._graph_query())
-            self.assertIsNotNone(api_graph)
             graph = self._create_graph_from_graph_dictionary(api_graph)
             entities = self._entities_validation_data(
                 host_entities=1,
@@ -115,8 +111,6 @@ class TestTopology(BaseTopologyTest):
                                              num_entities,
                                              num_edges,
                                              entities)
-        except Exception as e:
-            LOG.exception(e)
         finally:
             self._rollback_to_default()
 
@@ -133,7 +127,6 @@ class TestTopology(BaseTopologyTest):
             # Calculate expected results
             api_graph = self.vitrage_client.topology.get(
                 graph_type='tree', query=NOVA_QUERY)
-            self.assertIsNotNone(api_graph)
             graph = self._create_graph_from_tree_dictionary(api_graph)
             entities = self._entities_validation_data(
                 host_entities=1,
@@ -148,8 +141,6 @@ class TestTopology(BaseTopologyTest):
                                              num_entities,
                                              num_edges,
                                              entities)
-        except Exception as e:
-            LOG.exception(e)
         finally:
             self._rollback_to_default()
 
@@ -166,7 +157,6 @@ class TestTopology(BaseTopologyTest):
             # Calculate expected results
             api_graph = self.vitrage_client.topology.get(
                 graph_type='tree', query=self._tree_query())
-            self.assertIsNotNone(api_graph)
             graph = self._create_graph_from_tree_dictionary(api_graph)
             entities = self._entities_validation_data(
                 host_entities=1, host_edges=1)
@@ -176,8 +166,6 @@ class TestTopology(BaseTopologyTest):
                                              self.num_default_entities,
                                              self.num_default_edges,
                                              entities)
-        except Exception as e:
-            LOG.exception(e)
         finally:
             self._rollback_to_default()
 
@@ -194,7 +182,6 @@ class TestTopology(BaseTopologyTest):
             # Calculate expected results
             api_graph = self.vitrage_client.topology.get(
                 limit=2, graph_type='tree', query=NOVA_QUERY)
-            self.assertIsNotNone(api_graph)
             graph = self._create_graph_from_tree_dictionary(api_graph)
             entities = self._entities_validation_data(
                 host_entities=1, host_edges=1)
@@ -204,8 +191,6 @@ class TestTopology(BaseTopologyTest):
                                              self.num_default_entities,
                                              self.num_default_edges,
                                              entities)
-        except Exception as e:
-            LOG.exception(e)
         finally:
             self._rollback_to_default()
 
@@ -222,7 +207,6 @@ class TestTopology(BaseTopologyTest):
             # Calculate expected results
             api_graph = self.vitrage_client.topology.get(
                 limit=3, graph_type='tree', query=NOVA_QUERY)
-            self.assertIsNotNone(api_graph)
             graph = self._create_graph_from_tree_dictionary(api_graph)
             entities = self._entities_validation_data(
                 host_entities=1,
@@ -237,8 +221,6 @@ class TestTopology(BaseTopologyTest):
                                              num_entities,
                                              num_edges,
                                              entities)
-        except Exception as e:
-            LOG.exception(e)
         finally:
             self._rollback_to_default()
 
@@ -255,7 +237,6 @@ class TestTopology(BaseTopologyTest):
             # Calculate expected results
             api_graph = self.vitrage_client.topology.get(
                 limit=2, root='RESOURCE:openstack.cluster')
-            self.assertIsNotNone(api_graph)
             graph = self._create_graph_from_graph_dictionary(api_graph)
             entities = self._entities_validation_data(
                 host_entities=1, host_edges=1)
@@ -265,8 +246,6 @@ class TestTopology(BaseTopologyTest):
                                              self.num_default_entities,
                                              self.num_default_edges,
                                              entities)
-        except Exception as e:
-            LOG.exception(e)
         finally:
             self._rollback_to_default()
 
@@ -283,7 +262,6 @@ class TestTopology(BaseTopologyTest):
             # Calculate expected results
             api_graph = self.vitrage_client.topology.get(
                 limit=3, root='RESOURCE:openstack.cluster')
-            self.assertIsNotNone(api_graph)
             graph = self._create_graph_from_graph_dictionary(api_graph)
             entities = self._entities_validation_data(
                 host_entities=1,
@@ -298,8 +276,6 @@ class TestTopology(BaseTopologyTest):
                                              num_entities,
                                              num_edges,
                                              entities)
-        except Exception as e:
-            LOG.exception(e)
         finally:
             self._rollback_to_default()
 
@@ -347,8 +323,6 @@ class TestTopology(BaseTopologyTest):
             self.assertEqual(
                 0,
                 len(api_graph['links']), 'num of edges')
-        except Exception as e:
-            LOG.exception(e)
         finally:
             self._rollback_to_default()
 
@@ -368,7 +342,5 @@ class TestTopology(BaseTopologyTest):
 
             # Test Assertions
             self.assertEqual({}, api_graph)
-        except Exception as e:
-            LOG.exception(e)
         finally:
             self._rollback_to_default()
