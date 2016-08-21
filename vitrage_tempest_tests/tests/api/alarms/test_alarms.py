@@ -42,7 +42,7 @@ class TestAlarms(BaseAlarmsTest):
 
             api_alarms = self.vitrage_client.alarms.list(vitrage_id=None)
             cli_alarms = utils.run_vitrage_command(
-                'vitrage alarms list', self.conf)
+                'vitrage alarm list', self.conf)
             self._compare_alarms_lists(
                 api_alarms, cli_alarms, AODH_DATASOURCE,
                 utils.uni2str(instances[0].id))
