@@ -22,6 +22,7 @@ from vitrage.common.constants import EntityCategory
 from vitrage.common.constants import VertexProperties as VProps
 from vitrage.datasources import AODH_DATASOURCE
 from vitrage.datasources import CINDER_VOLUME_DATASOURCE
+from vitrage.datasources.heat.stack import HEAT_STACK_DATASOURCE
 from vitrage.datasources.neutron.network import NEUTRON_NETWORK_DATASOURCE
 from vitrage.datasources.neutron.port import NEUTRON_PORT_DATASOURCE
 from vitrage.datasources import NOVA_HOST_DATASOURCE
@@ -57,6 +58,7 @@ class BaseApiTest(base.BaseTestCase):
         cls.nova_client = clients.nova_client(cls.conf)
         cls.cinder_client = clients.cinder_client(cls.conf)
         cls.neutron_client = clients.neutron_client(cls.conf)
+        cls.heat_client = clients.heat_client(cls.conf)
 
         cls.num_default_networks = \
             len(cls.neutron_client.list_networks()['networks'])
@@ -217,7 +219,7 @@ class BaseApiTest(base.BaseTestCase):
                 return True
             count += 1
             time.sleep(2)
-        LOG.info("wait_for_status - False ")
+        LOG.info("wait_for_status - False")
         return False
 
     def _entities_validation_data(self, **kwargs):
@@ -300,6 +302,15 @@ class BaseApiTest(base.BaseTestCase):
                          'port_edges', 0)}
             validation_data.append(props)
 
+        # heat.stack
+        props = {VProps.CATEGORY: EntityCategory.RESOURCE,
+                 VProps.TYPE: HEAT_STACK_DATASOURCE,
+                 self.NUM_VERTICES_PER_TYPE: kwargs.get(
+                     'stack_entities', 0),
+                 self.NUM_EDGES_PER_TYPE: kwargs.get(
+                     'stack_edges', 0)}
+        validation_data.append(props)
+
         return validation_data
 
     def _validate_graph_correctness(self,
@@ -322,14 +333,14 @@ class BaseApiTest(base.BaseTestCase):
             vertices = graph.get_vertices(vertex_attr_filter=query)
             self.assertEqual(entity[self.NUM_VERTICES_PER_TYPE],
                              len(vertices),
-                             '%s%s' % ('Num vertices is incorrect for: %s',
+                             '%s%s' % ('Num vertices is incorrect for: ',
                                        entity[VProps.TYPE]))
 
             num_edges = sum([len(graph.get_edges(vertex.vertex_id))
                              for vertex in vertices])
             self.assertEqual(entity[self.NUM_EDGES_PER_TYPE],
                              num_edges,
-                             '%s%s' % ('Num edges is incorrect for: %s',
+                             '%s%s' % ('Num edges is incorrect for: ',
                                        entity[VProps.TYPE]))
 
     @staticmethod

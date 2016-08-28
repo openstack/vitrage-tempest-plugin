@@ -45,7 +45,8 @@ class BaseAlarmsTest(BaseApiTest):
         self.ceilometer_client.alarms.create(**aodh_request)
         self._wait_for_status(20,
                               self._check_num_alarms,
-                              num_alarms=1)
+                              num_alarms=1,
+                              state='alarm')
         time.sleep(25)
 
     def _delete_ceilometer_alarms(self):
@@ -63,7 +64,7 @@ class BaseAlarmsTest(BaseApiTest):
         if resource_id:
             query = [
                 dict(
-                    field=u'resource_id',
+                    field=u'traits.resource_id',
                     type='',
                     op=u'eq',
                     value=resource_id)

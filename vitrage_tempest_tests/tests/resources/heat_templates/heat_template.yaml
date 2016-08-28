@@ -1,0 +1,24 @@
+heat_template_version: 2013-05-23
+
+description: |
+  The heat template is used to demo
+
+parameters:
+  image:
+    type: string
+    default: cirros-0.3.4-x86_64-uec
+  network:
+    type: string
+    default: public
+  flavor:
+    type: string
+    default: m1.small
+
+resources:
+  server_2:
+    type: OS::Nova::Server
+    properties:
+      image: { get_param: image }
+      flavor: { get_param: flavor }
+      networks:
+        - network: { get_param: network }
