@@ -14,7 +14,6 @@
 
 from oslo_log import log as logging
 import time
-import unittest
 
 from vitrage_tempest_tests.tests.api.topology.base import BaseTopologyTest
 
@@ -28,7 +27,6 @@ class TestHeatStack(BaseTopologyTest):
     def setUpClass(cls):
         super(TestHeatStack, cls).setUpClass()
 
-    @unittest.skip("test skipping")
     def test_heat_stack(self):
         """heat stack test
 
