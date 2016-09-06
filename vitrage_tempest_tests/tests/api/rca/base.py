@@ -17,7 +17,7 @@ import json
 from oslo_log import log as logging
 
 from vitrage.common.constants import VertexProperties as VProps
-from vitrage.datasources import AODH_DATASOURCE
+from vitrage.datasources.aodh import AODH_DATASOURCE
 from vitrage.datasources import NOVA_HOST_DATASOURCE
 from vitrage.datasources import NOVA_INSTANCE_DATASOURCE
 from vitrage.entity_graph.mappings.operational_alarm_severity \

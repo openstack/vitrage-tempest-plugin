@@ -20,8 +20,8 @@ from oslotest import base
 from vitrage import clients
 from vitrage.common.constants import EntityCategory
 from vitrage.common.constants import VertexProperties as VProps
-from vitrage.datasources import AODH_DATASOURCE
-from vitrage.datasources import CINDER_VOLUME_DATASOURCE
+from vitrage.datasources.aodh import AODH_DATASOURCE
+from vitrage.datasources.cinder.volume import CINDER_VOLUME_DATASOURCE
 from vitrage.datasources.heat.stack import HEAT_STACK_DATASOURCE
 from vitrage.datasources.neutron.network import NEUTRON_NETWORK_DATASOURCE
 from vitrage.datasources.neutron.port import NEUTRON_PORT_DATASOURCE
