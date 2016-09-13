@@ -15,7 +15,7 @@ import json
 
 from oslo_log import log as logging
 
-from vitrage import clients
+from vitrage import os_clients
 from vitrage_tempest_tests.tests.api.base import BaseApiTest
 import vitrage_tempest_tests.tests.utils as utils
 
@@ -40,7 +40,7 @@ class BaseTemplateTest(BaseApiTest):
     @classmethod
     def setUpClass(cls):
         super(BaseTemplateTest, cls).setUpClass()
-        cls.ceilometer_client = clients.ceilometer_client(cls.conf)
+        cls.ceilometer_client = os_clients.ceilometer_client(cls.conf)
 
     def _compare_template_lists(self, api_templates, cli_templates):
         self.assertNotEqual(len(api_templates), 0,

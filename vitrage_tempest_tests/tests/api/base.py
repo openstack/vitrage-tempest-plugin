@@ -17,7 +17,6 @@ import time
 from oslo_log import log as logging
 from oslotest import base
 
-from vitrage import clients
 from vitrage.common.constants import EntityCategory
 from vitrage.common.constants import VertexProperties as VProps
 from vitrage.datasources.aodh import AODH_DATASOURCE
@@ -34,6 +33,7 @@ from vitrage.graph import Edge
 from vitrage.graph import NXGraph
 from vitrage.graph import Vertex
 from vitrage import keystone_client
+from vitrage import os_clients
 from vitrage import service
 import vitrage_tempest_tests.tests.utils as utils
 from vitrageclient import client as v_client
@@ -55,10 +55,10 @@ class BaseApiTest(base.BaseTestCase):
 
         cls.vitrage_client = \
             v_client.Client('1', session=keystone_client.get_session(cls.conf))
-        cls.nova_client = clients.nova_client(cls.conf)
-        cls.cinder_client = clients.cinder_client(cls.conf)
-        cls.neutron_client = clients.neutron_client(cls.conf)
-        cls.heat_client = clients.heat_client(cls.conf)
+        cls.nova_client = os_clients.nova_client(cls.conf)
+        cls.cinder_client = os_clients.cinder_client(cls.conf)
+        cls.neutron_client = os_clients.neutron_client(cls.conf)
+        cls.heat_client = os_clients.heat_client(cls.conf)
 
         cls.num_default_networks = \
             len(cls.neutron_client.list_networks()['networks'])
