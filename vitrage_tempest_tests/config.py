@@ -24,11 +24,11 @@ ServiceAvailableGroup = [
                 help="Whether or not vitrage is expected to be available"),
 ]
 
-rca_engine_group = cfg.OptGroup(name="root_cause_analysis_engine",
-                                title="Root Cause Analysis Engine Options")
+rca_service_group = cfg.OptGroup(name="root_cause_analysis_service",
+                                 title="Root Cause Analysis Service Options")
 
-RcaEngineGroup = [
-    # RCA Engine tempest configuration
+RcaServiceGroup = [
+    # RCA Service tempest configuration
     cfg.StrOpt("region",
                default="",
                help="The application_catalog region name to use. If empty, "
