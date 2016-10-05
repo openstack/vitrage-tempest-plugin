@@ -17,7 +17,7 @@ import time
 
 from oslo_log import log as logging
 
-from vitrage import clients
+from vitrage import os_clients
 from vitrage_tempest_tests.tests.api.base import BaseApiTest
 
 LOG = logging.getLogger(__name__)
@@ -32,7 +32,7 @@ class BaseAlarmsTest(BaseApiTest):
     @classmethod
     def setUpClass(cls):
         super(BaseAlarmsTest, cls).setUpClass()
-        cls.ceilometer_client = clients.ceilometer_client(cls.conf)
+        cls.ceilometer_client = os_clients.ceilometer_client(cls.conf)
 
     def _create_ceilometer_alarm(self, resource_id=None,
                                  name=None, unic=True):
