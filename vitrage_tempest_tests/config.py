@@ -15,14 +15,10 @@
 
 from oslo_config import cfg
 
-service_available_group = cfg.OptGroup(name="service_available",
-                                       title="Available OpenStack Services")
-
-ServiceAvailableGroup = [
-    cfg.BoolOpt("vitrage",
-                default=True,
-                help="Whether or not vitrage is expected to be available"),
-]
+service_option = cfg.BoolOpt("vitrage",
+                             default=True,
+                             help="Whether or not vitrage is expected to be "
+                                  "available")
 
 rca_service_group = cfg.OptGroup(name="root_cause_analysis_service",
                                  title="Root Cause Analysis Service Options")
