@@ -116,7 +116,7 @@ class TestRca(BaseRcaTest):
             self._create_alarm(
                 resource_id=self._get_hostname(),
                 alarm_name=RCA_ALARM_NAME)
-            topology = self.vitrage_client.topology.get()
+            topology = self.vitrage_client.topology.get(all_tenants=1)
 
             self._validate_set_state(topology=topology['nodes'],
                                      instances=instances)

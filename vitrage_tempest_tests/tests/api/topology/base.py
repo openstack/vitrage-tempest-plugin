@@ -34,10 +34,16 @@ class BaseTopologyTest(BaseApiTest):
     def _rollback_to_default(self):
         self._delete_entities()
         api_graph = self.vitrage_client.topology.get(
-            limit=4, root='RESOURCE:openstack.cluster')
+            limit=4, root='RESOURCE:openstack.cluster', all_tenants=1)
         graph = self._create_graph_from_graph_dictionary(api_graph)
         entities = self._entities_validation_data()
-        self._validate_graph_correctness(graph, 3, 2, entities)
+        num_default_entities = self.num_default_entities + \
+            self.num_default_networks + self.num_default_ports
+        num_default_edges = self.num_default_edges + self.num_default_ports
+        self._validate_graph_correctness(graph,
+                                         num_default_entities,
+                                         num_default_edges,
+                                         entities)
 
     def _create_entities(self, num_instances=0, num_volumes=0, end_sleep=3):
         if num_instances > 0:
