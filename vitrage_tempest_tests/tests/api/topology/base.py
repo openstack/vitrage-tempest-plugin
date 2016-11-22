@@ -85,6 +85,12 @@ class BaseTopologyTest(BaseApiTest):
         for item in sorted_api_graph[4][1]:
             item.pop(VProps.UPDATE_TIMESTAMP, None)
 
+        for item in sorted_cli_graph[4][1]:
+            item.pop(VProps.SAMPLE_TIMESTAMP, None)
+
+        for item in sorted_api_graph[4][1]:
+            item.pop(VProps.SAMPLE_TIMESTAMP, None)
+
         self.assertEqual(sorted_cli_graph, sorted_api_graph)
 
     @staticmethod

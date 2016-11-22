@@ -12,8 +12,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from oslo_log import log as logging
 import time
+import unittest
+
+from oslo_log import log as logging
 
 from vitrage_tempest_tests.tests.api.topology.base import BaseTopologyTest
 
@@ -27,6 +29,7 @@ class TestHeatStack(BaseTopologyTest):
     def setUpClass(cls):
         super(TestHeatStack, cls).setUpClass()
 
+    @unittest.skip("skip temporary")
     def test_heat_stack(self):
         """heat stack test
 
