@@ -17,8 +17,6 @@
 import os
 
 # noinspection PyPackageRequirements
-from tempest import config
-# noinspection PyPackageRequirements
 from tempest.test_discover import plugins
 
 from vitrage_tempest_tests import config as config_rca_service
@@ -33,13 +31,13 @@ class VitrageTempestPlugin(plugins.TempestPlugin):
         return full_test_dir, base_path
 
     def register_opts(self, conf):
-        config.register_opt_group(
-            conf, config_rca_service.service_available_group,
-            config_rca_service.ServiceAvailableGroup)
-        config.register_opt_group(
-            conf, config_rca_service.rca_service_group,
-            config_rca_service.RcaServiceGroup)
+        conf.register_opt(config_rca_service.service_option,
+                          group='service_available')
+        conf.register_group(config_rca_service.rca_service_group)
+        conf.register_opts(config_rca_service.RcaServiceGroup,
+                           group='root_cause_analysis_service')
 
     def get_opt_lists(self):
         return [(config_rca_service.rca_service_group.name,
-                 config_rca_service.rca_service_group)]
+                 config_rca_service.rca_service_group),
+                ('service_available', [config_rca_service.service_option])]
