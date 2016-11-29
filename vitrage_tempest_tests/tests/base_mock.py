@@ -46,9 +46,11 @@ class BaseMock(testtools.TestCase):
     def _create_mock_events():
         gen_list = mock_sync.simple_zone_generators(
             2, 4, snapshot_events=2,
-            snap_vals={'action_type': 'init_snapshot'})
+            snap_vals={'vitrage_datasource_action': 'init_snapshot'})
         gen_list += mock_sync.simple_host_generators(
-            2, 4, 4, snap_vals={'action_type': 'init_snapshot'})
+            2, 4, 4,
+            snap_vals={'vitrage_datasource_action': 'init_snapshot'})
         gen_list += mock_sync.simple_instance_generators(
-            4, 15, 15, snap_vals={'action_type': 'init_snapshot'})
+            4, 15, 15,
+            snap_vals={'vitrage_datasource_action': 'init_snapshot'})
         return mock_sync.generate_sequential_events_list(gen_list)
