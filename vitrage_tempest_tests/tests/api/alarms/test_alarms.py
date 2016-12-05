@@ -46,7 +46,8 @@ class TestAlarms(BaseAlarmsTest):
             self._compare_alarms_lists(
                 api_alarms, cli_alarms, AODH_DATASOURCE,
                 utils.uni2str(instances[0].id))
-
+        except Exception as e:
+            LOG.exception(e)
         finally:
             self._delete_ceilometer_alarms()
             self._delete_instances()

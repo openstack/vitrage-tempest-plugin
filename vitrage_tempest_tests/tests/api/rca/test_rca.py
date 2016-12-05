@@ -50,8 +50,8 @@ class TestRca(BaseRcaTest):
                 'vitrage rca show ' + vitrage_id, self.conf)
 
             self._compare_rca(api_rca, cli_rca)
-        except Exception:
-            LOG.error('Got exception', False)
+        except Exception as e:
+            LOG.exception(e)
         finally:
             self._clean_all()
 

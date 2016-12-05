@@ -53,6 +53,8 @@ class TestStaticPhysical(BaseApiTest):
                                              num_entities,
                                              num_edges,
                                              entities)
+        except Exception as e:
+            LOG.exception(e)
         finally:
             self._delete_switches()
 

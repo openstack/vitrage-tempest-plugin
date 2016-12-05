@@ -53,5 +53,7 @@ class TestCinderVolume(BaseTopologyTest):
                                              num_entities,
                                              num_edges,
                                              entities)
+        except Exception as e:
+            LOG.exception(e)
         finally:
             self._rollback_to_default()

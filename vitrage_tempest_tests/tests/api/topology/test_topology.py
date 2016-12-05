@@ -83,6 +83,8 @@ class TestTopology(BaseTopologyTest):
                                              num_entities,
                                              num_edges,
                                              entities)
+        except Exception as e:
+            LOG.exception(e)
         finally:
             self._rollback_to_default()
 
@@ -115,6 +117,8 @@ class TestTopology(BaseTopologyTest):
                                              num_entities,
                                              num_edges,
                                              entities)
+        except Exception as e:
+            LOG.exception(e)
         finally:
             self._rollback_to_default()
 
@@ -145,6 +149,8 @@ class TestTopology(BaseTopologyTest):
                                              num_entities,
                                              num_edges,
                                              entities)
+        except Exception as e:
+            LOG.exception(e)
         finally:
             self._rollback_to_default()
 
@@ -170,6 +176,8 @@ class TestTopology(BaseTopologyTest):
                                              self.num_default_entities,
                                              self.num_default_edges,
                                              entities)
+        except Exception as e:
+            LOG.exception(e)
         finally:
             self._rollback_to_default()
 
@@ -195,6 +203,8 @@ class TestTopology(BaseTopologyTest):
                                              self.num_default_entities,
                                              self.num_default_edges,
                                              entities)
+        except Exception as e:
+            LOG.exception(e)
         finally:
             self._rollback_to_default()
 
@@ -225,6 +235,8 @@ class TestTopology(BaseTopologyTest):
                                              num_entities,
                                              num_edges,
                                              entities)
+        except Exception as e:
+            LOG.exception(e)
         finally:
             self._rollback_to_default()
 
@@ -251,6 +263,8 @@ class TestTopology(BaseTopologyTest):
                                              self.num_default_entities,
                                              self.num_default_edges,
                                              entities)
+        except Exception as e:
+            LOG.exception(e)
         finally:
             self._rollback_to_default()
 
@@ -282,6 +296,8 @@ class TestTopology(BaseTopologyTest):
                                              num_entities,
                                              num_edges,
                                              entities)
+        except Exception as e:
+            LOG.exception(e)
         finally:
             self._rollback_to_default()
 
@@ -330,6 +346,8 @@ class TestTopology(BaseTopologyTest):
             self.assertEqual(
                 0,
                 len(api_graph['links']), 'num of edges')
+        except Exception as e:
+            LOG.exception(e)
         finally:
             self._rollback_to_default()
 
@@ -351,5 +369,7 @@ class TestTopology(BaseTopologyTest):
 
             # Test Assertions
             self.assertEqual({}, api_graph)
+        except Exception as e:
+            LOG.exception(e)
         finally:
             self._rollback_to_default()

@@ -54,6 +54,8 @@ class TestAodhAlarm(BaseAlarmsTest):
                                              num_entities,
                                              num_edges,
                                              entities)
+        except Exception as e:
+            LOG.exception(e)
         finally:
             self._delete_ceilometer_alarms()
             self._delete_instances()
@@ -80,6 +82,8 @@ class TestAodhAlarm(BaseAlarmsTest):
                                              num_entities,
                                              num_edges,
                                              entities)
+        except Exception as e:
+            LOG.exception(e)
         finally:
             self._delete_ceilometer_alarms()
 
