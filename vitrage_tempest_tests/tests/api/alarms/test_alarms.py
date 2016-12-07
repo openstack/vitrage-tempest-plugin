@@ -48,6 +48,7 @@ class TestAlarms(BaseAlarmsTest):
                 utils.uni2str(instances[0].id))
         except Exception as e:
             LOG.exception(e)
+            raise e
         finally:
             self._delete_ceilometer_alarms()
             self._delete_instances()

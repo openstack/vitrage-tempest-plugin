@@ -52,6 +52,7 @@ class TestRca(BaseRcaTest):
             self._compare_rca(api_rca, cli_rca)
         except Exception as e:
             LOG.exception(e)
+            raise e
         finally:
             self._clean_all()
 
@@ -77,8 +78,9 @@ class TestRca(BaseRcaTest):
             self._validate_rca(rca=api_rca['nodes'])
             self._validate_relationship(links=api_rca['links'],
                                         alarms=api_rca['nodes'])
-        except Exception:
-            LOG.error('Got exception', False)
+        except Exception as e:
+            LOG.exception(e)
+            raise e
         finally:
             self._clean_all()
 
@@ -98,8 +100,9 @@ class TestRca(BaseRcaTest):
 
             self._validate_deduce_alarms(alarms=api_alarms,
                                          instances=instances)
-        except Exception:
-            LOG.error('Got exception', False)
+        except Exception as e:
+            LOG.exception(e)
+            raise e
         finally:
             self._clean_all()
 
@@ -120,8 +123,9 @@ class TestRca(BaseRcaTest):
 
             self._validate_set_state(topology=topology['nodes'],
                                      instances=instances)
-        except Exception:
-            LOG.error('Got exception', False)
+        except Exception as e:
+            LOG.exception(e)
+            raise e
         finally:
             self._clean_all()
 
@@ -143,7 +147,8 @@ class TestRca(BaseRcaTest):
 
             self._validate_notifier(alarms=ceilometer_alarms,
                                     vitrage_alarms=vitrage_alarms)
-        except Exception:
-            LOG.error('Got exception', False)
+        except Exception as e:
+            LOG.exception(e)
+            raise e
         finally:
             self._clean_all()
