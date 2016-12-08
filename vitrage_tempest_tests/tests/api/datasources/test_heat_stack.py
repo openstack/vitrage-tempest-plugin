@@ -13,7 +13,6 @@
 # under the License.
 
 import time
-import unittest
 
 from oslo_log import log as logging
 
@@ -29,7 +28,6 @@ class TestHeatStack(BaseTopologyTest):
     def setUpClass(cls):
         super(TestHeatStack, cls).setUpClass()
 
-    @unittest.skip("skip temporary")
     def test_heat_stack(self):
         """heat stack test
 
@@ -66,6 +64,7 @@ class TestHeatStack(BaseTopologyTest):
                                              entities)
         except Exception as e:
             LOG.exception(e)
+            raise e
         finally:
             self._delete_stacks()
 
