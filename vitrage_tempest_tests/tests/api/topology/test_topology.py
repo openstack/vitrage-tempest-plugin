@@ -85,7 +85,7 @@ class TestTopology(BaseTopologyTest):
                                              entities)
         except Exception as e:
             LOG.exception(e)
-            raise e
+            raise
         finally:
             self._rollback_to_default()
 
@@ -120,7 +120,7 @@ class TestTopology(BaseTopologyTest):
                                              entities)
         except Exception as e:
             LOG.exception(e)
-            raise e
+            raise
         finally:
             self._rollback_to_default()
 
@@ -153,7 +153,7 @@ class TestTopology(BaseTopologyTest):
                                              entities)
         except Exception as e:
             LOG.exception(e)
-            raise e
+            raise
         finally:
             self._rollback_to_default()
 
@@ -181,7 +181,7 @@ class TestTopology(BaseTopologyTest):
                                              entities)
         except Exception as e:
             LOG.exception(e)
-            raise e
+            raise
         finally:
             self._rollback_to_default()
 
@@ -209,7 +209,7 @@ class TestTopology(BaseTopologyTest):
                                              entities)
         except Exception as e:
             LOG.exception(e)
-            raise e
+            raise
         finally:
             self._rollback_to_default()
 
@@ -242,7 +242,7 @@ class TestTopology(BaseTopologyTest):
                                              entities)
         except Exception as e:
             LOG.exception(e)
-            raise e
+            raise
         finally:
             self._rollback_to_default()
 
@@ -271,7 +271,7 @@ class TestTopology(BaseTopologyTest):
                                              entities)
         except Exception as e:
             LOG.exception(e)
-            raise e
+            raise
         finally:
             self._rollback_to_default()
 
@@ -305,7 +305,7 @@ class TestTopology(BaseTopologyTest):
                                              entities)
         except Exception as e:
             LOG.exception(e)
-            raise e
+            raise
         finally:
             self._rollback_to_default()
 
@@ -329,7 +329,7 @@ class TestTopology(BaseTopologyTest):
             self.assertEqual(
                 e.message,
                 "Graph-type 'graph' requires a 'root' with 'depth'")
-            raise e
+            raise
         finally:
             self._rollback_to_default()
 
@@ -357,7 +357,7 @@ class TestTopology(BaseTopologyTest):
                 len(api_graph['links']), 'num of edges')
         except Exception as e:
             LOG.exception(e)
-            raise e
+            raise
         finally:
             self._rollback_to_default()
 
@@ -381,6 +381,6 @@ class TestTopology(BaseTopologyTest):
             self.assertEqual({}, api_graph)
         except Exception as e:
             LOG.exception(e)
-            raise e
+            raise
         finally:
             self._rollback_to_default()

@@ -52,7 +52,7 @@ class TestRca(BaseRcaTest):
             self._compare_rca(api_rca, cli_rca)
         except Exception as e:
             LOG.exception(e)
-            raise e
+            raise
         finally:
             self._clean_all()
 
@@ -80,7 +80,7 @@ class TestRca(BaseRcaTest):
                                         alarms=api_rca['nodes'])
         except Exception as e:
             LOG.exception(e)
-            raise e
+            raise
         finally:
             self._clean_all()
 
@@ -102,7 +102,7 @@ class TestRca(BaseRcaTest):
                                          instances=instances)
         except Exception as e:
             LOG.exception(e)
-            raise e
+            raise
         finally:
             self._clean_all()
 
@@ -125,7 +125,7 @@ class TestRca(BaseRcaTest):
                                      instances=instances)
         except Exception as e:
             LOG.exception(e)
-            raise e
+            raise
         finally:
             self._clean_all()
 
@@ -149,6 +149,6 @@ class TestRca(BaseRcaTest):
                                     vitrage_alarms=vitrage_alarms)
         except Exception as e:
             LOG.exception(e)
-            raise e
+            raise
         finally:
             self._clean_all()

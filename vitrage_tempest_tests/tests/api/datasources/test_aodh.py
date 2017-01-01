@@ -56,7 +56,7 @@ class TestAodhAlarm(BaseAlarmsTest):
                                              entities)
         except Exception as e:
             LOG.exception(e)
-            raise e
+            raise
         finally:
             self._delete_ceilometer_alarms()
             self._delete_instances()
@@ -85,7 +85,7 @@ class TestAodhAlarm(BaseAlarmsTest):
                                              entities)
         except Exception as e:
             LOG.exception(e)
-            raise e
+            raise
         finally:
             self._delete_ceilometer_alarms()
 

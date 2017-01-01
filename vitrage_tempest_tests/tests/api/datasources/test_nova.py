@@ -51,6 +51,6 @@ class TestNova(BaseTopologyTest):
                                              entities)
         except Exception as e:
             LOG.exception(e)
-            raise e
+            raise
         finally:
             self._rollback_to_default()

@@ -55,7 +55,7 @@ class TestStaticPhysical(BaseApiTest):
                                              entities)
         except Exception as e:
             LOG.exception(e)
-            raise e
+            raise
         finally:
             self._delete_switches()
 
