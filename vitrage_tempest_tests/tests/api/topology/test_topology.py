@@ -259,7 +259,9 @@ class TestTopology(BaseTopologyTest):
 
             # Calculate expected results
             api_graph = self.vitrage_client.topology.get(
-                limit=2, root='RESOURCE:openstack.cluster', all_tenants=1)
+                limit=2,
+                root='RESOURCE:openstack.cluster:OpenStack Cluster',
+                all_tenants=1)
             graph = self._create_graph_from_graph_dictionary(api_graph)
             entities = self._entities_validation_data(
                 host_entities=1, host_edges=1)
@@ -288,7 +290,9 @@ class TestTopology(BaseTopologyTest):
 
             # Calculate expected results
             api_graph = self.vitrage_client.topology.get(
-                limit=3, root='RESOURCE:openstack.cluster', all_tenants=1)
+                limit=3,
+                root='RESOURCE:openstack.cluster:OpenStack Cluster',
+                all_tenants=1)
             graph = self._create_graph_from_graph_dictionary(api_graph)
             entities = self._entities_validation_data(
                 host_entities=1,
@@ -321,9 +325,10 @@ class TestTopology(BaseTopologyTest):
                                   num_volumes=self.NUM_VOLUME)
 
             # Calculate expected results
-            self.vitrage_client.topology.get(limit=2,
-                                             root='RESOURCE:openstack.cluster',
-                                             all_tenants=1)
+            self.vitrage_client.topology.get(
+                limit=2,
+                root='RESOURCE:openstack.cluster:OpenStack Cluster',
+                all_tenants=1)
         except ClientException as e:
             self.assertEqual(403, e.code)
             self.assertEqual(
