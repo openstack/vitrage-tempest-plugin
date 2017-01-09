@@ -114,10 +114,13 @@ class BaseApiTest(base.BaseTestCase):
             if public_net:
                 kwargs.update({"networks": [{'uuid': public_net['id']}]})
 
+        net = self.nova_client.networks.find(label="public")
+        nics = [{'net-id': net.id}]
         resources = [self.nova_client.servers.create(
             name='%s-%s' % ('vm', index),
             flavor=flavors_list[0],
             image=images_list[0],
+            nics=nics,
             **kwargs) for index in range(num_instances)]
 
         self._wait_for_status(30,
