@@ -332,7 +332,7 @@ class TestTopology(BaseTopologyTest):
         except ClientException as e:
             self.assertEqual(403, e.code)
             self.assertEqual(
-                e.message,
+                str(e),
                 "Graph-type 'graph' requires a 'root' with 'depth'")
             raise
         finally:
