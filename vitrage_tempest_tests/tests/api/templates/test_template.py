@@ -94,7 +94,7 @@ class TestValidate(BaseTemplateTest):
             self._run_template_validation(
                 validation['results'][0], path, negative=True)
         except Exception:
-            print('Failed to get validation of corrupted template file')
+            LOG.error('Failed to get validation of corrupted template file')
 
     def test_templates_validate_correct_template(self):
         """templates_validate test
@@ -108,7 +108,7 @@ class TestValidate(BaseTemplateTest):
             self._run_template_validation(
                 validation['results'][0], path)
         except Exception:
-            print('Failed to get validation of template file')
+            LOG.error('Failed to get validation of template file')
 
     def test_compare_template_show(self):
         """templates_show test

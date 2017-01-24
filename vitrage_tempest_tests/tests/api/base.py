@@ -240,7 +240,7 @@ class BaseApiTest(base.BaseTestCase):
                 return True
             count += 1
             time.sleep(2)
-        print("wait_for_status - False")
+        LOG.info("wait_for_status - False")
         return False
 
     def _entities_validation_data(self, **kwargs):

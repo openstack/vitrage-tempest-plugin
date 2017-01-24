@@ -32,6 +32,7 @@ class TestAlarms(BaseAlarmsTest):
     def setUpClass(cls):
         super(TestAlarms, cls).setUpClass()
 
+    @utils.tempest_logger
     def test_compare_cli_vs_api_alarms(self):
         """Wrapper that returns a test graph."""
         try:
@@ -47,7 +48,8 @@ class TestAlarms(BaseAlarmsTest):
             self._compare_alarms_lists(
                 api_alarms, cli_alarms, AODH_DATASOURCE,
                 utils.uni2str(instances[0].id))
-        except Exception:
+        except Exception as e:
+            LOG.exception(e)
             traceback.print_exc()
             raise
         finally:
@@ -62,10 +64,10 @@ class TestAlarms(BaseAlarmsTest):
         self.assertIsNotNone(cli_alarms,
                              'The alarms list taken from cli is empty')
 
-        print("The alarms list taken from cli is : " +
-              str(cli_alarms))
-        print("The alarms list taken by api is : " +
-              str(json.dumps(api_alarms)))
+        LOG.info("The alarms list taken from cli is : " +
+                 str(cli_alarms))
+        LOG.info("The alarms list taken by api is : " +
+                 str(json.dumps(api_alarms)))
 
         cli_items = cli_alarms.splitlines()
 

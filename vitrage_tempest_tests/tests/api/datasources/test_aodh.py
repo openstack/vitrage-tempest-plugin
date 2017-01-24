@@ -11,9 +11,11 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+
 import traceback
 
 from oslo_log import log as logging
+from vitrage_tempest_tests.tests import utils
 
 from vitrage_tempest_tests.tests.api.alarms.base import BaseAlarmsTest
 
@@ -28,6 +30,7 @@ class TestAodhAlarm(BaseAlarmsTest):
     def setUpClass(cls):
         super(TestAodhAlarm, cls).setUpClass()
 
+    @utils.tempest_logger
     def test_alarm_with_resource_id(self):
         try:
             # Action
@@ -55,13 +58,15 @@ class TestAodhAlarm(BaseAlarmsTest):
                                              num_entities,
                                              num_edges,
                                              entities)
-        except Exception:
+        except Exception as e:
             traceback.print_exc()
+            LOG.exception(e)
             raise
         finally:
             self._delete_ceilometer_alarms()
             self._delete_instances()
 
+    @utils.tempest_logger
     def test_alarm_without_resource_id(self):
         try:
             # Action
@@ -84,8 +89,9 @@ class TestAodhAlarm(BaseAlarmsTest):
                                              num_entities,
                                              num_edges,
                                              entities)
-        except Exception:
+        except Exception as e:
             traceback.print_exc()
+            LOG.exception(e)
             raise
         finally:
             self._delete_ceilometer_alarms()

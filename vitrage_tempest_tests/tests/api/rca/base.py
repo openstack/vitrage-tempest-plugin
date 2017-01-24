@@ -60,8 +60,8 @@ class BaseRcaTest(BaseAlarmsTest):
         self.assertNotEqual(len(api_rca), 0, 'The rca taken from api is empty')
         self.assertIsNotNone(cli_rca, 'The rca taken from cli is empty')
 
-        print("The rca taken from cli is : " + str(cli_rca))
-        print("The rca taken by api is : " + str(json.dumps(api_rca)))
+        LOG.info("The rca taken from cli is : " + str(cli_rca))
+        LOG.info("The rca taken by api is : " + str(json.dumps(api_rca)))
 
         parsed_rca = json.loads(cli_rca)
         sorted_cli_graph = self._clean_timestamps(sorted(parsed_rca.items()))
@@ -70,7 +70,7 @@ class BaseRcaTest(BaseAlarmsTest):
 
     def _validate_rca(self, rca):
         self.assertNotEqual(len(rca), 0, 'The rca is empty')
-        print("The rca alarms list is : " + str(json.dumps(rca)))
+        LOG.info("The rca alarms list is : " + str(json.dumps(rca)))
 
         resource_alarm = self._filter_list_by_pairs_parameters(
             rca, [VProps.TYPE, VProps.NAME],
@@ -88,7 +88,7 @@ class BaseRcaTest(BaseAlarmsTest):
     def _validate_deduce_alarms(self, alarms, instances):
         """Validate alarm existence """
         self.assertNotEqual(len(alarms), 0, 'The alarms list is empty')
-        print("The alarms list is : " + str(json.dumps(alarms)))
+        LOG.info("The alarms list is : " + str(json.dumps(alarms)))
 
         deduce_alarms_1 = self._filter_list_by_pairs_parameters(
             alarms,

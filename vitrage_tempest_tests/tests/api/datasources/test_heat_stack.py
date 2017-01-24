@@ -16,6 +16,7 @@ import time
 import traceback
 
 from oslo_log import log as logging
+from vitrage_tempest_tests.tests import utils
 
 from vitrage_tempest_tests.tests.api.topology.base import BaseTopologyTest
 
@@ -29,6 +30,7 @@ class TestHeatStack(BaseTopologyTest):
     def setUpClass(cls):
         super(TestHeatStack, cls).setUpClass()
 
+    @utils.tempest_logger
     def test_heat_stack(self):
         """heat stack test
 
@@ -63,8 +65,9 @@ class TestHeatStack(BaseTopologyTest):
                                              num_entities,
                                              num_edges,
                                              entities)
-        except Exception:
+        except Exception as e:
             traceback.print_exc()
+            LOG.exception(e)
             raise
         finally:
             self._delete_stacks()

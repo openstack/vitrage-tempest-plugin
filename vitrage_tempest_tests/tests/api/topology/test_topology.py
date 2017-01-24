@@ -11,6 +11,7 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
+
 import traceback
 
 from oslo_log import log as logging
@@ -42,6 +43,7 @@ class TestTopology(BaseTopologyTest):
     def setUpClass(cls):
         super(TestTopology, cls).setUpClass()
 
+    @utils.tempest_logger
     def test_compare_api_and_cli(self):
         """compare_api_and_cli
 
@@ -53,6 +55,7 @@ class TestTopology(BaseTopologyTest):
                                               self.conf)
         self._compare_graphs(api_graph, cli_graph)
 
+    @utils.tempest_logger
     def test_default_graph(self):
         """default_graph
 
@@ -84,12 +87,14 @@ class TestTopology(BaseTopologyTest):
                                              num_entities,
                                              num_edges,
                                              entities)
-        except Exception:
+        except Exception as e:
             traceback.print_exc()
+            LOG.exception(e)
             raise
         finally:
             self._rollback_to_default()
 
+    @utils.tempest_logger
     def test_graph_with_query(self):
         """graph_with_query
 
@@ -119,12 +124,14 @@ class TestTopology(BaseTopologyTest):
                                              num_entities,
                                              num_edges,
                                              entities)
-        except Exception:
+        except Exception as e:
             traceback.print_exc()
+            LOG.exception(e)
             raise
         finally:
             self._rollback_to_default()
 
+    @utils.tempest_logger
     def test_nova_tree(self):
         """nova_tree
 
@@ -152,12 +159,14 @@ class TestTopology(BaseTopologyTest):
                                              num_entities,
                                              num_edges,
                                              entities)
-        except Exception:
+        except Exception as e:
             traceback.print_exc()
+            LOG.exception(e)
             raise
         finally:
             self._rollback_to_default()
 
+    @utils.tempest_logger
     def test_tree_with_query(self):
         """tree_with_query
 
@@ -180,12 +189,14 @@ class TestTopology(BaseTopologyTest):
                                              self.num_default_entities,
                                              self.num_default_edges,
                                              entities)
-        except Exception:
+        except Exception as e:
             traceback.print_exc()
+            LOG.exception(e)
             raise
         finally:
             self._rollback_to_default()
 
+    @utils.tempest_logger
     def test_tree_with_depth_exclude_instance(self):
         """tree_with_query
 
@@ -208,12 +219,14 @@ class TestTopology(BaseTopologyTest):
                                              self.num_default_entities,
                                              self.num_default_edges,
                                              entities)
-        except Exception:
+        except Exception as e:
             traceback.print_exc()
+            LOG.exception(e)
             raise
         finally:
             self._rollback_to_default()
 
+    @utils.tempest_logger
     def test_tree_with_depth_include_instance(self):
         """tree_with_query
 
@@ -241,13 +254,15 @@ class TestTopology(BaseTopologyTest):
                                              num_entities,
                                              num_edges,
                                              entities)
-        except Exception:
+        except Exception as e:
             traceback.print_exc()
+            LOG.exception(e)
             raise
         finally:
             self._rollback_to_default()
 
     @unittest.skip("testing skipping")
+    @utils.tempest_logger
     def test_graph_with_root_and_depth_exclude_instance(self):
         """tree_with_query
 
@@ -272,13 +287,15 @@ class TestTopology(BaseTopologyTest):
                                              self.num_default_entities,
                                              self.num_default_edges,
                                              entities)
-        except Exception:
+        except Exception as e:
             traceback.print_exc()
+            LOG.exception(e)
             raise
         finally:
             self._rollback_to_default()
 
     @unittest.skip("testing skipping")
+    @utils.tempest_logger
     def test_graph_with_root_and_depth_include_instance(self):
         """graph_with_root_and_depth_include_instance
 
@@ -308,12 +325,14 @@ class TestTopology(BaseTopologyTest):
                                              num_entities,
                                              num_edges,
                                              entities)
-        except Exception:
+        except Exception as e:
             traceback.print_exc()
+            LOG.exception(e)
             raise
         finally:
             self._rollback_to_default()
 
+    @utils.tempest_logger
     def test_graph_with_depth_and_no_root(self):
         """graph_with_depth_and_no_root
 
@@ -339,6 +358,7 @@ class TestTopology(BaseTopologyTest):
         finally:
             self._rollback_to_default()
 
+    @utils.tempest_logger
     def test_graph_with_no_match_query(self):
         """graph_with_no_match_query
 
@@ -361,12 +381,14 @@ class TestTopology(BaseTopologyTest):
             self.assertEqual(
                 0,
                 len(api_graph['links']), 'num of edges')
-        except Exception:
+        except Exception as e:
             traceback.print_exc()
+            LOG.exception(e)
             raise
         finally:
             self._rollback_to_default()
 
+    @utils.tempest_logger
     def test_tree_with_no_match_query(self):
         """tree_with_no_match_query
 
@@ -385,8 +407,9 @@ class TestTopology(BaseTopologyTest):
 
             # Test Assertions
             self.assertEqual({}, api_graph)
-        except Exception:
+        except Exception as e:
             traceback.print_exc()
+            LOG.exception(e)
             raise
         finally:
             self._rollback_to_default()
