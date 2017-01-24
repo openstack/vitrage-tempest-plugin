@@ -13,6 +13,7 @@
 # under the License.
 
 import time
+import traceback
 
 from oslo_log import log as logging
 
@@ -62,8 +63,8 @@ class TestHeatStack(BaseTopologyTest):
                                              num_entities,
                                              num_edges,
                                              entities)
-        except Exception as e:
-            LOG.exception(e)
+        except Exception:
+            traceback.print_exc()
             raise
         finally:
             self._delete_stacks()

@@ -13,6 +13,7 @@
 #    under the License.
 
 import json
+import traceback
 
 from oslo_log import log as logging
 
@@ -46,8 +47,8 @@ class TestAlarms(BaseAlarmsTest):
             self._compare_alarms_lists(
                 api_alarms, cli_alarms, AODH_DATASOURCE,
                 utils.uni2str(instances[0].id))
-        except Exception as e:
-            LOG.exception(e)
+        except Exception:
+            traceback.print_exc()
             raise
         finally:
             self._delete_ceilometer_alarms()
@@ -61,9 +62,10 @@ class TestAlarms(BaseAlarmsTest):
         self.assertIsNotNone(cli_alarms,
                              'The alarms list taken from cli is empty')
 
-        LOG.debug("The alarms list taken from cli is : %s", cli_alarms)
-        LOG.debug("The alarms list taken by api is : %s",
-                  json.dumps(api_alarms))
+        print("The alarms list taken from cli is : " +
+              str(cli_alarms))
+        print("The alarms list taken by api is : " +
+              str(json.dumps(api_alarms)))
 
         cli_items = cli_alarms.splitlines()
 

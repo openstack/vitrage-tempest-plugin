@@ -55,10 +55,12 @@ class BaseApiTest(base.BaseTestCase):
 
         cls.vitrage_client = \
             v_client.Client('1', session=keystone_client.get_session(cls.conf))
-        cls.nova_client = os_clients.nova_client(cls.conf)
-        cls.cinder_client = os_clients.cinder_client(cls.conf)
-        cls.neutron_client = os_clients.neutron_client(cls.conf)
-        cls.heat_client = os_clients.heat_client(cls.conf)
+        cls.nova_client = cls._create_client(os_clients.nova_client, cls.conf)
+        cls.cinder_client = cls._create_client(os_clients.cinder_client,
+                                               cls.conf)
+        cls.neutron_client = cls._create_client(os_clients.neutron_client,
+                                                cls.conf)
+        cls.heat_client = cls._create_client(os_clients.heat_client, cls.conf)
 
         cls.num_default_networks = \
             len(cls.neutron_client.list_networks()['networks'])
@@ -66,6 +68,22 @@ class BaseApiTest(base.BaseTestCase):
             len(cls.neutron_client.list_ports()['ports'])
         cls.num_default_entities = 3
         cls.num_default_edges = 2
+
+    @staticmethod
+    def _create_client(client_func, conf):
+        count = 0
+
+        while count < 40:
+            LOG.info("wait_for_client - " + client_func.func_name)
+            client = client_func(conf)
+            if client:
+                return client
+            count += 1
+            time.sleep(5)
+
+        LOG.info("wait_for_client - False")
+
+        return None
 
     @staticmethod
     def _filter_list_by_pairs_parameters(origin_list,
@@ -222,7 +240,7 @@ class BaseApiTest(base.BaseTestCase):
                 return True
             count += 1
             time.sleep(2)
-        LOG.info("wait_for_status - False")
+        print("wait_for_status - False")
         return False
 
     def _entities_validation_data(self, **kwargs):

@@ -11,6 +11,7 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+import traceback
 
 from oslo_log import log as logging
 
@@ -50,8 +51,8 @@ class TestRca(BaseRcaTest):
                 'vitrage rca show ' + vitrage_id, self.conf)
 
             self._compare_rca(api_rca, cli_rca)
-        except Exception as e:
-            LOG.exception(e)
+        except Exception:
+            traceback.print_exc()
             raise
         finally:
             self._clean_all()
@@ -78,8 +79,8 @@ class TestRca(BaseRcaTest):
             self._validate_rca(rca=api_rca['nodes'])
             self._validate_relationship(links=api_rca['links'],
                                         alarms=api_rca['nodes'])
-        except Exception as e:
-            LOG.exception(e)
+        except Exception:
+            traceback.print_exc()
             raise
         finally:
             self._clean_all()
@@ -100,8 +101,8 @@ class TestRca(BaseRcaTest):
 
             self._validate_deduce_alarms(alarms=api_alarms,
                                          instances=instances)
-        except Exception as e:
-            LOG.exception(e)
+        except Exception:
+            traceback.print_exc()
             raise
         finally:
             self._clean_all()
@@ -123,8 +124,8 @@ class TestRca(BaseRcaTest):
 
             self._validate_set_state(topology=topology['nodes'],
                                      instances=instances)
-        except Exception as e:
-            LOG.exception(e)
+        except Exception:
+            traceback.print_exc()
             raise
         finally:
             self._clean_all()
@@ -147,8 +148,8 @@ class TestRca(BaseRcaTest):
 
             self._validate_notifier(alarms=ceilometer_alarms,
                                     vitrage_alarms=vitrage_alarms)
-        except Exception as e:
-            LOG.exception(e)
+        except Exception:
+            traceback.print_exc()
             raise
         finally:
             self._clean_all()

@@ -11,6 +11,7 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+import traceback
 
 from oslo_log import log as logging
 from vitrage_tempest_tests.tests.api.topology.base import BaseTopologyTest
@@ -49,8 +50,8 @@ class TestNova(BaseTopologyTest):
                                              num_entities,
                                              num_edges,
                                              entities)
-        except Exception as e:
-            LOG.exception(e)
+        except Exception:
+            traceback.print_exc()
             raise
         finally:
             self._rollback_to_default()

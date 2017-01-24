@@ -48,9 +48,10 @@ class BaseTemplateTest(BaseApiTest):
         self.assertIsNotNone(cli_templates,
                              'The template list taken from cli is empty')
 
-        LOG.debug("The template list taken from cli is : %s", cli_templates)
-        LOG.debug("The template list taken by api is : %s",
-                  json.dumps(api_templates))
+        print("The template list taken from cli is : " +
+              str(cli_templates))
+        print("The template list taken by api is : " +
+              str(json.dumps(api_templates)))
 
         self._validate_templates_list_length(api_templates, cli_templates)
         self._validate_passed_templates_length(api_templates, cli_templates)
@@ -63,10 +64,10 @@ class BaseTemplateTest(BaseApiTest):
         self.assertIsNotNone(
             cli_templates, 'The template validations taken from cli is empty')
 
-        LOG.debug("The template validations taken from cli is : %s",
-                  cli_templates)
-        LOG.debug("The template validations taken by api is : %s",
-                  json.dumps(api_templates))
+        print("The template validations taken from cli is : " +
+              str(cli_templates))
+        print("The template validations taken by api is : " +
+              str(json.dumps(api_templates)))
 
         parsed_topology = json.loads(cli_templates)
         sorted_cli_templates = sorted(parsed_topology.items())
@@ -133,10 +134,10 @@ class BaseTemplateTest(BaseApiTest):
         self.assertIsNotNone(
             cli_templates, 'The template validations taken from cli is empty')
 
-        LOG.debug("The template validations taken from cli is : %s",
-                  cli_templates)
-        LOG.debug("The template validations taken by api is : %s",
-                  json.dumps(api_templates))
+        print("The template validations taken from cli is : " +
+              str(cli_templates))
+        print("The template validations taken by api is : " +
+              str(json.dumps(api_templates)))
 
         parsed_topology = json.loads(cli_templates)
         sorted_cli_templates = sorted(parsed_topology.items())
