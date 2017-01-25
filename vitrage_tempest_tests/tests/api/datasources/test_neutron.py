@@ -11,12 +11,14 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+
 import traceback
 
 from oslo_log import log as logging
 
 from vitrage.common.constants import VertexProperties as VProps
 from vitrage_tempest_tests.tests.api.topology.base import BaseTopologyTest
+from vitrage_tempest_tests.tests import utils
 
 LOG = logging.getLogger(__name__)
 
@@ -28,6 +30,7 @@ class TestNeutron(BaseTopologyTest):
     def setUpClass(cls):
         super(TestNeutron, cls).setUpClass()
 
+    @utils.tempest_logger
     def test_neutron(self):
         """neutron test
 
@@ -62,8 +65,9 @@ class TestNeutron(BaseTopologyTest):
                                              num_entities,
                                              num_edges,
                                              entities)
-        except Exception:
+        except Exception as e:
             traceback.print_exc()
+            LOG.exception(e)
             raise
         finally:
             self._delete_instances()

@@ -110,3 +110,15 @@ def get_regex_result(pattern, text):
 
 def uni2str(text):
     return text.encode('ascii', 'ignore')
+
+
+def tempest_logger(func):
+    func_name = func.func_name
+
+    def func_name_print_func(*args, **kwargs):
+        LOG.info('Test Start: ' + func_name)
+        result = func(*args, **kwargs)
+        LOG.info('Test End: ' + func_name)
+        return result
+
+    return func_name_print_func
