@@ -29,8 +29,8 @@ from vitrage.datasources import NOVA_INSTANCE_DATASOURCE
 from vitrage.datasources import NOVA_ZONE_DATASOURCE
 from vitrage.datasources import OPENSTACK_CLUSTER
 from vitrage.datasources.static_physical import SWITCH
+from vitrage.graph.driver.networkx_graph import NXGraph
 from vitrage.graph import Edge
-from vitrage.graph import NXGraph
 from vitrage.graph import Vertex
 from vitrage import keystone_client
 from vitrage import os_clients
