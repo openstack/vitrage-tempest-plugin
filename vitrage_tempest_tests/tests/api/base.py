@@ -341,8 +341,6 @@ class BaseApiTest(base.BaseTestCase):
                                     entities):
         self.assertIsNotNone(graph)
         self.assertIsNotNone(entities)
-        self.assertEqual(num_entities, graph.num_vertices())
-        self.assertEqual(num_edges, graph.num_edges())
 
         for entity in entities:
             query = {
@@ -357,12 +355,15 @@ class BaseApiTest(base.BaseTestCase):
                              '%s%s' % ('Num vertices is incorrect for: ',
                                        entity[VProps.TYPE]))
 
-            num_edges = sum([len(graph.get_edges(vertex.vertex_id))
-                             for vertex in vertices])
+            entity_num_edges = sum([len(graph.get_edges(vertex.vertex_id))
+                                    for vertex in vertices])
             self.assertEqual(entity[self.NUM_EDGES_PER_TYPE],
-                             num_edges,
+                             entity_num_edges,
                              '%s%s' % ('Num edges is incorrect for: ',
                                        entity[VProps.TYPE]))
+
+        self.assertEqual(num_entities, graph.num_vertices())
+        self.assertEqual(num_edges, graph.num_edges())
 
     @staticmethod
     def _get_value(item, key):
