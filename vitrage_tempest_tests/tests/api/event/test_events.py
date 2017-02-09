@@ -15,22 +15,26 @@
 
 from datetime import datetime
 from oslo_log import log as logging
+from oslotest import base
 
 from vitrage.common.constants import DatasourceProperties as DSProps
 from vitrage.common.constants import EntityCategory
 from vitrage.common.constants import EventProperties as EventProps
 from vitrage.common.constants import VertexProperties as VProps
-from vitrage_tempest_tests.tests.api.base import BaseApiTest
+from vitrage import keystone_client
+from vitrageclient import client as v_client
 
 LOG = logging.getLogger(__name__)
 
 
-class TestEvents(BaseApiTest):
+class TestEvents(base.BaseTestCase):
     """Test class for Vitrage event API"""
 
+    # noinspection PyPep8Naming
     @classmethod
     def setUpClass(cls):
-        super(TestEvents, cls).setUpClass()
+        cls.vitrage_client = \
+            v_client.Client('1', session=keystone_client.get_session(cls.conf))
 
     def test_send_doctor_event(self):
         """Sending an event in Doctor format should result in an alarm"""
