@@ -36,7 +36,7 @@ class BaseTopologyTest(BaseApiTest):
         api_graph = self.vitrage_client.topology.get(
             limit=4,
             root='RESOURCE:openstack.cluster:OpenStack Cluster',
-            all_tenants=1)
+            all_tenants=True)
         graph = self._create_graph_from_graph_dictionary(api_graph)
         entities = self._entities_validation_data()
         num_default_entities = self.num_default_entities + \
