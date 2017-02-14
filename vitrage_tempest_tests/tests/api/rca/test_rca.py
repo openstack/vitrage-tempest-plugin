@@ -103,7 +103,7 @@ class TestRca(BaseRcaTest):
             self._create_alarm(
                 resource_id=self._get_hostname(),
                 alarm_name=RCA_ALARM_NAME)
-            api_alarms = self.vitrage_client.alarms.list(vitrage_id=None)
+            api_alarms = self.vitrage_client.alarm.list(vitrage_id=None)
 
             self._validate_deduce_alarms(alarms=api_alarms,
                                          instances=instances)
@@ -153,7 +153,7 @@ class TestRca(BaseRcaTest):
             self._create_alarm(
                 resource_id=self._get_hostname(),
                 alarm_name=RCA_ALARM_NAME)
-            vitrage_alarms = self.vitrage_client.alarms.list(vitrage_id=None)
+            vitrage_alarms = self.vitrage_client.alarm.list(vitrage_id=None)
             ceilometer_alarms = self.ceilometer_client.alarms.list()
 
             self._validate_notifier(alarms=ceilometer_alarms,

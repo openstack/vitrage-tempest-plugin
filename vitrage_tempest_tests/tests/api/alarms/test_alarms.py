@@ -42,7 +42,7 @@ class TestAlarms(BaseAlarmsTest):
             self._create_ceilometer_alarm(resource_id=instances[0].id,
                                           name='tempest_aodh_test')
 
-            api_alarms = self.vitrage_client.alarms.list(vitrage_id=None)
+            api_alarms = self.vitrage_client.alarm.list(vitrage_id=None)
             cli_alarms = utils.run_vitrage_command(
                 'vitrage alarm list', self.conf)
             self._compare_alarms_lists(

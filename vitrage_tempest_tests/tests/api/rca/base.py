@@ -48,7 +48,7 @@ class BaseRcaTest(BaseAlarmsTest):
         self._create_ceilometer_alarm(resource_id=resource_id,
                                       name=alarm_name, unic=unic)
 
-        list_alarms = self.vitrage_client.alarms.list(vitrage_id=None)
+        list_alarms = self.vitrage_client.alarm.list(vitrage_id=None)
         expected_alarm = self._filter_list_by_pairs_parameters(
             list_alarms, ['resource_id', VProps.TYPE],
             [resource_id, AODH_DATASOURCE])
