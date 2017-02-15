@@ -118,7 +118,7 @@ class BaseApiTest(base.BaseTestCase):
         return volume
 
     def _get_host(self):
-        topology = self.vitrage_client.topology.get(all_tenants=1)
+        topology = self.vitrage_client.topology.get(all_tenants=True)
         host = filter(lambda item: item[VProps.TYPE] == NOVA_HOST_DATASOURCE,
                       topology['nodes'])
         return host[0]

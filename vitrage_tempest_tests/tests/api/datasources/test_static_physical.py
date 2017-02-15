@@ -39,7 +39,7 @@ class TestStaticPhysical(BaseApiTest):
             self._create_switches()
 
             # Calculate expected results
-            api_graph = self.vitrage_client.topology.get(all_tenants=1)
+            api_graph = self.vitrage_client.topology.get(all_tenants=True)
             graph = self._create_graph_from_graph_dictionary(api_graph)
             entities = self._entities_validation_data(
                 host_entities=1,

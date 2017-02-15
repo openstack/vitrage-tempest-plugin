@@ -67,7 +67,7 @@ class TestTopology(BaseTopologyTest):
                                   num_volumes=self.NUM_VOLUME)
 
             # Calculate expected results
-            api_graph = self.vitrage_client.topology.get(all_tenants=1)
+            api_graph = self.vitrage_client.topology.get(all_tenants=True)
             graph = self._create_graph_from_graph_dictionary(api_graph)
             entities = self._entities_validation_data(
                 host_entities=1,
@@ -109,7 +109,7 @@ class TestTopology(BaseTopologyTest):
             # Calculate expected results
             api_graph = self.vitrage_client.topology.get(
                 query=self._graph_query(),
-                all_tenants=1)
+                all_tenants=True)
             graph = self._create_graph_from_graph_dictionary(api_graph)
             entities = self._entities_validation_data(
                 host_entities=1,
@@ -144,7 +144,7 @@ class TestTopology(BaseTopologyTest):
 
             # Calculate expected results
             api_graph = self.vitrage_client.topology.get(
-                graph_type='tree', query=NOVA_QUERY, all_tenants=1)
+                graph_type='tree', query=NOVA_QUERY, all_tenants=True)
             graph = self._create_graph_from_tree_dictionary(api_graph)
             entities = self._entities_validation_data(
                 host_entities=1,
@@ -179,7 +179,7 @@ class TestTopology(BaseTopologyTest):
 
             # Calculate expected results
             api_graph = self.vitrage_client.topology.get(
-                graph_type='tree', query=self._tree_query(), all_tenants=1)
+                graph_type='tree', query=self._tree_query(), all_tenants=True)
             graph = self._create_graph_from_tree_dictionary(api_graph)
             entities = self._entities_validation_data(
                 host_entities=1, host_edges=1)
@@ -209,7 +209,7 @@ class TestTopology(BaseTopologyTest):
 
             # Calculate expected results
             api_graph = self.vitrage_client.topology.get(
-                limit=2, graph_type='tree', query=NOVA_QUERY, all_tenants=1)
+                limit=2, graph_type='tree', query=NOVA_QUERY, all_tenants=True)
             graph = self._create_graph_from_tree_dictionary(api_graph)
             entities = self._entities_validation_data(
                 host_entities=1, host_edges=1)
@@ -239,7 +239,7 @@ class TestTopology(BaseTopologyTest):
 
             # Calculate expected results
             api_graph = self.vitrage_client.topology.get(
-                limit=3, graph_type='tree', query=NOVA_QUERY, all_tenants=1)
+                limit=3, graph_type='tree', query=NOVA_QUERY, all_tenants=True)
             graph = self._create_graph_from_tree_dictionary(api_graph)
             entities = self._entities_validation_data(
                 host_entities=1,
@@ -277,7 +277,7 @@ class TestTopology(BaseTopologyTest):
             api_graph = self.vitrage_client.topology.get(
                 limit=2,
                 root='RESOURCE:openstack.cluster:OpenStack Cluster',
-                all_tenants=1)
+                all_tenants=True)
             graph = self._create_graph_from_graph_dictionary(api_graph)
             entities = self._entities_validation_data(
                 host_entities=1, host_edges=1)
@@ -310,7 +310,7 @@ class TestTopology(BaseTopologyTest):
             api_graph = self.vitrage_client.topology.get(
                 limit=3,
                 root='RESOURCE:openstack.cluster:OpenStack Cluster',
-                all_tenants=1)
+                all_tenants=True)
             graph = self._create_graph_from_graph_dictionary(api_graph)
             entities = self._entities_validation_data(
                 host_entities=1,
@@ -348,7 +348,7 @@ class TestTopology(BaseTopologyTest):
             self.vitrage_client.topology.get(
                 limit=2,
                 root='RESOURCE:openstack.cluster:OpenStack Cluster',
-                all_tenants=1)
+                all_tenants=True)
         except ClientException as e:
             self.assertEqual(403, e.code)
             self.assertEqual(
@@ -372,7 +372,7 @@ class TestTopology(BaseTopologyTest):
 
             # Calculate expected results
             api_graph = self.vitrage_client.topology.get(
-                query=self._graph_no_match_query(), all_tenants=1)
+                query=self._graph_no_match_query(), all_tenants=True)
 
             # Test Assertions
             self.assertEqual(
@@ -403,7 +403,7 @@ class TestTopology(BaseTopologyTest):
             api_graph = self.vitrage_client.topology.get(
                 graph_type='tree',
                 query=self._tree_no_match_query(),
-                all_tenants=1)
+                all_tenants=True)
 
             # Test Assertions
             self.assertEqual({}, api_graph)
