@@ -15,13 +15,8 @@
 import json
 import time
 
-from oslo_log import log as logging
-
 from vitrage.common.constants import VertexProperties as VProps
 from vitrage_tempest_tests.tests.api.base import BaseApiTest
-
-
-LOG = logging.getLogger(__name__)
 
 
 class BaseTopologyTest(BaseApiTest):

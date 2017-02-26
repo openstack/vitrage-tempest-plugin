@@ -15,12 +15,8 @@
 import random
 import time
 
-from oslo_log import log as logging
-
 from vitrage import os_clients
 from vitrage_tempest_tests.tests.api.base import BaseApiTest
-
-LOG = logging.getLogger(__name__)
 
 TEMPLATES_RESOURCES_PATH = 'resources/templates/'
 TEMPLATES_SOURCES_PATH = '/etc/vitrage/templates/'
