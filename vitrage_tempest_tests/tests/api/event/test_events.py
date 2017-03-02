@@ -22,6 +22,7 @@ from vitrage.common.constants import EntityCategory
 from vitrage.common.constants import EventProperties as EventProps
 from vitrage.common.constants import VertexProperties as VProps
 from vitrage import keystone_client
+from vitrage import service
 from vitrageclient import client as v_client
 
 LOG = logging.getLogger(__name__)
@@ -33,6 +34,7 @@ class TestEvents(base.BaseTestCase):
     # noinspection PyPep8Naming
     @classmethod
     def setUpClass(cls):
+        cls.conf = service.prepare_service([])
         cls.vitrage_client = \
             v_client.Client('1', session=keystone_client.get_session(cls.conf))
 
