@@ -12,6 +12,8 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from functools import wraps
+
 import socket
 
 from oslo_config import cfg
@@ -115,6 +117,7 @@ def uni2str(text):
 def tempest_logger(func):
     func_name = func.func_name
 
+    @wraps(func)
     def func_name_print_func(*args, **kwargs):
         LOG.info('Test Start: ' + func_name)
         result = func(*args, **kwargs)
