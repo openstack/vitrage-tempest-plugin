@@ -50,9 +50,10 @@ class TestTopology(BaseTopologyTest):
         This test validate correctness of topology graph:
          cli via api
         """
-        api_graph = self.vitrage_client.topology.get()
-        cli_graph = utils.run_vitrage_command('vitrage topology show',
-                                              self.conf)
+        api_graph = self.vitrage_client.topology.get(all_tenants=True)
+        cli_graph = utils.run_vitrage_command(
+            'vitrage topology show --all-tenants',
+            self.conf)
         self._compare_graphs(api_graph, cli_graph)
 
     @utils.tempest_logger
