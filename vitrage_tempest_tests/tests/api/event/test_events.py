@@ -12,6 +12,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import time
 
 from datetime import datetime
 from oslo_log import log as logging
@@ -88,3 +89,14 @@ class TestEvents(base.BaseTestCase):
         self.assertEqual(details['status'], alarm[VProps.STATE])
         self.assertFalse(alarm[VProps.IS_DELETED])
         self.assertFalse(alarm[VProps.IS_PLACEHOLDER])
+
+    @staticmethod
+    def _wait_for_status(max_waiting, func, **kwargs):
+        count = 0
+        while count < max_waiting:
+            if func(**kwargs):
+                return True
+            count += 1
+            time.sleep(2)
+        LOG.info("wait_for_status - False")
+        return False
