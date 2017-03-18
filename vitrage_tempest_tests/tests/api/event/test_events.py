@@ -43,7 +43,8 @@ class TestEvents(base.BaseTestCase):
         """Sending an event in Doctor format should result in an alarm"""
         try:
             # post an event to the message bus
-            event_time = datetime.now().isoformat()
+            event_time = datetime.now()
+            event_time_iso = event_time.isoformat()
             event_type = 'compute.host.down'
             details = {
                 'hostname': 'host123',
@@ -55,7 +56,7 @@ class TestEvents(base.BaseTestCase):
                 'monitor_event_id': '456',
             }
 
-            self.vitrage_client.event.post(event_time, event_type, details)
+            self.vitrage_client.event.post(event_time_iso, event_type, details)
 
             # list all alarms
             api_alarms = self.vitrage_client.alarm.list(vitrage_id='all',
@@ -66,10 +67,11 @@ class TestEvents(base.BaseTestCase):
             self.assertEqual(1, len(api_alarms), 'Expected host down alarm')
             alarm = api_alarms[0]
 
+            event_time_tz = event_time.strftime("%Y-%m-%d %H:%M:%SZ")
             self._wait_for_status(2,
                                   self._check_alarm,
                                   alarm=alarm,
-                                  event_time=event_time,
+                                  event_time=event_time_tz,
                                   event_type=event_type,
                                   details=details)
 
