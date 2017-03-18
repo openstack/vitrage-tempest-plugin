@@ -12,6 +12,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import six
 import time
 
 from datetime import datetime
@@ -67,7 +68,7 @@ class TestEvents(base.BaseTestCase):
             self.assertEqual(1, len(api_alarms), 'Expected host down alarm')
             alarm = api_alarms[0]
 
-            event_time_tz = event_time.strftime("%Y-%m-%d %H:%M:%SZ")
+            event_time_tz = six.u(event_time.strftime("%Y-%m-%d %H:%M:%SZ"))
             self._wait_for_status(2,
                                   self._check_alarm,
                                   alarm=alarm,
