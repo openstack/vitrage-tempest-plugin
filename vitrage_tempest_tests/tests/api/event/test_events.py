@@ -77,7 +77,7 @@ class TestEvents(base.BaseTestCase):
 
     def _check_alarms(self):
         api_alarms = self.vitrage_client.alarm.list(vitrage_id='all',
-                                                    all_tenants=False)
+                                                    all_tenants=True)
         if api_alarms:
             return True, api_alarms
 
