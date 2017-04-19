@@ -29,8 +29,7 @@ class BaseTopologyTest(BaseApiTest):
     def _rollback_to_default(self):
         self._delete_entities()
         api_graph = self.vitrage_client.topology.get(
-            limit=4,
-            root='RESOURCE:openstack.cluster:OpenStack Cluster',
+            root=None,
             all_tenants=True)
         graph = self._create_graph_from_graph_dictionary(api_graph)
         entities = self._entities_validation_data()

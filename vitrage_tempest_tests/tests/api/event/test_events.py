@@ -19,6 +19,8 @@ from datetime import datetime
 from oslo_log import log as logging
 from oslotest import base
 
+import unittest
+
 from vitrage.common.constants import EntityCategory
 from vitrage.common.constants import EventProperties as EventProps
 from vitrage.common.constants import VertexProperties as VProps
@@ -39,22 +41,40 @@ class TestEvents(base.BaseTestCase):
         cls.vitrage_client = \
             v_client.Client('1', session=keystone_client.get_session(cls.conf))
 
-    def test_send_doctor_event(self):
+    def test_send_doctor_event_with_resource_id(self):
         """Sending an event in Doctor format should result in an alarm"""
+        details = {
+            'hostname': 'host123',
+            'source': 'sample_monitor',
+            'cause': 'another alarm',
+            'severity': 'critical',
+            'status': 'down',
+            'monitor_id': 'sample monitor',
+            'resource_id': 'host123',
+            'monitor_event_id': '456',
+        }
+        self._test_send_doctor_event(details)
+
+    @unittest.skip("testing skipping")
+    def test_send_doctor_event_without_resource_id(self):
+        """Sending an event in Doctor format should result in an alarm"""
+        details = {
+            'hostname': 'host123',
+            'source': 'sample_monitor',
+            'cause': 'another alarm',
+            'severity': 'critical',
+            'status': 'down',
+            'monitor_id': 'sample monitor',
+            'monitor_event_id': '456',
+        }
+        self._test_send_doctor_event(details)
+
+    def _test_send_doctor_event(self, details):
         try:
             # post an event to the message bus
             event_time = datetime.now()
             event_time_iso = event_time.isoformat()
             event_type = 'compute.host.down'
-            details = {
-                'hostname': 'host123',
-                'source': 'sample_monitor',
-                'cause': 'another alarm',
-                'severity': 'critical',
-                'status': 'down',
-                'monitor_id': 'sample monitor',
-                'monitor_event_id': '456',
-            }
 
             self.vitrage_client.event.post(event_time_iso, event_type, details)
 
@@ -67,12 +87,15 @@ class TestEvents(base.BaseTestCase):
             alarm = api_alarms[0]
             event_time_tz = six.u(event_time.strftime('%Y-%m-%dT%H:%M:%SZ'))
             self._check_alarm(alarm, event_time_tz, event_type, details)
+            event_time = datetime.now()
+            event_time_iso = event_time.isoformat()
+            details['status'] = 'up'
+            self.vitrage_client.event.post(event_time_iso, event_type, details)
 
         except Exception as e:
             LOG.exception(e)
             raise
         finally:
-            # do what?
             LOG.warning('done')
 
     def _check_alarms(self):
