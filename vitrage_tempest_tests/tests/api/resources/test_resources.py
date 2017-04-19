@@ -28,6 +28,8 @@ LOG = logging.getLogger(__name__)
 class TestResource(BaseApiTest):
     """Test class for Vitrage resource API tests."""
 
+    properties = ('vitrage_id', 'type', 'id', 'state', 'aggregated_state')
+
     @classmethod
     def setUpClass(cls):
         super(TestResource, cls).setUpClass()
@@ -129,6 +131,32 @@ class TestResource(BaseApiTest):
         finally:
             self._delete_instances()
 
+    def test_compare_resource_show(self):
+        """resource_show test"""
+        resource_list = self.vitrage_client.resource.list()
+        self.assertNotEqual(len(resource_list), 0)
+        for resource in resource_list:
+            api_resource_show = \
+                self.vitrage_client.resource.show(resource['vitrage_id'])
+            cli_resource_show = utils.run_vitrage_command(
+                'vitrage resource show ' + resource['vitrage_id'], self.conf)
+
+            self._compare_resource_show(
+                api_resource_show, cli_resource_show)
+
+    def test_resource_show_with_no_existing_resource(self):
+        """resource_show test no existing resource"""
+        try:
+            resource = \
+                self.vitrage_client.resource.show('test_for_no_existing')
+            self.assertIsNone(resource)
+        except Exception as e:
+            LOG.exception(e)
+            traceback.print_exc()
+            raise
+        finally:
+            self._delete_instances()
+
     def _compare_resources(self, api_resources, cli_resources):
         self.assertNotEqual(len(api_resources), 0,
                             'The resources taken from rest api is empty')
@@ -145,10 +173,19 @@ class TestResource(BaseApiTest):
         self.assertEqual(len(sorted_cli_resources),
                          len(sorted_api_resources))
 
-        properties = ('vitrage_id', 'type', 'id', 'state',
-                      'aggregated_state', 'operational_state')
         for cli_resource, api_resource in \
                 zip(sorted_cli_resources, sorted_api_resources):
-            for item in properties:
+            for item in self.properties:
                 self.assertEqual(cli_resource.get(item),
                                  api_resource.get(item))
+
+    def _compare_resource_show(self, api_resource_show,
+                               cli_resource_show):
+        self.assertIsNotNone(api_resource_show,
+                             'The resource show taken from rest api is empty')
+        self.assertIsNotNone(cli_resource_show,
+                             'The resource show taken from terminal is empty')
+
+        for item in self.properties:
+            self.assertEqual(api_resource_show.get(item),
+                             cli_resource_show.get(item))
