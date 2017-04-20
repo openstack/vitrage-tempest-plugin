@@ -19,8 +19,6 @@ from datetime import datetime
 from oslo_log import log as logging
 from oslotest import base
 
-import unittest
-
 from vitrage.common.constants import EntityCategory
 from vitrage.common.constants import EventProperties as EventProps
 from vitrage.common.constants import VertexProperties as VProps
@@ -41,21 +39,6 @@ class TestEvents(base.BaseTestCase):
         cls.vitrage_client = \
             v_client.Client('1', session=keystone_client.get_session(cls.conf))
 
-    def test_send_doctor_event_with_resource_id(self):
-        """Sending an event in Doctor format should result in an alarm"""
-        details = {
-            'hostname': 'host123',
-            'source': 'sample_monitor',
-            'cause': 'another alarm',
-            'severity': 'critical',
-            'status': 'down',
-            'monitor_id': 'sample monitor',
-            'resource_id': 'host123',
-            'monitor_event_id': '456',
-        }
-        self._test_send_doctor_event(details)
-
-    @unittest.skip("testing skipping")
     def test_send_doctor_event_without_resource_id(self):
         """Sending an event in Doctor format should result in an alarm"""
         details = {
@@ -91,6 +74,10 @@ class TestEvents(base.BaseTestCase):
             event_time_iso = event_time.isoformat()
             details['status'] = 'up'
             self.vitrage_client.event.post(event_time_iso, event_type, details)
+            self._wait_for_status(2, self._check_alarms)
+            # TODO(iaffek)
+            # self.assertIsNotNone(api_alarms, 'Expected host down alarm')
+            # self.assertEqual(0, len(api_alarms), 'Expected host down alarm')
 
         except Exception as e:
             LOG.exception(e)
