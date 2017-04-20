@@ -31,6 +31,7 @@ NOVA_QUERY = '{"and": [{"==": {"category": "RESOURCE"}},' \
              '{"==": {"type": "nova.instance"}},' \
              '{"==": {"type": "nova.host"}},' \
              '{"==": {"type": "nova.zone"}}]}]}'
+CLUSTER_VERTEX_ID = 'RESOURCE:openstack.cluster:OpenStack Cluster'
 
 
 class TestTopology(BaseTopologyTest):
@@ -277,7 +278,7 @@ class TestTopology(BaseTopologyTest):
             # Calculate expected results
             api_graph = self.vitrage_client.topology.get(
                 limit=2,
-                root='RESOURCE:openstack.cluster:OpenStack Cluster',
+                root=CLUSTER_VERTEX_ID,
                 all_tenants=True)
             graph = self._create_graph_from_graph_dictionary(api_graph)
             entities = self._entities_validation_data(
@@ -310,7 +311,7 @@ class TestTopology(BaseTopologyTest):
             # Calculate expected results
             api_graph = self.vitrage_client.topology.get(
                 limit=3,
-                root='RESOURCE:openstack.cluster:OpenStack Cluster',
+                root=CLUSTER_VERTEX_ID,
                 all_tenants=True)
             graph = self._create_graph_from_graph_dictionary(api_graph)
             entities = self._entities_validation_data(
@@ -348,14 +349,13 @@ class TestTopology(BaseTopologyTest):
             # Calculate expected results
             self.vitrage_client.topology.get(
                 limit=2,
-                root='RESOURCE:openstack.cluster:OpenStack Cluster',
+                root=None,
                 all_tenants=True)
         except ClientException as e:
             self.assertEqual(403, e.code)
             self.assertEqual(
-                str(e),
+                str(e.message),
                 "Graph-type 'graph' requires a 'root' with 'depth'")
-            raise
         finally:
             self._rollback_to_default()
 
