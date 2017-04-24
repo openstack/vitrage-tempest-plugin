@@ -39,5 +39,5 @@ class VitrageTempestPlugin(plugins.TempestPlugin):
 
     def get_opt_lists(self):
         return [(config_rca_service.rca_service_group.name,
-                 config_rca_service.rca_service_group),
+                 config_rca_service.RcaServiceGroup),
                 ('service_available', [config_rca_service.service_option])]
