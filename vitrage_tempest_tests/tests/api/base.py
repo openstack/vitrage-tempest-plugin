@@ -58,6 +58,8 @@ class BaseApiTest(base.BaseTestCase):
         cls.nova_client = cls._create_client(os_clients.nova_client, cls.conf)
         cls.cinder_client = cls._create_client(os_clients.cinder_client,
                                                cls.conf)
+        cls.glance_client = cls._create_client(os_clients.glance_client,
+                                               cls.conf)
         cls.neutron_client = cls._create_client(os_clients.neutron_client,
                                                 cls.conf)
         cls.heat_client = cls._create_client(os_clients.heat_client, cls.conf)
@@ -126,19 +128,20 @@ class BaseApiTest(base.BaseTestCase):
     def _create_instances(self, num_instances, set_public_network=False):
         kwargs = {}
         flavors_list = self.nova_client.flavors.list()
-        images_list = self.nova_client.images.list()
+        images_list = self.glance_client.images.list()
         if set_public_network:
             public_net = self._get_public_network()
             if public_net:
                 kwargs.update({"networks": [{'uuid': public_net['id']}]})
 
-        net = self.nova_client.networks.find(label="public")
-        nics = [{'net-id': net.id}]
+        # public_net = self._get_public_network()
+        # nics = [{'net-id': public_net['id']}]
+        img = images_list.next()
         resources = [self.nova_client.servers.create(
             name='%s-%s' % ('vm', index),
             flavor=flavors_list[0],
-            image=images_list[0],
-            nics=nics,
+            image=img,
+            # nics=nics,
             **kwargs) for index in range(num_instances)]
 
         self._wait_for_status(30,
