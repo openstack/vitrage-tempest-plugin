@@ -25,7 +25,7 @@ from vitrage.entity_graph.mappings.operational_alarm_severity \
 from vitrage.entity_graph.mappings.operational_resource_state \
     import OperationalResourceState
 from vitrage.evaluator.actions.evaluator_event_transformer \
-    import VITRAGE_TYPE
+    import VITRAGE_DATASOURCE
 from vitrage_tempest_tests.tests.api.alarms.base import BaseAlarmsTest
 import vitrage_tempest_tests.tests.utils as utils
 
@@ -50,7 +50,7 @@ class BaseRcaTest(BaseAlarmsTest):
 
         list_alarms = self.vitrage_client.alarm.list(vitrage_id=None)
         expected_alarm = self._filter_list_by_pairs_parameters(
-            list_alarms, ['resource_id', VProps.TYPE],
+            list_alarms, ['resource_id', VProps.VITRAGE_TYPE],
             [resource_id, AODH_DATASOURCE])
         if not expected_alarm:
             return None
@@ -73,12 +73,12 @@ class BaseRcaTest(BaseAlarmsTest):
         LOG.info("The rca alarms list is : " + str(json.dumps(rca)))
 
         resource_alarm = self._filter_list_by_pairs_parameters(
-            rca, [VProps.TYPE, VProps.NAME],
+            rca, [VProps.VITRAGE_TYPE, VProps.NAME],
             [AODH_DATASOURCE, RCA_ALARM_NAME])
 
         deduce_alarms = self._filter_list_by_pairs_parameters(
-            rca, [VProps.TYPE, VProps.NAME, VProps.SEVERITY],
-            [VITRAGE_TYPE, VITRAGE_ALARM_NAME,
+            rca, [VProps.VITRAGE_TYPE, VProps.NAME, VProps.SEVERITY],
+            [VITRAGE_DATASOURCE, VITRAGE_ALARM_NAME,
              OperationalAlarmSeverity.WARNING])
 
         self.assertEqual(len(rca), 3)
@@ -92,15 +92,15 @@ class BaseRcaTest(BaseAlarmsTest):
 
         deduce_alarms_1 = self._filter_list_by_pairs_parameters(
             alarms,
-            [VProps.TYPE, VProps.NAME, 'resource_type', 'resource_id'],
-            [VITRAGE_TYPE, VITRAGE_ALARM_NAME,
+            [VProps.VITRAGE_TYPE, VProps.NAME, 'resource_type', 'resource_id'],
+            [VITRAGE_DATASOURCE, VITRAGE_ALARM_NAME,
              NOVA_INSTANCE_DATASOURCE,
              utils.uni2str(instances[0].id)])
 
         deduce_alarms_2 = self._filter_list_by_pairs_parameters(
             alarms,
-            [VProps.TYPE, VProps.NAME, 'resource_type', 'resource_id'],
-            [VITRAGE_TYPE, VITRAGE_ALARM_NAME,
+            [VProps.VITRAGE_TYPE, VProps.NAME, 'resource_type', 'resource_id'],
+            [VITRAGE_DATASOURCE, VITRAGE_ALARM_NAME,
              NOVA_INSTANCE_DATASOURCE,
              utils.uni2str(instances[1].id)])
 
@@ -132,8 +132,8 @@ class BaseRcaTest(BaseAlarmsTest):
 
         host = self._filter_list_by_pairs_parameters(
             topology,
-            [VProps.TYPE, VProps.ID, VProps.VITRAGE_STATE,
-             VProps.AGGREGATED_STATE],
+            [VProps.VITRAGE_TYPE, VProps.ID, VProps.VITRAGE_STATE,
+             VProps.VITRAGE_AGGREGATED_STATE],
             [NOVA_HOST_DATASOURCE,
              self._get_hostname(),
              OperationalResourceState.ERROR,
@@ -141,8 +141,8 @@ class BaseRcaTest(BaseAlarmsTest):
 
         vm1 = self._filter_list_by_pairs_parameters(
             topology,
-            [VProps.TYPE, VProps.ID, VProps.VITRAGE_STATE,
-             VProps.AGGREGATED_STATE],
+            [VProps.VITRAGE_TYPE, VProps.ID, VProps.VITRAGE_STATE,
+             VProps.VITRAGE_AGGREGATED_STATE],
             [NOVA_INSTANCE_DATASOURCE,
              utils.uni2str(instances[0].id),
              OperationalResourceState.SUBOPTIMAL,
@@ -150,8 +150,8 @@ class BaseRcaTest(BaseAlarmsTest):
 
         vm2 = self._filter_list_by_pairs_parameters(
             topology,
-            [VProps.TYPE, VProps.ID, VProps.VITRAGE_STATE,
-             VProps.AGGREGATED_STATE],
+            [VProps.VITRAGE_TYPE, VProps.ID, VProps.VITRAGE_STATE,
+             VProps.VITRAGE_AGGREGATED_STATE],
             [NOVA_INSTANCE_DATASOURCE,
              utils.uni2str(instances[1].id),
              OperationalResourceState.SUBOPTIMAL,
@@ -189,7 +189,7 @@ class BaseRcaTest(BaseAlarmsTest):
     @staticmethod
     def _clean_timestamps(alist):
         try:
-            del alist[5][1][0][VProps.SAMPLE_TIMESTAMP]
+            del alist[5][1][0][VProps.VITRAGE_SAMPLE_TIMESTAMP]
             del alist[5][1][0][VProps.UPDATE_TIMESTAMP]
         except Exception:
             pass

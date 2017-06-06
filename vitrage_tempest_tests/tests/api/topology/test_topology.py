@@ -24,13 +24,13 @@ import unittest
 
 
 LOG = logging.getLogger(__name__)
-NOVA_QUERY = '{"and": [{"==": {"category": "RESOURCE"}},' \
-             '{"==": {"is_deleted": false}},' \
-             '{"==": {"is_placeholder": false}},' \
-             '{"or": [{"==": {"type": "openstack.cluster"}},' \
-             '{"==": {"type": "nova.instance"}},' \
-             '{"==": {"type": "nova.host"}},' \
-             '{"==": {"type": "nova.zone"}}]}]}'
+NOVA_QUERY = '{"and": [{"==": {"vitrage_category": "RESOURCE"}},' \
+             '{"==": {"vitrage_is_deleted": false}},' \
+             '{"==": {"vitrage_is_placeholder": false}},' \
+             '{"or": [{"==": {"vitrage_type": "openstack.cluster"}},' \
+             '{"==": {"vitrage_type": "nova.instance"}},' \
+             '{"==": {"vitrage_type": "nova.host"}},' \
+             '{"==": {"vitrage_type": "nova.zone"}}]}]}'
 CLUSTER_VERTEX_ID = 'RESOURCE:openstack.cluster:OpenStack Cluster'
 
 
