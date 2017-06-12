@@ -121,8 +121,9 @@ class BaseApiTest(base.BaseTestCase):
 
     def _get_host(self):
         topology = self.vitrage_client.topology.get(all_tenants=True)
-        host = filter(lambda item: item[VProps.TYPE] == NOVA_HOST_DATASOURCE,
-                      topology['nodes'])
+        host = filter(
+            lambda item: item[VProps.VITRAGE_TYPE] == NOVA_HOST_DATASOURCE,
+            topology['nodes'])
         return host[0]
 
     def _create_instances(self, num_instances, set_public_network=False):
@@ -247,29 +248,29 @@ class BaseApiTest(base.BaseTestCase):
         validation_data = []
 
         # openstack.cluster
-        props = {VProps.CATEGORY: EntityCategory.RESOURCE,
-                 VProps.TYPE: OPENSTACK_CLUSTER,
+        props = {VProps.VITRAGE_CATEGORY: EntityCategory.RESOURCE,
+                 VProps.VITRAGE_TYPE: OPENSTACK_CLUSTER,
                  self.NUM_VERTICES_PER_TYPE: kwargs.get('cluster_entities', 1),
                  self.NUM_EDGES_PER_TYPE: kwargs.get('cluster_edges', 1)}
         validation_data.append(props)
 
         # nova.zone
-        props = {VProps.CATEGORY: EntityCategory.RESOURCE,
-                 VProps.TYPE: NOVA_ZONE_DATASOURCE,
+        props = {VProps.VITRAGE_CATEGORY: EntityCategory.RESOURCE,
+                 VProps.VITRAGE_TYPE: NOVA_ZONE_DATASOURCE,
                  self.NUM_VERTICES_PER_TYPE: kwargs.get('zone_entities', 1),
                  self.NUM_EDGES_PER_TYPE: kwargs.get('zone_edges', 2)}
         validation_data.append(props)
 
         # nova.host
-        props = {VProps.CATEGORY: EntityCategory.RESOURCE,
-                 VProps.TYPE: NOVA_HOST_DATASOURCE,
+        props = {VProps.VITRAGE_CATEGORY: EntityCategory.RESOURCE,
+                 VProps.VITRAGE_TYPE: NOVA_HOST_DATASOURCE,
                  self.NUM_VERTICES_PER_TYPE: kwargs.get('host_entities', 1),
                  self.NUM_EDGES_PER_TYPE: kwargs.get('host_edges', 1)}
         validation_data.append(props)
 
         # nova.instance
-        props = {VProps.CATEGORY: EntityCategory.RESOURCE,
-                 VProps.TYPE: NOVA_INSTANCE_DATASOURCE,
+        props = {VProps.VITRAGE_CATEGORY: EntityCategory.RESOURCE,
+                 VProps.VITRAGE_TYPE: NOVA_INSTANCE_DATASOURCE,
                  self.NUM_VERTICES_PER_TYPE: kwargs.get(
                      'instance_entities', 0),
                  self.NUM_EDGES_PER_TYPE: kwargs.get(
@@ -277,8 +278,8 @@ class BaseApiTest(base.BaseTestCase):
         validation_data.append(props)
 
         # cinder.volume
-        props = {VProps.CATEGORY: EntityCategory.RESOURCE,
-                 VProps.TYPE: CINDER_VOLUME_DATASOURCE,
+        props = {VProps.VITRAGE_CATEGORY: EntityCategory.RESOURCE,
+                 VProps.VITRAGE_TYPE: CINDER_VOLUME_DATASOURCE,
                  self.NUM_VERTICES_PER_TYPE: kwargs.get(
                      'volume_entities', 0),
                  self.NUM_EDGES_PER_TYPE: kwargs.get(
@@ -286,8 +287,8 @@ class BaseApiTest(base.BaseTestCase):
         validation_data.append(props)
 
         # switch
-        props = {VProps.CATEGORY: EntityCategory.RESOURCE,
-                 VProps.TYPE: SWITCH,
+        props = {VProps.VITRAGE_CATEGORY: EntityCategory.RESOURCE,
+                 VProps.VITRAGE_TYPE: SWITCH,
                  self.NUM_VERTICES_PER_TYPE: kwargs.get(
                      'switch_entities', 0),
                  self.NUM_EDGES_PER_TYPE: kwargs.get(
@@ -295,8 +296,8 @@ class BaseApiTest(base.BaseTestCase):
         validation_data.append(props)
 
         # aodh
-        props = {VProps.CATEGORY: EntityCategory.ALARM,
-                 VProps.TYPE: AODH_DATASOURCE,
+        props = {VProps.VITRAGE_CATEGORY: EntityCategory.ALARM,
+                 VProps.VITRAGE_TYPE: AODH_DATASOURCE,
                  self.NUM_VERTICES_PER_TYPE: kwargs.get(
                      'aodh_entities', 0),
                  self.NUM_EDGES_PER_TYPE: kwargs.get(
@@ -305,8 +306,8 @@ class BaseApiTest(base.BaseTestCase):
 
         # neutron.network
         if kwargs.get('network_entities') is not None:
-            props = {VProps.CATEGORY: EntityCategory.RESOURCE,
-                     VProps.TYPE: NEUTRON_NETWORK_DATASOURCE,
+            props = {VProps.VITRAGE_CATEGORY: EntityCategory.RESOURCE,
+                     VProps.VITRAGE_TYPE: NEUTRON_NETWORK_DATASOURCE,
                      self.NUM_VERTICES_PER_TYPE: kwargs.get(
                          'network_entities', 0),
                      self.NUM_EDGES_PER_TYPE: kwargs.get(
@@ -315,8 +316,8 @@ class BaseApiTest(base.BaseTestCase):
 
         # neutron.port
         if kwargs.get('port_entities') is not None:
-            props = {VProps.CATEGORY: EntityCategory.RESOURCE,
-                     VProps.TYPE: NEUTRON_PORT_DATASOURCE,
+            props = {VProps.VITRAGE_CATEGORY: EntityCategory.RESOURCE,
+                     VProps.VITRAGE_TYPE: NEUTRON_PORT_DATASOURCE,
                      self.NUM_VERTICES_PER_TYPE: kwargs.get(
                          'port_entities', 0),
                      self.NUM_EDGES_PER_TYPE: kwargs.get(
@@ -324,8 +325,8 @@ class BaseApiTest(base.BaseTestCase):
             validation_data.append(props)
 
         # heat.stack
-        props = {VProps.CATEGORY: EntityCategory.RESOURCE,
-                 VProps.TYPE: HEAT_STACK_DATASOURCE,
+        props = {VProps.VITRAGE_CATEGORY: EntityCategory.RESOURCE,
+                 VProps.VITRAGE_TYPE: HEAT_STACK_DATASOURCE,
                  self.NUM_VERTICES_PER_TYPE: kwargs.get(
                      'stack_entities', 0),
                  self.NUM_EDGES_PER_TYPE: kwargs.get(
@@ -344,23 +345,23 @@ class BaseApiTest(base.BaseTestCase):
 
         for entity in entities:
             query = {
-                VProps.CATEGORY: entity[VProps.CATEGORY],
-                VProps.TYPE: entity[VProps.TYPE],
-                VProps.IS_DELETED: False,
-                VProps.IS_PLACEHOLDER: False
+                VProps.VITRAGE_CATEGORY: entity[VProps.VITRAGE_CATEGORY],
+                VProps.VITRAGE_TYPE: entity[VProps.VITRAGE_TYPE],
+                VProps.VITRAGE_IS_DELETED: False,
+                VProps.VITRAGE_IS_PLACEHOLDER: False
             }
             vertices = graph.get_vertices(vertex_attr_filter=query)
             self.assertEqual(entity[self.NUM_VERTICES_PER_TYPE],
                              len(vertices),
                              '%s%s' % ('Num vertices is incorrect for: ',
-                                       entity[VProps.TYPE]))
+                                       entity[VProps.VITRAGE_TYPE]))
 
             entity_num_edges = sum([len(graph.get_edges(vertex.vertex_id))
                                     for vertex in vertices])
             self.assertEqual(entity[self.NUM_EDGES_PER_TYPE],
                              entity_num_edges,
                              '%s%s' % ('Num edges is incorrect for: ',
-                                       entity[VProps.TYPE]))
+                                       entity[VProps.VITRAGE_TYPE]))
 
         self.assertEqual(num_entities, graph.num_vertices())
         self.assertEqual(num_edges, graph.num_edges())

@@ -11,11 +11,13 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
+
 import json
 import traceback
 
 from oslo_log import log as logging
 
+from vitrage.common.constants import VertexProperties as VProps
 from vitrage.datasources import CINDER_VOLUME_DATASOURCE
 from vitrage.datasources import NOVA_INSTANCE_DATASOURCE
 from vitrage_tempest_tests.tests.api.base import BaseApiTest
@@ -28,7 +30,11 @@ LOG = logging.getLogger(__name__)
 class TestResource(BaseApiTest):
     """Test class for Vitrage resource API tests."""
 
-    properties = ('vitrage_id', 'type', 'id', 'state', 'aggregated_state')
+    properties = (VProps.VITRAGE_ID,
+                  VProps.VITRAGE_TYPE,
+                  VProps.ID,
+                  VProps.STATE,
+                  VProps.VITRAGE_AGGREGATED_STATE)
 
     @classmethod
     def setUpClass(cls):

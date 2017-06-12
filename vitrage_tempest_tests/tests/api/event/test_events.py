@@ -94,12 +94,12 @@ class TestEvents(base.BaseTestCase):
         return False, api_alarms
 
     def _check_alarm(self, alarm, event_time, event_type, details):
-        self.assertEqual(EntityCategory.ALARM, alarm[VProps.CATEGORY])
+        self.assertEqual(EntityCategory.ALARM, alarm[VProps.VITRAGE_CATEGORY])
         self.assertEqual(event_type, alarm[VProps.NAME])
         self.assertEqual(event_time, alarm[EventProps.TIME])
         self.assertEqual(details['status'], alarm['status'])
-        self.assertFalse(alarm[VProps.IS_DELETED])
-        self.assertFalse(alarm[VProps.IS_PLACEHOLDER])
+        self.assertFalse(alarm[VProps.VITRAGE_IS_DELETED])
+        self.assertFalse(alarm[VProps.VITRAGE_IS_PLACEHOLDER])
 
     @staticmethod
     def _wait_for_status(max_waiting, func, **kwargs):

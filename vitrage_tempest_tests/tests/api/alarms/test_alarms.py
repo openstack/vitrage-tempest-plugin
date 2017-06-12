@@ -72,7 +72,7 @@ class TestAlarms(BaseAlarmsTest):
         cli_items = cli_alarms.splitlines()
 
         api_by_type = self._filter_list_by_pairs_parameters(
-            api_alarms, [VProps.TYPE], [resource_type])
+            api_alarms, [VProps.VITRAGE_TYPE], [resource_type])
         cli_by_type = cli_alarms.count(' ' + resource_type + ' ')
 
         api_by_id = self._filter_list_by_pairs_parameters(

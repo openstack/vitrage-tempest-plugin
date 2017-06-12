@@ -82,47 +82,47 @@ class BaseTopologyTest(BaseApiTest):
             item.pop(VProps.UPDATE_TIMESTAMP, None)
 
         for item in sorted_cli_graph[4][1]:
-            item.pop(VProps.SAMPLE_TIMESTAMP, None)
+            item.pop(VProps.VITRAGE_SAMPLE_TIMESTAMP, None)
 
         for item in sorted_api_graph[4][1]:
-            item.pop(VProps.SAMPLE_TIMESTAMP, None)
+            item.pop(VProps.VITRAGE_SAMPLE_TIMESTAMP, None)
 
         self.assertEqual(sorted_cli_graph, sorted_api_graph)
 
     @staticmethod
     def _graph_query():
-        return '{"and": [{"==": {"category": "RESOURCE"}},' \
-               '{"==": {"is_deleted": false}},' \
-               '{"==": {"is_placeholder": false}},' \
-               '{"or": [{"==": {"type": "openstack.cluster"}},' \
-               '{"==": {"type": "nova.instance"}},' \
-               '{"==": {"type": "nova.host"}},' \
-               '{"==": {"type": "nova.zone"}}]}]}'
+        return '{"and": [{"==": {"vitrage_category": "RESOURCE"}},' \
+               '{"==": {"vitrage_is_deleted": false}},' \
+               '{"==": {"vitrage_is_placeholder": false}},' \
+               '{"or": [{"==": {"vitrage_type": "openstack.cluster"}},' \
+               '{"==": {"vitrage_type": "nova.instance"}},' \
+               '{"==": {"vitrage_type": "nova.host"}},' \
+               '{"==": {"vitrage_type": "nova.zone"}}]}]}'
 
     @staticmethod
     def _tree_query():
-        return '{"and": [{"==": {"category": "RESOURCE"}},' \
-               '{"==": {"is_deleted": false}},' \
-               '{"==": {"is_placeholder": false}},' \
-               '{"or": [{"==": {"type": "openstack.cluster"}},' \
-               '{"==": {"type": "nova.host"}},' \
-               '{"==": {"type": "nova.zone"}}]}]}'
+        return '{"and": [{"==": {"vitrage_category": "RESOURCE"}},' \
+               '{"==": {"vitrage_is_deleted": false}},' \
+               '{"==": {"vitrage_is_placeholder": false}},' \
+               '{"or": [{"==": {"vitrage_type": "openstack.cluster"}},' \
+               '{"==": {"vitrage_type": "nova.host"}},' \
+               '{"==": {"vitrage_type": "nova.zone"}}]}]}'
 
     @staticmethod
     def _graph_no_match_query():
-        return '{"and": [{"==": {"category": "test"}},' \
-               '{"==": {"is_deleted": false}},' \
-               '{"==": {"is_placeholder": false}},' \
-               '{"or": [{"==": {"type": "openstack.cluster"}},' \
-               '{"==": {"type": "nova.instance"}},' \
-               '{"==": {"type": "nova.host"}},' \
-               '{"==": {"type": "nova.zone"}}]}]}'
+        return '{"and": [{"==": {"vitrage_category": "test"}},' \
+               '{"==": {"vitrage_is_deleted": false}},' \
+               '{"==": {"vitrage_is_placeholder": false}},' \
+               '{"or": [{"==": {"vitrage_type": "openstack.cluster"}},' \
+               '{"==": {"vitrage_type": "nova.instance"}},' \
+               '{"==": {"vitrage_type": "nova.host"}},' \
+               '{"==": {"vitrage_type": "nova.zone"}}]}]}'
 
     @staticmethod
     def _tree_no_match_query():
-        return '{"and": [{"==": {"category": "test"}},' \
-               '{"==": {"is_deleted": false}},' \
-               '{"==": {"is_placeholder": false}},' \
-               '{"or": [{"==": {"type": "openstack.cluster"}},' \
-               '{"==": {"type": "nova.host"}},' \
-               '{"==": {"type": "nova.zone"}}]}]}'
+        return '{"and": [{"==": {"vitrage_category": "test"}},' \
+               '{"==": {"vitrage_is_deleted": false}},' \
+               '{"==": {"vitrage_is_placeholder": false}},' \
+               '{"or": [{"==": {"vitrage_type": "openstack.cluster"}},' \
+               '{"==": {"vitrage_type": "nova.host"}},' \
+               '{"==": {"vitrage_type": "nova.zone"}}]}]}'
