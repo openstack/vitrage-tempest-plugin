@@ -16,6 +16,8 @@ import json
 
 from oslo_log import log as logging
 
+from vitrage.common.constants import EdgeLabel
+from vitrage.common.constants import EdgeProperties
 from vitrage.common.constants import VertexProperties as VProps
 from vitrage.datasources.aodh import AODH_DATASOURCE
 from vitrage.datasources import NOVA_HOST_DATASOURCE
@@ -118,8 +120,8 @@ class BaseRcaTest(BaseAlarmsTest):
                 alarms[item['source']], VProps.NAME)
             target_alarm_name = self._get_value(
                 alarms[item['target']], VProps.NAME)
-            if self._get_value(item, 'key') != 'causes' \
-                    or self._get_value(item, 'relationship_type') != 'causes' \
+            if self._get_value(item, 'key') != EdgeLabel.CAUSES \
+                    or self._get_value(item, EdgeProperties.RELATIONSHIP_TYPE) != EdgeLabel.CAUSES \
                     or source_alarm_name != RCA_ALARM_NAME \
                     or target_alarm_name != VITRAGE_ALARM_NAME:
                 flag = False

@@ -17,6 +17,7 @@ import time
 from oslo_log import log as logging
 from oslotest import base
 
+from vitrage.common.constants import EdgeProperties
 from vitrage.common.constants import EntityCategory
 from vitrage.common.constants import VertexProperties as VProps
 from vitrage.datasources.aodh import AODH_DATASOURCE
@@ -206,7 +207,7 @@ class BaseApiTest(base.BaseTestCase):
         for i in range(len(edges)):
             graph.add_edge(Edge(str(edges[i]['source']),
                                 str(edges[i]['target']),
-                                edges[i]['relationship_type']))
+                                edges[i][EdgeProperties.RELATIONSHIP_TYPE]))
 
         return graph
 

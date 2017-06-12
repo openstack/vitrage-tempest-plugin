@@ -17,6 +17,8 @@ import testtools
 
 from oslo_config import cfg
 
+from vitrage.common.constants import DatasourceAction
+from vitrage.common.constants import DatasourceProperties
 from vitrage.entity_graph.initialization_status import InitializationStatus
 from vitrage.entity_graph.processor import processor as proc
 from vitrage.tests.mocks import mock_driver as mock_sync
@@ -46,11 +48,14 @@ class BaseMock(testtools.TestCase):
     def _create_mock_events():
         gen_list = mock_sync.simple_zone_generators(
             2, 4, snapshot_events=2,
-            snap_vals={'vitrage_datasource_action': 'init_snapshot'})
+            snap_vals={DatasourceProperties.DATASOURCE_ACTION:
+                       DatasourceAction.INIT_SNAPSHOT})
         gen_list += mock_sync.simple_host_generators(
             2, 4, 4,
-            snap_vals={'vitrage_datasource_action': 'init_snapshot'})
+            snap_vals={DatasourceProperties.DATASOURCE_ACTION:
+                       DatasourceAction.INIT_SNAPSHOT})
         gen_list += mock_sync.simple_instance_generators(
             4, 15, 15,
-            snap_vals={'vitrage_datasource_action': 'init_snapshot'})
+            snap_vals={DatasourceProperties.DATASOURCE_ACTION:
+                       DatasourceAction.INIT_SNAPSHOT})
         return mock_sync.generate_sequential_events_list(gen_list)

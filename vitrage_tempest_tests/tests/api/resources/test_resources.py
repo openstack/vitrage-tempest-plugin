@@ -143,9 +143,10 @@ class TestResource(BaseApiTest):
         self.assertNotEqual(len(resource_list), 0)
         for resource in resource_list:
             api_resource_show = \
-                self.vitrage_client.resource.show(resource['vitrage_id'])
+                self.vitrage_client.resource.show(resource[VProps.VITRAGE_ID])
             cli_resource_show = utils.run_vitrage_command(
-                'vitrage resource show ' + resource['vitrage_id'], self.conf)
+                'vitrage resource show ' + resource[VProps.VITRAGE_ID],
+                self.conf)
 
             self._compare_resource_show(
                 api_resource_show, cli_resource_show)
