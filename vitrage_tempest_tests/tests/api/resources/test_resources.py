@@ -13,7 +13,6 @@
 #    under the License.
 
 import json
-import traceback
 
 from oslo_log import log as logging
 
@@ -53,8 +52,7 @@ class TestResource(BaseApiTest):
 
             self._compare_resources(api_resources, cli_resources)
         except Exception as e:
-            LOG.exception(e)
-            traceback.print_exc()
+            self._handle_exception(e)
             raise
         finally:
             self._delete_instances()
@@ -72,8 +70,7 @@ class TestResource(BaseApiTest):
             resources = self.vitrage_client.resource.list()
             self.assertEqual(4, len(resources))
         except Exception as e:
-            LOG.exception(e)
-            traceback.print_exc()
+            self._handle_exception(e)
             raise
         finally:
             self._delete_instances()
@@ -92,8 +89,7 @@ class TestResource(BaseApiTest):
             resources = self.vitrage_client.resource.list(all_tenants=True)
             self.assertEqual(4, len(resources))
         except Exception as e:
-            LOG.exception(e)
-            traceback.print_exc()
+            self._handle_exception(e)
             raise
         finally:
             self._delete_instances()
@@ -113,8 +109,7 @@ class TestResource(BaseApiTest):
                 all_tenants=False)
             self.assertEqual(1, len(resources))
         except Exception as e:
-            LOG.exception(e)
-            traceback.print_exc()
+            self._handle_exception(e)
             raise
         finally:
             self._delete_instances()
@@ -131,8 +126,7 @@ class TestResource(BaseApiTest):
                 all_tenants=False)
             self.assertEqual(0, len(resources))
         except Exception as e:
-            LOG.exception(e)
-            traceback.print_exc()
+            self._handle_exception(e)
             raise
         finally:
             self._delete_instances()
@@ -158,8 +152,7 @@ class TestResource(BaseApiTest):
                 self.vitrage_client.resource.show('test_for_no_existing')
             self.assertIsNone(resource)
         except Exception as e:
-            LOG.exception(e)
-            traceback.print_exc()
+            self._handle_exception(e)
             raise
         finally:
             self._delete_instances()

@@ -13,6 +13,7 @@
 #    under the License.
 
 import time
+import traceback
 
 from oslo_log import log as logging
 from oslotest import base
@@ -379,3 +380,13 @@ class BaseApiTest(base.BaseTestCase):
         if not public_nets:
             return None
         return public_nets[0]
+
+    def _print_entity_graph(self):
+        api_graph = self.vitrage_client.topology.get(all_tenants=True)
+        graph = self._create_graph_from_graph_dictionary(api_graph)
+        LOG.info('Entity Graph: \n%s', graph.json_output_graph())
+
+    def _handle_exception(self, exception):
+        traceback.print_exc()
+        LOG.exception(exception)
+        self._print_entity_graph()

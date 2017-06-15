@@ -12,8 +12,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import traceback
-
 from oslo_log import log as logging
 
 from vitrage.common.constants import VertexProperties as VProps
@@ -66,8 +64,7 @@ class TestNeutron(BaseTopologyTest):
                                              num_edges,
                                              entities)
         except Exception as e:
-            traceback.print_exc()
-            LOG.exception(e)
+            self._handle_exception(e)
             raise
         finally:
             self._delete_instances()
