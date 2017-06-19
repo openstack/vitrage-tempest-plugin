@@ -15,6 +15,7 @@
 from functools import wraps
 
 import socket
+import time
 
 from oslo_config import cfg
 from oslo_config.cfg import NoSuchOptError
@@ -125,3 +126,16 @@ def tempest_logger(func):
         return result
 
     return func_name_print_func
+
+
+def wait_for_answer(max_waiting, time_between_attempts, func, **kwargs):
+    """time_between_attempts should be in range of 0 to 1"""
+    status, res = False, None
+    start_time = time.time()
+    while time.time() - start_time < max_waiting:
+        time.sleep(time_between_attempts)
+        status, res = func(**kwargs)
+        if status:
+            return res
+    LOG.info("wait for answer- False")
+    return res
