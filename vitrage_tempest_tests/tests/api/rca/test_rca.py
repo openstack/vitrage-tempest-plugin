@@ -12,8 +12,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import traceback
-
 from oslo_log import log as logging
 
 from vitrage.common.constants import VertexProperties as VProps
@@ -54,8 +52,7 @@ class TestRca(BaseRcaTest):
 
             self._compare_rca(api_rca, cli_rca)
         except Exception as e:
-            traceback.print_exc()
-            LOG.exception(e)
+            self._handle_exception(e)
             raise
         finally:
             self._clean_all()
@@ -84,8 +81,7 @@ class TestRca(BaseRcaTest):
             self._validate_relationship(links=api_rca['links'],
                                         alarms=api_rca['nodes'])
         except Exception as e:
-            traceback.print_exc()
-            LOG.exception(e)
+            self._handle_exception(e)
             raise
         finally:
             self._clean_all()
@@ -108,8 +104,7 @@ class TestRca(BaseRcaTest):
             self._validate_deduce_alarms(alarms=api_alarms,
                                          instances=instances)
         except Exception as e:
-            traceback.print_exc()
-            LOG.exception(e)
+            self._handle_exception(e)
             raise
         finally:
             self._clean_all()
@@ -133,8 +128,7 @@ class TestRca(BaseRcaTest):
             self._validate_set_state(topology=topology['nodes'],
                                      instances=instances)
         except Exception as e:
-            traceback.print_exc()
-            LOG.exception(e)
+            self._handle_exception(e)
             raise
         finally:
             self._clean_all()
@@ -159,8 +153,7 @@ class TestRca(BaseRcaTest):
             self._validate_notifier(alarms=ceilometer_alarms,
                                     vitrage_alarms=vitrage_alarms)
         except Exception as e:
-            traceback.print_exc()
-            LOG.exception(e)
+            self._handle_exception(e)
             raise
         finally:
             self._clean_all()

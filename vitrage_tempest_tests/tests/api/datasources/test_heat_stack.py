@@ -13,7 +13,6 @@
 # under the License.
 
 import time
-import traceback
 
 from oslo_log import log as logging
 from vitrage_tempest_tests.tests import utils
@@ -66,8 +65,7 @@ class TestHeatStack(BaseTopologyTest):
                                              num_edges,
                                              entities)
         except Exception as e:
-            traceback.print_exc()
-            LOG.exception(e)
+            self._handle_exception(e)
             raise
         finally:
             self._delete_stacks()

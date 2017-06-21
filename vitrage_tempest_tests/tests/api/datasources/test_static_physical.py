@@ -15,7 +15,6 @@
 import os
 import socket
 import time
-import traceback
 
 from oslo_log import log as logging
 from vitrage_tempest_tests.tests.api.base import BaseApiTest
@@ -57,8 +56,7 @@ class TestStaticPhysical(BaseApiTest):
                                              num_edges,
                                              entities)
         except Exception as e:
-            traceback.print_exc()
-            LOG.exception(e)
+            self._handle_exception(e)
             raise
         finally:
             self._delete_switches()

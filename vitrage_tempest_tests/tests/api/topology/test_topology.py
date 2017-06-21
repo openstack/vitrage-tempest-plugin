@@ -12,8 +12,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import traceback
-
 from oslo_log import log as logging
 
 from vitrage_tempest_tests.tests.api.topology.base import BaseTopologyTest
@@ -90,8 +88,7 @@ class TestTopology(BaseTopologyTest):
                                              num_edges,
                                              entities)
         except Exception as e:
-            traceback.print_exc()
-            LOG.exception(e)
+            self._handle_exception(e)
             raise
         finally:
             self._rollback_to_default()
@@ -127,8 +124,7 @@ class TestTopology(BaseTopologyTest):
                                              num_edges,
                                              entities)
         except Exception as e:
-            traceback.print_exc()
-            LOG.exception(e)
+            self._handle_exception(e)
             raise
         finally:
             self._rollback_to_default()
@@ -162,8 +158,7 @@ class TestTopology(BaseTopologyTest):
                                              num_edges,
                                              entities)
         except Exception as e:
-            traceback.print_exc()
-            LOG.exception(e)
+            self._handle_exception(e)
             raise
         finally:
             self._rollback_to_default()
@@ -192,8 +187,7 @@ class TestTopology(BaseTopologyTest):
                                              self.num_default_edges,
                                              entities)
         except Exception as e:
-            traceback.print_exc()
-            LOG.exception(e)
+            self._handle_exception(e)
             raise
         finally:
             self._rollback_to_default()
@@ -222,8 +216,7 @@ class TestTopology(BaseTopologyTest):
                                              self.num_default_edges,
                                              entities)
         except Exception as e:
-            traceback.print_exc()
-            LOG.exception(e)
+            self._handle_exception(e)
             raise
         finally:
             self._rollback_to_default()
@@ -257,8 +250,7 @@ class TestTopology(BaseTopologyTest):
                                              num_edges,
                                              entities)
         except Exception as e:
-            traceback.print_exc()
-            LOG.exception(e)
+            self._handle_exception(e)
             raise
         finally:
             self._rollback_to_default()
@@ -290,8 +282,7 @@ class TestTopology(BaseTopologyTest):
                                              self.num_default_edges,
                                              entities)
         except Exception as e:
-            traceback.print_exc()
-            LOG.exception(e)
+            self._handle_exception(e)
             raise
         finally:
             self._rollback_to_default()
@@ -328,8 +319,7 @@ class TestTopology(BaseTopologyTest):
                                              num_edges,
                                              entities)
         except Exception as e:
-            traceback.print_exc()
-            LOG.exception(e)
+            self._handle_exception(e)
             raise
         finally:
             self._rollback_to_default()
@@ -383,8 +373,7 @@ class TestTopology(BaseTopologyTest):
                 0,
                 len(api_graph['links']), 'num of edges')
         except Exception as e:
-            traceback.print_exc()
-            LOG.exception(e)
+            self._handle_exception(e)
             raise
         finally:
             self._rollback_to_default()
@@ -409,8 +398,7 @@ class TestTopology(BaseTopologyTest):
             # Test Assertions
             self.assertEqual({}, api_graph)
         except Exception as e:
-            traceback.print_exc()
-            LOG.exception(e)
+            self._handle_exception(e)
             raise
         finally:
             self._rollback_to_default()

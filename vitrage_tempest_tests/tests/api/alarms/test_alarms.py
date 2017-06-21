@@ -13,7 +13,6 @@
 #    under the License.
 
 import json
-import traceback
 
 from oslo_log import log as logging
 
@@ -49,8 +48,7 @@ class TestAlarms(BaseAlarmsTest):
                 api_alarms, cli_alarms, AODH_DATASOURCE,
                 utils.uni2str(instances[0].id))
         except Exception as e:
-            LOG.exception(e)
-            traceback.print_exc()
+            self._handle_exception(e)
             raise
         finally:
             self._delete_ceilometer_alarms()
