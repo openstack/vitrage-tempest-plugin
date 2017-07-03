@@ -19,8 +19,9 @@ from oslo_config import cfg
 
 from vitrage.common.constants import DatasourceAction
 from vitrage.common.constants import DatasourceProperties
-from vitrage.entity_graph.initialization_status import InitializationStatus
 from vitrage.entity_graph.processor import processor as proc
+from vitrage.entity_graph.vitrage_init import VitrageInit
+from vitrage.graph.driver.networkx_graph import NXGraph
 from vitrage.tests.mocks import mock_driver as mock_sync
 from vitrage.tests.mocks import utils
 
@@ -37,7 +38,9 @@ class BaseMock(testtools.TestCase):
         conf = cfg.ConfigOpts()
         conf.register_opts(self.PROCESSOR_OPTS, group='entity_graph')
         events = self._create_mock_events()
-        processor = proc.Processor(conf, InitializationStatus())
+        e_graph = NXGraph("Entity Graph", uuid=False)
+        init = VitrageInit(conf)
+        processor = proc.Processor(conf, init, e_graph)
 
         for event in events:
             processor.process_event(event)
