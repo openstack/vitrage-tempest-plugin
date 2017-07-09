@@ -69,6 +69,10 @@ def run_vitrage_command(command, conf):
                          stdout=subprocess.PIPE,
                          stderr=subprocess.PIPE)
     stdout, stderr = p.communicate()
+    if stderr:
+        LOG.error('error from command %(command)s = %(error)s',
+                  {'error': stderr, 'command': full_command})
+
     return stdout
 
 
