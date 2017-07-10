@@ -53,6 +53,10 @@ class TestTopology(BaseTopologyTest):
         cli_graph = utils.run_vitrage_command(
             'vitrage topology show --all-tenants',
             self.conf)
+
+        LOG.info('api-graph=%(api)s cli-graph=%(cli)s', {'api': api_graph,
+                                                         'cli': cli_graph})
+
         self._compare_graphs(api_graph, cli_graph)
 
     @utils.tempest_logger
