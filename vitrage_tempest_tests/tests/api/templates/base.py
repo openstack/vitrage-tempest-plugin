@@ -108,10 +108,10 @@ class BaseTemplateTest(BaseApiTest):
             self, template, validation, path):
         self.assertNotEqual(len(validation), 0,
                             'The template validation is empty')
-        self.assertEqual(validation['file path'], path)
-        self.assertEqual(validation['status code'], 0)
-        self.assertEqual(validation['status'], self.OK_STATUS)
-        self.assertEqual(validation['message'], self.OK_MSG)
+        self.assertEqual(path, validation['file path'])
+        self.assertEqual(0, validation['status code'])
+        self.assertEqual(self.OK_STATUS, validation['status'])
+        self.assertEqual(self.OK_MSG, validation['message'])
         self.assertEqual(validation['message'], template['status details'])
 
     def _run_template_validation(
@@ -119,14 +119,14 @@ class BaseTemplateTest(BaseApiTest):
         self.assertIn(path, validation['file path'])
 
         if negative:
-            self.assertEqual(validation['status code'], 3)
-            self.assertEqual(validation['status'], self.ERROR_STATUS)
+            self.assertEqual(3, validation['status code'])
+            self.assertEqual(self.ERROR_STATUS, validation['status'])
             self.assertNotEqual(validation['message'], self.OK_MSG)
             return
 
-        self.assertEqual(validation['status code'], 0)
-        self.assertEqual(validation['status'], self.OK_STATUS)
-        self.assertEqual(validation['message'], self.OK_MSG)
+        self.assertEqual(0, validation['status code'])
+        self.assertEqual(self.OK_STATUS, validation['status'])
+        self.assertEqual(self.OK_MSG, validation['message'])
 
     def _compare_template_show(self, api_templates, cli_templates):
         self.assertNotEqual(len(api_templates), 0,
@@ -157,8 +157,8 @@ class BaseTemplateTest(BaseApiTest):
         self.assertIn(
             template_show['metadata']['name'], template_content)
         self.assertEqual(
-            len(template_show['definitions']['entities']), entities)
+            entities, len(template_show['definitions']['entities']))
         self.assertEqual(
-            len(template_show['definitions']['relationships']), relationships)
+            relationships, len(template_show['definitions']['relationships']))
         self.assertEqual(
-            len(template_show['scenarios']), scenarios)
+            scenarios, len(template_show['scenarios']))
