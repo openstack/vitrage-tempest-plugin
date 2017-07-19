@@ -83,9 +83,9 @@ class BaseRcaTest(BaseAlarmsTest):
             [VITRAGE_DATASOURCE, VITRAGE_ALARM_NAME,
              OperationalAlarmSeverity.WARNING])
 
-        self.assertEqual(len(rca), 3)
-        self.assertEqual(len(resource_alarm), 1)
-        self.assertEqual(len(deduce_alarms), 2)
+        self.assertEqual(3, len(rca))
+        self.assertEqual(1, len(resource_alarm))
+        self.assertEqual(2, len(deduce_alarms))
 
     def _validate_deduce_alarms(self, alarms, instances):
         """Validate alarm existence """
@@ -106,9 +106,9 @@ class BaseRcaTest(BaseAlarmsTest):
              NOVA_INSTANCE_DATASOURCE,
              utils.uni2str(instances[1].id)])
 
-        self.assertEqual(len(alarms), 3)
-        self.assertEqual(len(deduce_alarms_1), 1)
-        self.assertEqual(len(deduce_alarms_2), 1)
+        self.assertEqual(3, len(alarms))
+        self.assertEqual(1, len(deduce_alarms_1))
+        self.assertEqual(1, len(deduce_alarms_2))
 
     def _validate_relationship(self, links, alarms):
         self.assertNotEqual(len(links), 0, 'The links list is empty')
@@ -126,7 +126,7 @@ class BaseRcaTest(BaseAlarmsTest):
                     or target_alarm_name != VITRAGE_ALARM_NAME:
                 flag = False
 
-        self.assertEqual(len(alarms), 3)
+        self.assertEqual(3, len(alarms))
         self.assertTrue(flag)
 
     def _validate_set_state(self, topology, instances):
@@ -159,9 +159,9 @@ class BaseRcaTest(BaseAlarmsTest):
              OperationalResourceState.SUBOPTIMAL,
              OperationalResourceState.SUBOPTIMAL])
 
-        self.assertEqual(len(host), 1)
-        self.assertEqual(len(vm1), 1)
-        self.assertEqual(len(vm2), 1)
+        self.assertEqual(1, len(host))
+        self.assertEqual(1, len(vm1))
+        self.assertEqual(1, len(vm2))
 
     def _validate_notifier(self, alarms, vitrage_alarms):
         self.assertNotEqual(len(alarms), 0, 'The aodh alarms list is empty')
@@ -182,8 +182,8 @@ class BaseRcaTest(BaseAlarmsTest):
                     validation += 1
                     break
 
-        self.assertEqual(len(vitrage_alarms), validation)
-        self.assertEqual(len(alarms), 3)
+        self.assertEqual(validation, len(vitrage_alarms))
+        self.assertEqual(3, len(alarms))
 
     def _get_hostname(self):
         return self._get_value(item=self._get_host(), key=VProps.ID)

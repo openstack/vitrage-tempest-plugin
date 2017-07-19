@@ -78,8 +78,8 @@ class TestValidate(BaseTemplateTest):
             validation = self.vitrage_client.template.validate(path=path)
             self.assertIsNone(validation)
         except Exception as up:
-            self.assertEqual(up.strerror, 'No such file or directory')
-            self.assertEqual(up.errno, 2)
+            self.assertEqual('No such file or directory', up.strerror)
+            self.assertEqual(2, up.errno)
 
     def test_templates_validate_corrupted_templates(self):
         """templates_validate test
@@ -90,7 +90,7 @@ class TestValidate(BaseTemplateTest):
         try:
             path = self.TEST_PATH + self.ERROR_FILE
             validation = self.vitrage_client.template.validate(path=path)
-            self.assertEqual(len(validation['results']), 1)
+            self.assertEqual(1, len(validation['results']))
             self._run_template_validation(
                 validation['results'][0], path, negative=True)
         except Exception:
@@ -104,7 +104,7 @@ class TestValidate(BaseTemplateTest):
         try:
             path = self.TEST_PATH + self.OK_FILE
             validation = self.vitrage_client.template.validate(path=path)
-            self.assertEqual(len(validation['results']), 1)
+            self.assertEqual(1, len(validation['results']))
             self._run_template_validation(
                 validation['results'][0], path)
         except Exception:
