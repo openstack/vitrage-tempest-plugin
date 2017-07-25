@@ -52,7 +52,7 @@ class BaseAlarmsTest(BaseApiTest):
         self._wait_for_status(20,
                               self._check_num_alarms,
                               num_alarms=0)
-        time.sleep(25)
+        time.sleep(120)
 
     @staticmethod
     def _aodh_request(resource_id=None, name=None):
