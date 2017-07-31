@@ -16,7 +16,7 @@ from oslo_log import log as logging
 
 from vitrage_tempest_tests.tests.api.topology.base import BaseTopologyTest
 import vitrage_tempest_tests.tests.utils as utils
-from vitrageclient.exc import ClientException
+from vitrageclient.exceptions import ClientException
 
 import unittest
 
