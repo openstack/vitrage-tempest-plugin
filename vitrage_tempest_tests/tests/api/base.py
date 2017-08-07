@@ -17,6 +17,7 @@ import traceback
 
 from oslo_log import log as logging
 from oslotest import base
+from six.moves import filter
 
 from vitrage.common.constants import EdgeProperties
 from vitrage.common.constants import EntityCategory
@@ -78,7 +79,7 @@ class BaseApiTest(base.BaseTestCase):
         count = 0
 
         while count < 40:
-            LOG.info("wait_for_client - " + client_func.func_name)
+            LOG.info("wait_for_client - " + client_func.__name__)
             client = client_func(conf)
             if client:
                 return client
@@ -126,7 +127,7 @@ class BaseApiTest(base.BaseTestCase):
         host = filter(
             lambda item: item[VProps.VITRAGE_TYPE] == NOVA_HOST_DATASOURCE,
             topology['nodes'])
-        return host[0]
+        return next(host)
 
     def _create_instances(self, num_instances, set_public_network=False):
         kwargs = {}
@@ -377,9 +378,10 @@ class BaseApiTest(base.BaseTestCase):
         public_nets = filter(
             lambda item: self._get_value(item, VProps.NAME) == 'public',
             networks['networks'])
-        if not public_nets:
+        try:
+            return next(public_nets)
+        except StopIteration:
             return None
-        return public_nets[0]
 
     def _print_entity_graph(self):
         api_graph = self.vitrage_client.topology.get(all_tenants=True)

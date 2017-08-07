@@ -67,14 +67,14 @@ class TestStaticPhysical(BaseApiTest):
 
         # template file
         file_path = '/etc/vitrage/static_physical_configuration.yaml'
-        with open(file_path, 'rb') as f:
+        with open(file_path, 'r') as f:
             template_data = f.read()
         template_data = template_data.replace('tmp-devstack', hostname)
 
         # new file
         new_file = open(
             '/etc/vitrage/static_datasources/'
-            'static_physical_configuration.yaml', 'wb')
+            'static_physical_configuration.yaml', 'w')
         new_file.write(template_data)
         new_file.close()
 
