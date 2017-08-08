@@ -16,55 +16,30 @@ import six
 
 from datetime import datetime
 from oslo_log import log as logging
-from oslotest import base
 
 from vitrage.common.constants import EntityCategory
 from vitrage.common.constants import EventProperties as EventProps
 from vitrage.common.constants import VertexProperties as VProps
-from vitrage import keystone_client
-from vitrage import service
+from vitrage_tempest_tests.tests.api.event.base import BaseTestEvents
+from vitrage_tempest_tests.tests.api.event.base import DOWN
 from vitrage_tempest_tests.tests.utils import wait_for_answer
-from vitrageclient import client as v_client
 
 
 LOG = logging.getLogger(__name__)
 
 
-class TestEvents(base.BaseTestCase):
+class TestEvents(BaseTestEvents):
     """Test class for Vitrage event API"""
-
-    # noinspection PyPep8Naming
-    @classmethod
-    def setUpClass(cls):
-        cls.conf = service.prepare_service([])
-        cls.vitrage_client = \
-            v_client.Client('1', session=keystone_client.get_session(cls.conf))
 
     def test_send_doctor_event_without_resource_id(self):
         """Sending an event in Doctor format should result in an alarm"""
-        details = {
-            'hostname': 'host123',
-            'source': 'sample_monitor',
-            'cause': 'another alarm',
-            'severity': 'critical',
-            'status': 'down',
-            'monitor_id': 'sample monitor',
-            'monitor_event_id': '456',
-        }
-        self._test_send_doctor_event(details)
+        self._test_send_doctor_event(
+            self._create_doctor_event_details('host123', DOWN))
 
     def test_send_doctor_event_without_resource_id_v2(self):
         """Sending an event in Doctor format should result in an alarm"""
-        details = {
-            'hostname': 'host457',
-            'source': 'sample_monitor',
-            'cause': 'another alarm',
-            'severity': 'critical',
-            'status': 'down',
-            'monitor_id': 'sample monitor',
-            'monitor_event_id': '103',
-        }
-        self._test_send_doctor_event(details)
+        self._test_send_doctor_event(
+            self._create_doctor_event_details('host457', DOWN))
 
     def _test_send_doctor_event(self, details):
         try:
@@ -97,13 +72,6 @@ class TestEvents(base.BaseTestCase):
             raise
         finally:
             LOG.warning('done')
-
-    def _check_alarms(self):
-        api_alarms = self.vitrage_client.alarm.list(vitrage_id='all',
-                                                    all_tenants=True)
-        if api_alarms:
-            return True, api_alarms
-        return False, api_alarms
 
     def _check_alarm(self, alarm, event_time, event_type, details):
         self.assertEqual(EntityCategory.ALARM, alarm[VProps.VITRAGE_CATEGORY])
