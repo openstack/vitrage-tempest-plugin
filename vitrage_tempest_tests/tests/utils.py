@@ -73,7 +73,7 @@ def run_vitrage_command(command, conf):
         LOG.error('error from command %(command)s = %(error)s',
                   {'error': stderr, 'command': full_command})
 
-    return stdout
+    return stdout.decode('utf-8')
 
 
 def get_property_value(environment_name, conf_name, default_value, conf):
@@ -120,7 +120,7 @@ def uni2str(text):
 
 
 def tempest_logger(func):
-    func_name = func.func_name
+    func_name = func.__name__
 
     @wraps(func)
     def func_name_print_func(*args, **kwargs):
