@@ -14,6 +14,8 @@
 
 from oslo_log import log as logging
 
+from vitrage.common.constants import VertexProperties as VProps
+from vitrage.datasources import OPENSTACK_CLUSTER
 from vitrage_tempest_tests.tests.api.topology.base import BaseTopologyTest
 import vitrage_tempest_tests.tests.utils as utils
 from vitrageclient.exceptions import ClientException
@@ -29,7 +31,6 @@ NOVA_QUERY = '{"and": [{"==": {"vitrage_category": "RESOURCE"}},' \
              '{"==": {"vitrage_type": "nova.instance"}},' \
              '{"==": {"vitrage_type": "nova.host"}},' \
              '{"==": {"vitrage_type": "nova.zone"}}]}]}'
-CLUSTER_VERTEX_ID = 'RESOURCE:openstack.cluster:OpenStack Cluster'
 
 
 class TestTopology(BaseTopologyTest):
@@ -41,6 +42,11 @@ class TestTopology(BaseTopologyTest):
     @classmethod
     def setUpClass(cls):
         super(TestTopology, cls).setUpClass()
+
+    def _get_root_vertex_id(self):
+        items = self.vitrage_client.resource.list(
+            resource_type=OPENSTACK_CLUSTER)
+        return items[0][VProps.VITRAGE_ID]
 
     @utils.tempest_logger
     def test_compare_api_and_cli(self):
@@ -274,7 +280,7 @@ class TestTopology(BaseTopologyTest):
             # Calculate expected results
             api_graph = self.vitrage_client.topology.get(
                 limit=2,
-                root=CLUSTER_VERTEX_ID,
+                root=self._get_root_vertex_id(),
                 all_tenants=True)
             graph = self._create_graph_from_graph_dictionary(api_graph)
             entities = self._entities_validation_data(
@@ -306,7 +312,7 @@ class TestTopology(BaseTopologyTest):
             # Calculate expected results
             api_graph = self.vitrage_client.topology.get(
                 limit=3,
-                root=CLUSTER_VERTEX_ID,
+                root=self._get_root_vertex_id(),
                 all_tenants=True)
             graph = self._create_graph_from_graph_dictionary(api_graph)
             entities = self._entities_validation_data(
