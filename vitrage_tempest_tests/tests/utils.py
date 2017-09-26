@@ -58,8 +58,24 @@ def run_vitrage_command(command, conf):
                                       'admin', conf)
     project_name_param = '--os-project-name ' + project_name
 
-    full_command = '%s %s %s %s %s' % (command, user_param, password_param,
-                                       project_name_param, auth_url_param)
+    # USER_DOMAIN_ID
+    user_domain_id = get_property_value('OS_USER_DOMAIN_ID',
+                                        'user_domain_id',
+                                        'default', conf)
+    user_domain_id_param = '--os-user-domain-id ' + user_domain_id
+
+    # PROJECT_DOMAIN_ID
+    project_domain_id = get_property_value('OS_PROJECT_DOMAIN_ID',
+                                           'project_domain_id',
+                                           'default', conf)
+    project_domain_id_par = '--os-project-domain-id ' + project_domain_id
+
+    full_command = '%s %s %s %s %s %s %s' % (command, user_param,
+                                             password_param,
+                                             project_name_param,
+                                             auth_url_param,
+                                             user_domain_id_param,
+                                             project_domain_id_par)
 
     LOG.info('Full command: %s', full_command)
 
