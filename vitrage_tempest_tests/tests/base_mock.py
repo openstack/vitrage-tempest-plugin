@@ -38,7 +38,7 @@ class BaseMock(testtools.TestCase):
         conf = cfg.ConfigOpts()
         conf.register_opts(self.PROCESSOR_OPTS, group='entity_graph')
         events = self._create_mock_events()
-        e_graph = NXGraph("Entity Graph", uuid=False)
+        e_graph = NXGraph("Entity Graph")
         init = VitrageInit(conf)
         processor = proc.Processor(conf, init, e_graph)
 
