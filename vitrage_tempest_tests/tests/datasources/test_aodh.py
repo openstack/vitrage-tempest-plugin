@@ -16,7 +16,7 @@ from oslo_log import log as logging
 from vitrage_tempest_tests.tests import utils
 
 from vitrage_tempest_tests.tests.api.alarms.base import BaseAlarmsTest
-from vitrage_tempest_tests.tests.common import ceilometer_utils
+from vitrage_tempest_tests.tests.common import aodh_utils
 from vitrage_tempest_tests.tests.common import nova_utils
 from vitrage_tempest_tests.tests.common.tempest_clients import TempestClients
 
@@ -36,7 +36,7 @@ class TestAodhAlarm(BaseAlarmsTest):
         try:
             # Action
             nova_utils.create_instances(num_instances=self.NUM_INSTANCE)
-            ceilometer_utils.create_ceilometer_alarm(
+            aodh_utils.create_aodh_alarm(
                 self._find_instance_resource_id())
 
             # Calculate expected results
@@ -64,14 +64,14 @@ class TestAodhAlarm(BaseAlarmsTest):
             self._handle_exception(e)
             raise
         finally:
-            ceilometer_utils.delete_all_ceilometer_alarms()
+            aodh_utils.delete_all_aodh_alarms()
             nova_utils.delete_all_instances()
 
     @utils.tempest_logger
     def test_alarm_without_resource_id(self):
         try:
             # Action
-            ceilometer_utils.create_ceilometer_alarm()
+            aodh_utils.create_aodh_alarm()
 
             # Calculate expected results
             api_graph = self.vitrage_client.topology.get(all_tenants=True)
@@ -94,7 +94,7 @@ class TestAodhAlarm(BaseAlarmsTest):
             self._handle_exception(e)
             raise
         finally:
-            ceilometer_utils.delete_all_ceilometer_alarms()
+            aodh_utils.delete_all_aodh_alarms()
 
     def _find_instance_resource_id(self):
         servers = TempestClients.nova().servers.list()

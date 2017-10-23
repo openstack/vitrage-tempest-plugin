@@ -19,7 +19,7 @@ from oslo_log import log as logging
 from vitrage.common.constants import VertexProperties as VProps
 from vitrage.datasources.aodh import AODH_DATASOURCE
 from vitrage_tempest_tests.tests.api.alarms.base import BaseAlarmsTest
-from vitrage_tempest_tests.tests.common import ceilometer_utils
+from vitrage_tempest_tests.tests.common import aodh_utils
 from vitrage_tempest_tests.tests.common import nova_utils
 from vitrage_tempest_tests.tests.common.tempest_clients import TempestClients
 from vitrage_tempest_tests.tests import utils
@@ -41,7 +41,7 @@ class TestAlarms(BaseAlarmsTest):
             instances = nova_utils.create_instances(num_instances=1)
             self.assertNotEqual(len(instances), 0,
                                 'The instances list is empty')
-            ceilometer_utils.create_ceilometer_alarm(
+            aodh_utils.create_aodh_alarm(
                 resource_id=instances[0].id,
                 name='tempest_aodh_test')
 
@@ -55,7 +55,7 @@ class TestAlarms(BaseAlarmsTest):
             self._handle_exception(e)
             raise
         finally:
-            ceilometer_utils.delete_all_ceilometer_alarms()
+            aodh_utils.delete_all_ceilometer_alarms()
             nova_utils.delete_all_instances()
 
     def _compare_alarms_lists(self, api_alarms, cli_alarms,
