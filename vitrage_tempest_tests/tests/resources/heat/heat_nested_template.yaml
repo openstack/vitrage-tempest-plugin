@@ -1,0 +1,12 @@
+heat_template_version: 2013-05-23
+
+description: |
+  The heat template is used to demo
+
+resources:
+  rg:
+    type: OS::Heat::ResourceGroup
+    properties:
+      count: 1
+      resource_def:
+        type: file:///etc/vitrage/server.yaml
