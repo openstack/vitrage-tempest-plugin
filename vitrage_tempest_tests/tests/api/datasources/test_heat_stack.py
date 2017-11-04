@@ -14,6 +14,8 @@
 
 import time
 
+from heatclient.common import http
+from heatclient.common import template_utils
 from oslo_log import log as logging
 from vitrage_tempest_tests.tests import utils
 
@@ -30,7 +32,14 @@ class TestHeatStack(BaseTopologyTest):
         super(TestHeatStack, cls).setUpClass()
 
     @utils.tempest_logger
+    def test_nested_heat_stack(self):
+        self._test_heat_stack(nested=True)
+
+    @utils.tempest_logger
     def test_heat_stack(self):
+        self._test_heat_stack(nested=False)
+
+    def _test_heat_stack(self, nested):
         """heat stack test
 
         This test validate correctness topology graph with heat stack module
@@ -38,7 +47,7 @@ class TestHeatStack(BaseTopologyTest):
 
         try:
             # Action
-            self._create_stacks(num_stacks=self.NUM_STACKS)
+            self._create_stacks(self.NUM_STACKS, nested)
 
             # Calculate expected results
             api_graph = self.vitrage_client.topology.get(all_tenants=True)
@@ -70,26 +79,33 @@ class TestHeatStack(BaseTopologyTest):
         finally:
             self._delete_stacks()
 
-    def _create_stacks(self, num_stacks):
-        with open('/etc/vitrage/heat_template.yaml', 'rb') as f:
-            template_data = f.read()
+    def _create_stacks(self, num_stacks, nested):
+
+        template_file = 'heat_nested_template.yaml'\
+            if nested else 'heat_template.yaml'
+
+        tpl_files, template = template_utils.process_template_path(
+            '/etc/vitrage/' + template_file,
+            object_request=http.authenticated_fetcher(self.heat_client))
 
         for i in range(num_stacks):
-            self.heat_client.stacks.create(stack_name='stack_%s' % i,
-                                           template=template_data,
+            stack_name = 'stack_%s' % i + ('_nested' if nested else '')
+            self.heat_client.stacks.create(stack_name=stack_name,
+                                           template=template,
+                                           files=tpl_files,
                                            parameters={})
-        self._wait_for_status(45,
-                              self._check_num_stacks,
-                              num_stacks=num_stacks,
-                              state='CREATE_COMPLETE')
+            self._wait_for_status(45,
+                                  self._check_num_stacks,
+                                  num_stacks=num_stacks,
+                                  state='CREATE_COMPLETE')
 
-        time.sleep(2)
+            time.sleep(2)
 
     def _delete_stacks(self):
         stacks = self.heat_client.stacks.list()
         for stack in stacks:
             try:
-                self.heat_client.stacks.delete(stack.__dict__['id'])
+                self.heat_client.stacks.delete(stack.to_dict()['id'])
             except Exception:
                 pass
 
@@ -97,12 +113,12 @@ class TestHeatStack(BaseTopologyTest):
                               self._check_num_stacks,
                               num_stacks=0)
 
-        time.sleep(2)
+        time.sleep(4)
 
     def _check_num_stacks(self, num_stacks, state=''):
         stacks_list = \
-            [stack.__dict__ for stack in self.heat_client.stacks.list()
-             if 'FAILED' not in stack.__dict__['stack_status']]
+            [stack.to_dict() for stack in self.heat_client.stacks.list()
+             if 'FAILED' not in stack.to_dict()['stack_status']]
         if len(stacks_list) != num_stacks:
             return False
 
