@@ -12,12 +12,10 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import time
 import traceback
 
 from oslo_log import log as logging
 from oslotest import base
-from six.moves import filter
 
 from vitrage.common.constants import EdgeProperties
 from vitrage.common.constants import EntityCategory
@@ -35,17 +33,15 @@ from vitrage.datasources.static_physical import SWITCH
 from vitrage.graph.driver.networkx_graph import NXGraph
 from vitrage.graph import Edge
 from vitrage.graph import Vertex
-from vitrage import keystone_client
-from vitrage import os_clients
 from vitrage import service
-import vitrage_tempest_tests.tests.utils as utils
-from vitrageclient import client as v_client
+from vitrage_tempest_tests.tests.common.tempest_clients import TempestClients
+from vitrage_tempest_tests.tests import utils
 
 LOG = logging.getLogger(__name__)
 
 
-class BaseApiTest(base.BaseTestCase):
-    """Base test class for Vitrage API tests."""
+class BaseVitrageTempest(base.BaseTestCase):
+    """Base test class for All Vitrage tests."""
 
     NUM_VERTICES_PER_TYPE = 'num_vertices'
     NUM_EDGES_PER_TYPE = 'num_edges_per_type'
@@ -53,42 +49,17 @@ class BaseApiTest(base.BaseTestCase):
     # noinspection PyPep8Naming
     @classmethod
     def setUpClass(cls):
-        super(BaseApiTest, cls).setUpClass()
+        super(BaseVitrageTempest, cls).setUpClass()
         cls.conf = service.prepare_service([])
-
-        cls.vitrage_client = \
-            v_client.Client('1', session=keystone_client.get_session(cls.conf))
-        cls.nova_client = cls._create_client(os_clients.nova_client, cls.conf)
-        cls.cinder_client = cls._create_client(os_clients.cinder_client,
-                                               cls.conf)
-        cls.glance_client = cls._create_client(os_clients.glance_client,
-                                               cls.conf)
-        cls.neutron_client = cls._create_client(os_clients.neutron_client,
-                                                cls.conf)
-        cls.heat_client = cls._create_client(os_clients.heat_client, cls.conf)
+        TempestClients.class_init(cls.conf)
+        cls.vitrage_client = TempestClients.vitrage()
 
         cls.num_default_networks = \
-            len(cls.neutron_client.list_networks()['networks'])
+            len(TempestClients.neutron().list_networks()['networks'])
         cls.num_default_ports = \
-            len(cls.neutron_client.list_ports()['ports'])
+            len(TempestClients.neutron().list_ports()['ports'])
         cls.num_default_entities = 3
         cls.num_default_edges = 2
-
-    @staticmethod
-    def _create_client(client_func, conf):
-        count = 0
-
-        while count < 40:
-            LOG.info("wait_for_client - " + client_func.__name__)
-            client = client_func(conf)
-            if client:
-                return client
-            count += 1
-            time.sleep(5)
-
-        LOG.info("wait_for_client - False")
-
-        return None
 
     @staticmethod
     def _filter_list_by_pairs_parameters(origin_list,
@@ -105,97 +76,20 @@ class BaseApiTest(base.BaseTestCase):
                 filtered_list.append(item)
         return filtered_list
 
-    def _create_volume_and_attach(self, name, size, instance_id, mount_point):
-        volume = self.cinder_client.volumes.create(name=name,
-                                                   size=size)
-        time.sleep(2)
-        self.cinder_client.volumes.attach(volume=volume,
-                                          instance_uuid=instance_id,
-                                          mountpoint=mount_point)
-
-        self._wait_for_status(30,
-                              self._check_num_volumes,
-                              num_volumes=1,
-                              state='in-use')
-
-        time.sleep(2)
-
-        return volume
-
-    def _get_host(self):
-        topology = self.vitrage_client.topology.get(all_tenants=True)
-        host = filter(
-            lambda item: item[VProps.VITRAGE_TYPE] == NOVA_HOST_DATASOURCE,
-            topology['nodes'])
-        return next(host)
-
-    def _create_instances(self, num_instances, set_public_network=False):
-        kwargs = {}
-        flavors_list = self.nova_client.flavors.list()
-        images_list = self.glance_client.images.list()
-        if set_public_network:
-            public_net = self._get_public_network()
-            if public_net:
-                kwargs.update({"networks": [{'uuid': public_net['id']}]})
-
-        img = images_list.next()
-        resources = [self.nova_client.servers.create(
-            name='%s-%s' % ('vm', index),
-            flavor=flavors_list[0],
-            image=img,
-            **kwargs) for index in range(num_instances)]
-
-        self._wait_for_status(30,
-                              self._check_num_instances,
-                              num_instances=num_instances,
-                              state='active')
-        time.sleep(2)
-
-        return resources
-
-    def _delete_instances(self):
-        instances = self.nova_client.servers.list()
-        for instance in instances:
-            try:
-                self.nova_client.servers.delete(instance)
-            except Exception:
-                pass
-
-        self._wait_for_status(30,
-                              self._check_num_instances,
-                              num_instances=0)
-
-        time.sleep(2)
-
-    def _delete_volumes(self):
-        volumes = self.cinder_client.volumes.list()
-        for volume in volumes:
-            try:
-                self.cinder_client.volumes.detach(volume)
-                self.cinder_client.volumes.force_delete(volume)
-            except Exception:
-                self.cinder_client.volumes.force_delete(volume)
-
-        self._wait_for_status(30,
-                              self._check_num_volumes,
-                              num_volumes=0)
-
-        time.sleep(2)
-
     def _check_num_instances(self, num_instances=0, state=''):
-        if len(self.nova_client.servers.list()) != num_instances:
+        if len(TempestClients.nova().servers.list()) != num_instances:
             return False
 
         return all(instance.__dict__['status'].upper() == state.upper()
-                   for instance in self.nova_client.servers.list())
+                   for instance in TempestClients.nova().servers.list())
 
     def _check_num_volumes(self, num_volumes=0, state=''):
-        if len(self.cinder_client.volumes.list()) != num_volumes:
+        if len(TempestClients.cinder().volumes.list()) != num_volumes:
             return False
 
         return all(volume.__dict__['status'].upper() == state.upper() and
                    len(volume.__dict__['attachments']) == 1
-                   for volume in self.cinder_client.volumes.list())
+                   for volume in TempestClients.cinder().volumes.list())
 
     def _create_graph_from_graph_dictionary(self, api_graph):
         self.assertIsNotNone(api_graph)
@@ -235,17 +129,6 @@ class BaseApiTest(base.BaseTestCase):
             self._create_graph_from_tree_dictionary(entity, graph, vertex)
 
         return graph
-
-    @staticmethod
-    def _wait_for_status(max_waiting, func, **kwargs):
-        count = 0
-        while count < max_waiting:
-            if func(**kwargs):
-                return True
-            count += 1
-            time.sleep(2)
-        LOG.info("wait_for_status - False")
-        return False
 
     def _entities_validation_data(self, **kwargs):
         validation_data = []
@@ -373,18 +256,8 @@ class BaseApiTest(base.BaseTestCase):
     def _get_value(item, key):
         return utils.uni2str(item[key])
 
-    def _get_public_network(self):
-        networks = self.neutron_client.list_networks()
-        public_nets = filter(
-            lambda item: self._get_value(item, VProps.NAME) == 'public',
-            networks['networks'])
-        try:
-            return next(public_nets)
-        except StopIteration:
-            return None
-
     def _print_entity_graph(self):
-        api_graph = self.vitrage_client.topology.get(all_tenants=True)
+        api_graph = TempestClients.vitrage().topology.get(all_tenants=True)
         graph = self._create_graph_from_graph_dictionary(api_graph)
         LOG.info('Entity Graph: \n%s', graph.json_output_graph())
 

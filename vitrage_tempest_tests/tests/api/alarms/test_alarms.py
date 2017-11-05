@@ -19,7 +19,10 @@ from oslo_log import log as logging
 from vitrage.common.constants import VertexProperties as VProps
 from vitrage.datasources.aodh import AODH_DATASOURCE
 from vitrage_tempest_tests.tests.api.alarms.base import BaseAlarmsTest
-import vitrage_tempest_tests.tests.utils as utils
+from vitrage_tempest_tests.tests.common import ceilometer_utils
+from vitrage_tempest_tests.tests.common import nova_utils
+from vitrage_tempest_tests.tests.common.tempest_clients import TempestClients
+from vitrage_tempest_tests.tests import utils
 
 LOG = logging.getLogger(__name__)
 
@@ -35,13 +38,14 @@ class TestAlarms(BaseAlarmsTest):
     def test_compare_cli_vs_api_alarms(self):
         """Wrapper that returns a test graph."""
         try:
-            instances = self._create_instances(num_instances=1)
+            instances = nova_utils.create_instances(num_instances=1)
             self.assertNotEqual(len(instances), 0,
                                 'The instances list is empty')
-            self._create_ceilometer_alarm(resource_id=instances[0].id,
-                                          name='tempest_aodh_test')
+            ceilometer_utils.create_ceilometer_alarm(
+                resource_id=instances[0].id,
+                name='tempest_aodh_test')
 
-            api_alarms = self.vitrage_client.alarm.list(vitrage_id=None)
+            api_alarms = TempestClients.vitrage().alarm.list(vitrage_id=None)
             cli_alarms = utils.run_vitrage_command(
                 'vitrage alarm list', self.conf)
             self._compare_alarms_lists(
@@ -51,8 +55,8 @@ class TestAlarms(BaseAlarmsTest):
             self._handle_exception(e)
             raise
         finally:
-            self._delete_ceilometer_alarms()
-            self._delete_instances()
+            ceilometer_utils.delete_all_ceilometer_alarms()
+            nova_utils.delete_all_instances()
 
     def _compare_alarms_lists(self, api_alarms, cli_alarms,
                               resource_type, resource_id):

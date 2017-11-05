@@ -1,4 +1,4 @@
-# Copyright 2016 - Nokia
+# Copyright 2017 - Nokia
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
 # not use this file except in compliance with the License. You may obtain
@@ -11,5 +11,8 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+from vitrage_tempest_tests.tests.common.tempest_clients import TempestClients
 
-__author__ = 'stack'
+
+def get_first_image():
+    return TempestClients.glance().images.list().next()

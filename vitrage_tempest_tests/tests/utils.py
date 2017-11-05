@@ -159,3 +159,14 @@ def wait_for_answer(max_waiting, time_between_attempts, func, **kwargs):
             return res
     LOG.info("wait for answer- False")
     return res
+
+
+def wait_for_status(max_waiting, func, **kwargs):
+    count = 0
+    while count < max_waiting:
+        if func(**kwargs):
+            return True
+        count += 1
+        time.sleep(2)
+    LOG.info("wait_for_status - False")
+    return False

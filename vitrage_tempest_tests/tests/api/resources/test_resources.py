@@ -19,14 +19,14 @@ from oslo_log import log as logging
 from vitrage.common.constants import VertexProperties as VProps
 from vitrage.datasources import CINDER_VOLUME_DATASOURCE
 from vitrage.datasources import NOVA_INSTANCE_DATASOURCE
-from vitrage_tempest_tests.tests.api.base import BaseApiTest
-import vitrage_tempest_tests.tests.utils as utils
-
+from vitrage_tempest_tests.tests.base import BaseVitrageTempest
+from vitrage_tempest_tests.tests.common import nova_utils
+from vitrage_tempest_tests.tests import utils
 
 LOG = logging.getLogger(__name__)
 
 
-class TestResource(BaseApiTest):
+class TestResource(BaseVitrageTempest):
     """Test class for Vitrage resource API tests."""
 
     properties = (VProps.VITRAGE_ID,
@@ -43,7 +43,7 @@ class TestResource(BaseApiTest):
     def test_compare_cli_vs_api_resource_list(self):
         """resource list """
         try:
-            instances = self._create_instances(num_instances=1)
+            instances = nova_utils.create_instances(num_instances=1)
             self.assertNotEqual(len(instances), 0,
                                 'The instances list is empty')
             api_resources = self.vitrage_client.resource.list()
@@ -55,7 +55,7 @@ class TestResource(BaseApiTest):
             self._handle_exception(e)
             raise
         finally:
-            self._delete_instances()
+            nova_utils.delete_all_instances()
 
     @utils.tempest_logger
     def test_default_resource_list(self):
@@ -64,7 +64,7 @@ class TestResource(BaseApiTest):
         get the resources: cluster, zone, host and one instance
         """
         try:
-            instances = self._create_instances(num_instances=1)
+            instances = nova_utils.create_instances(num_instances=1)
             self.assertNotEqual(len(instances), 0,
                                 'The instances list is empty')
             resources = self.vitrage_client.resource.list()
@@ -73,7 +73,7 @@ class TestResource(BaseApiTest):
             self._handle_exception(e)
             raise
         finally:
-            self._delete_instances()
+            nova_utils.delete_all_instances()
 
     @utils.tempest_logger
     def test_resource_list_with_all_tenants(self):
@@ -83,7 +83,7 @@ class TestResource(BaseApiTest):
         cluster, zone, host and one instance(no other tenants)
         """
         try:
-            instances = self._create_instances(num_instances=1)
+            instances = nova_utils.create_instances(num_instances=1)
             self.assertNotEqual(len(instances), 0,
                                 'The instances list is empty')
             resources = self.vitrage_client.resource.list(all_tenants=True)
@@ -92,7 +92,7 @@ class TestResource(BaseApiTest):
             self._handle_exception(e)
             raise
         finally:
-            self._delete_instances()
+            nova_utils.delete_all_instances()
 
     @utils.tempest_logger
     def test_resource_list_with_existing_type(self):
@@ -101,7 +101,7 @@ class TestResource(BaseApiTest):
         get the resource: one instance
         """
         try:
-            instances = self._create_instances(num_instances=1)
+            instances = nova_utils.create_instances(num_instances=1)
             self.assertNotEqual(len(instances), 0,
                                 'The instances list is empty')
             resources = self.vitrage_client.resource.list(
@@ -112,13 +112,13 @@ class TestResource(BaseApiTest):
             self._handle_exception(e)
             raise
         finally:
-            self._delete_instances()
+            nova_utils.delete_all_instances()
 
     @utils.tempest_logger
     def test_resource_list_with_no_existing_type(self):
         """resource list with no existing type"""
         try:
-            instances = self._create_instances(num_instances=1)
+            instances = nova_utils.create_instances(num_instances=1)
             self.assertNotEqual(len(instances), 0,
                                 'The instances list is empty')
             resources = self.vitrage_client.resource.list(
@@ -129,7 +129,7 @@ class TestResource(BaseApiTest):
             self._handle_exception(e)
             raise
         finally:
-            self._delete_instances()
+            nova_utils.delete_all_instances()
 
     def test_compare_resource_show(self):
         """resource_show test"""
@@ -155,7 +155,7 @@ class TestResource(BaseApiTest):
             self._handle_exception(e)
             raise
         finally:
-            self._delete_instances()
+            nova_utils.delete_all_instances()
 
     def _compare_resources(self, api_resources, cli_resources):
         self.assertNotEqual(len(api_resources), 0,

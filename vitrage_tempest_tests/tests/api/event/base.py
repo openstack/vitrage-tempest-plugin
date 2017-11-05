@@ -14,27 +14,20 @@
 
 from datetime import datetime
 from oslo_log import log as logging
-
-from vitrage import keystone_client
-from vitrage import service
-from vitrage_tempest_tests.tests.api.base import BaseApiTest
-from vitrageclient import client as v_client
-
+from vitrage_tempest_tests.tests.base import BaseVitrageTempest
 
 LOG = logging.getLogger(__name__)
 DOWN = 'down'
 UP = 'up'
 
 
-class BaseTestEvents(BaseApiTest):
+class BaseTestEvents(BaseVitrageTempest):
     """Test class for Vitrage event API"""
 
     # noinspection PyPep8Naming
     @classmethod
     def setUpClass(cls):
-        cls.conf = service.prepare_service([])
-        cls.vitrage_client = \
-            v_client.Client('1', session=keystone_client.get_session(cls.conf))
+        super(BaseTestEvents, cls).setUpClass()
 
     def _check_alarms(self):
         api_alarms = self.vitrage_client.alarm.list(vitrage_id='all',

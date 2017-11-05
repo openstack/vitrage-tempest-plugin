@@ -29,7 +29,10 @@ from vitrage.entity_graph.mappings.operational_resource_state \
 from vitrage.evaluator.actions.evaluator_event_transformer \
     import VITRAGE_DATASOURCE
 from vitrage_tempest_tests.tests.api.alarms.base import BaseAlarmsTest
-import vitrage_tempest_tests.tests.utils as utils
+from vitrage_tempest_tests.tests.common import ceilometer_utils
+from vitrage_tempest_tests.tests.common import nova_utils
+from vitrage_tempest_tests.tests.common import vitrage_utils
+from vitrage_tempest_tests.tests import utils
 
 LOG = logging.getLogger(__name__)
 RCA_ALARM_NAME = 'rca_test_host_alarm'
@@ -43,12 +46,13 @@ class BaseRcaTest(BaseAlarmsTest):
         super(BaseRcaTest, cls).setUpClass()
 
     def _clean_all(self):
-        self._delete_instances()
-        self._delete_ceilometer_alarms()
+        nova_utils.delete_all_instances()
+        ceilometer_utils.delete_all_ceilometer_alarms()
 
     def _create_alarm(self, resource_id, alarm_name, unic=False):
-        self._create_ceilometer_alarm(resource_id=resource_id,
-                                      name=alarm_name, unic=unic)
+        ceilometer_utils.create_ceilometer_alarm(resource_id=resource_id,
+                                                 name=alarm_name,
+                                                 unic=unic)
 
         list_alarms = self.vitrage_client.alarm.list(vitrage_id=None)
         expected_alarm = self._filter_list_by_pairs_parameters(
@@ -186,7 +190,8 @@ class BaseRcaTest(BaseAlarmsTest):
         self.assertEqual(3, len(alarms))
 
     def _get_hostname(self):
-        return self._get_value(item=self._get_host(), key=VProps.ID)
+        host = vitrage_utils.get_first_host()
+        return self._get_value(item=host, key=VProps.ID)
 
     @staticmethod
     def _clean_timestamps(alist):

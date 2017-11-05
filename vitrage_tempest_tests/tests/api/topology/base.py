@@ -16,10 +16,12 @@ import json
 import time
 
 from vitrage.common.constants import VertexProperties as VProps
-from vitrage_tempest_tests.tests.api.base import BaseApiTest
+from vitrage_tempest_tests.tests.base import BaseVitrageTempest
+from vitrage_tempest_tests.tests.common import cinder_utils
+from vitrage_tempest_tests.tests.common import nova_utils
 
 
-class BaseTopologyTest(BaseApiTest):
+class BaseTopologyTest(BaseVitrageTempest):
     """Topology test class for Vitrage API tests."""
 
     @classmethod
@@ -43,21 +45,21 @@ class BaseTopologyTest(BaseApiTest):
 
     def _create_entities(self, num_instances=0, num_volumes=0, end_sleep=3):
         if num_instances > 0:
-            resources = self._create_instances(num_instances)
+            resources = nova_utils.create_instances(num_instances)
 
         self.assertNotEqual(len(resources), 0, 'The instances list is empty')
         if num_volumes > 0:
-            self._create_volume_and_attach('volume-1', 1,
-                                           resources[0].id,
-                                           '/tmp/vda')
+            cinder_utils.create_volume_and_attach('volume-1', 1,
+                                                  resources[0].id,
+                                                  '/tmp/vda')
 
         # waiting until all the entities creation were processed by the
         # entity graph processor
         time.sleep(end_sleep)
 
     def _delete_entities(self):
-        self._delete_volumes()
-        self._delete_instances()
+        cinder_utils.delete_all_volumes()
+        nova_utils.delete_all_instances()
 
         # waiting until all the entities deletion were processed by the
         # entity graph processor
