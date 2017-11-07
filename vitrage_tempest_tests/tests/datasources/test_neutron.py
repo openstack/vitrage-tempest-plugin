@@ -16,6 +16,7 @@ from oslo_log import log as logging
 
 from vitrage.common.constants import VertexProperties as VProps
 from vitrage_tempest_tests.tests.api.topology.base import BaseTopologyTest
+from vitrage_tempest_tests.tests.common import nova_utils
 from vitrage_tempest_tests.tests import utils
 
 LOG = logging.getLogger(__name__)
@@ -37,8 +38,8 @@ class TestNeutron(BaseTopologyTest):
 
         try:
             # Action
-            self._create_instances(num_instances=self.NUM_INSTANCE,
-                                   set_public_network=True)
+            nova_utils.create_instances(num_instances=self.NUM_INSTANCE,
+                                        set_public_network=True)
 
             # Calculate expected results
             api_graph = self.vitrage_client.topology.get(all_tenants=True)
@@ -67,7 +68,7 @@ class TestNeutron(BaseTopologyTest):
             self._handle_exception(e)
             raise
         finally:
-            self._delete_instances()
+            nova_utils.delete_all_instances()
 
     @staticmethod
     def _get_network_name(instance, networks):

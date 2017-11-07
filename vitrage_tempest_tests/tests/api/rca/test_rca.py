@@ -17,7 +17,9 @@ from oslo_log import log as logging
 from vitrage.common.constants import VertexProperties as VProps
 from vitrage_tempest_tests.tests.api.rca.base import BaseRcaTest
 from vitrage_tempest_tests.tests.api.rca.base import RCA_ALARM_NAME
-import vitrage_tempest_tests.tests.utils as utils
+from vitrage_tempest_tests.tests.common import nova_utils
+from vitrage_tempest_tests.tests.common.tempest_clients import TempestClients
+from vitrage_tempest_tests.tests import utils
 
 LOG = logging.getLogger(__name__)
 
@@ -37,7 +39,7 @@ class TestRca(BaseRcaTest):
         aodh event alarms, and compare them with cli rca
         """
         try:
-            instances = self._create_instances(num_instances=1)
+            instances = nova_utils.create_instances(num_instances=1)
             self.assertNotEqual(len(instances), 0, 'Failed to create instance')
 
             instance_alarm = self._create_alarm(
@@ -68,7 +70,7 @@ class TestRca(BaseRcaTest):
         target alarms - 2 instance alarms (caused 2 created instance)
         """
         try:
-            self._create_instances(num_instances=2)
+            nova_utils.create_instances(num_instances=2)
             host_alarm = self._create_alarm(
                 resource_id=self._get_hostname(),
                 alarm_name=RCA_ALARM_NAME,
@@ -95,7 +97,7 @@ class TestRca(BaseRcaTest):
         resource_id with created instances id
         """
         try:
-            instances = self._create_instances(num_instances=2)
+            instances = nova_utils.create_instances(num_instances=2)
             self._create_alarm(
                 resource_id=self._get_hostname(),
                 alarm_name=RCA_ALARM_NAME)
@@ -119,7 +121,7 @@ class TestRca(BaseRcaTest):
         target state - SUBOPTIMAL (caused 2 created instance)
         """
         try:
-            instances = self._create_instances(num_instances=2)
+            instances = nova_utils.create_instances(num_instances=2)
             self._create_alarm(
                 resource_id=self._get_hostname(),
                 alarm_name=RCA_ALARM_NAME)
@@ -143,12 +145,13 @@ class TestRca(BaseRcaTest):
         IMPORTANT: enable notifiers=aodh in vitrage.conf file
         """
         try:
-            self._create_instances(num_instances=2)
+            nova_utils.create_instances(num_instances=2)
             self._create_alarm(
                 resource_id=self._get_hostname(),
                 alarm_name=RCA_ALARM_NAME)
-            vitrage_alarms = self.vitrage_client.alarm.list(vitrage_id=None)
-            ceilometer_alarms = self.ceilometer_client.alarms.list()
+            vitrage_alarms = TempestClients.vitrage().alarm.list(
+                vitrage_id=None)
+            ceilometer_alarms = TempestClients.ceilometer().alarms.list()
 
             self._validate_notifier(alarms=ceilometer_alarms,
                                     vitrage_alarms=vitrage_alarms)

@@ -16,6 +16,9 @@ from oslo_log import log as logging
 from vitrage_tempest_tests.tests import utils
 
 from vitrage_tempest_tests.tests.api.alarms.base import BaseAlarmsTest
+from vitrage_tempest_tests.tests.common import ceilometer_utils
+from vitrage_tempest_tests.tests.common import nova_utils
+from vitrage_tempest_tests.tests.common.tempest_clients import TempestClients
 
 LOG = logging.getLogger(__name__)
 
@@ -32,8 +35,9 @@ class TestAodhAlarm(BaseAlarmsTest):
     def test_alarm_with_resource_id(self):
         try:
             # Action
-            self._create_instances(num_instances=self.NUM_INSTANCE)
-            self._create_ceilometer_alarm(self._find_instance_resource_id())
+            nova_utils.create_instances(num_instances=self.NUM_INSTANCE)
+            ceilometer_utils.create_ceilometer_alarm(
+                self._find_instance_resource_id())
 
             # Calculate expected results
             api_graph = self.vitrage_client.topology.get(all_tenants=True)
@@ -60,14 +64,14 @@ class TestAodhAlarm(BaseAlarmsTest):
             self._handle_exception(e)
             raise
         finally:
-            self._delete_ceilometer_alarms()
-            self._delete_instances()
+            ceilometer_utils.delete_all_ceilometer_alarms()
+            nova_utils.delete_all_instances()
 
     @utils.tempest_logger
     def test_alarm_without_resource_id(self):
         try:
             # Action
-            self._create_ceilometer_alarm()
+            ceilometer_utils.create_ceilometer_alarm()
 
             # Calculate expected results
             api_graph = self.vitrage_client.topology.get(all_tenants=True)
@@ -90,8 +94,8 @@ class TestAodhAlarm(BaseAlarmsTest):
             self._handle_exception(e)
             raise
         finally:
-            self._delete_ceilometer_alarms()
+            ceilometer_utils.delete_all_ceilometer_alarms()
 
     def _find_instance_resource_id(self):
-        servers = self.nova_client.servers.list()
+        servers = TempestClients.nova().servers.list()
         return servers[0].id

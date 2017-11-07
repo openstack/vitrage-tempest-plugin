@@ -19,8 +19,10 @@ from vitrage import os_clients
 from vitrage_tempest_tests.tests.api.event.base import BaseTestEvents
 from vitrage_tempest_tests.tests.api.event.base import DOWN
 from vitrage_tempest_tests.tests.api.event.base import UP
+from vitrage_tempest_tests.tests.common.tempest_clients import TempestClients
+from vitrage_tempest_tests.tests.common import vitrage_utils
 from vitrage_tempest_tests.tests import utils
-from vitrage_tempest_tests.tests.utils import wait_for_answer
+from vitrage_tempest_tests.tests.utils import wait_for_status
 
 LOG = logging.getLogger(__name__)
 
@@ -51,7 +53,7 @@ class TestMistralNotifier(BaseTestEvents):
 
     @utils.tempest_logger
     def test_execute_mistral(self):
-        hostname = self._get_host()['name']
+        hostname = vitrage_utils.get_first_host()['name']
 
         workflows = self.mistral_client.workflows.list()
         self.assertIsNotNone(workflows)
@@ -61,7 +63,7 @@ class TestMistralNotifier(BaseTestEvents):
         self.assertIsNotNone(executions)
         num_executions = len(executions)
 
-        alarms = wait_for_answer(2, 0.5, self._check_alarms)
+        alarms = utils.wait_for_answer(2, 0.5, self._check_alarms)
         self.assertIsNotNone(alarms)
         num_alarms = len(alarms)
 
@@ -81,16 +83,16 @@ class TestMistralNotifier(BaseTestEvents):
             self._post_event(details)
 
             # Wait for the alarm to be raised
-            self.assertTrue(
-                self._wait_for_status(10,
-                                      self._check_num_vitrage_alarms,
-                                      num_alarms=num_alarms + 1))
+            self.assertTrue(wait_for_status(
+                10,
+                self._check_num_vitrage_alarms,
+                num_alarms=num_alarms + 1))
 
             # Wait for the Mistral workflow execution
-            self.assertTrue(
-                self._wait_for_status(20,
-                                      self._check_mistral_workflow_execution,
-                                      num_executions=num_executions + 1))
+            self.assertTrue(wait_for_status(
+                20,
+                self._check_mistral_workflow_execution,
+                num_executions=num_executions + 1))
 
         except Exception as e:
             self._handle_exception(e)
@@ -113,14 +115,15 @@ class TestMistralNotifier(BaseTestEvents):
         details = self._create_doctor_event_details(hostname, UP)
         self._post_event(details)
 
-        self.assertTrue(
-            self._wait_for_status(10,
-                                  self._check_num_vitrage_alarms,
-                                  num_alarms=num_alarms))
+        self.assertTrue(wait_for_status(
+            10,
+            self._check_num_vitrage_alarms,
+            num_alarms=num_alarms))
 
     def _check_num_vitrage_alarms(self, num_alarms):
-        if len(self.vitrage_client.alarm.list(vitrage_id='all',
-                                              all_tenants=True)) == num_alarms:
+        vitrage_alarms = TempestClients.vitrage().alarm.list(vitrage_id='all',
+                                                             all_tenants=True)
+        if len(vitrage_alarms) == num_alarms:
             return True
         return False
 

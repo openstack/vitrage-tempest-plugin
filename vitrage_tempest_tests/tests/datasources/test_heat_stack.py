@@ -12,42 +12,60 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import os
-import socket
-import time
-
 from oslo_log import log as logging
-from vitrage_tempest_tests.tests.api.base import BaseApiTest
 from vitrage_tempest_tests.tests import utils
 
+from vitrage_tempest_tests.tests.api.topology.base import BaseTopologyTest
+from vitrage_tempest_tests.tests.common import heat_utils
 
 LOG = logging.getLogger(__name__)
 
 
-class TestStaticPhysical(BaseApiTest):
-    NUM_SWITCH = 2
+class TestHeatStack(BaseTopologyTest):
+    NUM_STACKS = 1
 
     @classmethod
     def setUpClass(cls):
-        super(TestStaticPhysical, cls).setUpClass()
+        super(TestHeatStack, cls).setUpClass()
 
     @utils.tempest_logger
-    def test_switches(self):
+    def test_nested_heat_stack(self):
+        self._test_heat_stack(
+            nested=True,
+            template_file='/etc/vitrage/heat_nested_template.yaml')
+
+    @utils.tempest_logger
+    def test_heat_stack(self):
+        self._test_heat_stack(
+            nested=False, template_file='/etc/vitrage/heat_template.yaml')
+
+    def _test_heat_stack(self, nested, template_file):
+        """heat stack test
+
+        This test validate correctness topology graph with heat stack module
+        """
+
         try:
             # Action
-            self._create_switches()
+            heat_utils.create_stacks(self.NUM_STACKS, nested, template_file)
 
             # Calculate expected results
             api_graph = self.vitrage_client.topology.get(all_tenants=True)
             graph = self._create_graph_from_graph_dictionary(api_graph)
             entities = self._entities_validation_data(
                 host_entities=1,
-                host_edges=1 + self.NUM_SWITCH,
-                switch_entities=self.NUM_SWITCH,
-                switch_edges=self.NUM_SWITCH)
-            num_entities = self.num_default_entities + self.NUM_SWITCH + \
+                host_edges=1 + self.NUM_STACKS,
+                instance_entities=self.NUM_STACKS,
+                instance_edges=3 * self.NUM_STACKS,
+                network_entities=self.num_default_networks,
+                network_edges=self.num_default_ports + self.NUM_STACKS,
+                port_entities=self.num_default_ports + self.NUM_STACKS,
+                port_edges=self.num_default_ports + 2 * self.NUM_STACKS,
+                stack_entities=self.NUM_STACKS,
+                stack_edges=self.NUM_STACKS)
+            num_entities = self.num_default_entities + 3 * self.NUM_STACKS + \
                 self.num_default_networks + self.num_default_ports
-            num_edges = self.num_default_edges + self.NUM_SWITCH + \
+            num_edges = self.num_default_edges + 4 * self.NUM_STACKS + \
                 self.num_default_ports
 
             # Test Assertions
@@ -59,32 +77,4 @@ class TestStaticPhysical(BaseApiTest):
             self._handle_exception(e)
             raise
         finally:
-            self._delete_switches()
-
-    @staticmethod
-    def _create_switches():
-        hostname = socket.gethostname()
-
-        # template file
-        file_path = '/etc/vitrage/static_physical_configuration.yaml'
-        with open(file_path, 'r') as f:
-            template_data = f.read()
-        template_data = template_data.replace('tmp-devstack', hostname)
-
-        # new file
-        new_file = open(
-            '/etc/vitrage/static_datasources/'
-            'static_physical_configuration.yaml', 'w')
-        new_file.write(template_data)
-        new_file.close()
-
-        time.sleep(25)
-
-    @staticmethod
-    def _delete_switches():
-        path = '/etc/vitrage/static_datasources/' \
-               'static_physical_configuration.yaml'
-        if os.path.exists(path):
-            os.remove(path)
-
-        time.sleep(25)
+            heat_utils.delete_all_stacks()
