@@ -29,7 +29,7 @@ from vitrage.entity_graph.mappings.operational_resource_state \
 from vitrage.evaluator.actions.evaluator_event_transformer \
     import VITRAGE_DATASOURCE
 from vitrage_tempest_tests.tests.api.alarms.base import BaseAlarmsTest
-from vitrage_tempest_tests.tests.common import ceilometer_utils
+from vitrage_tempest_tests.tests.common import aodh_utils
 from vitrage_tempest_tests.tests.common import nova_utils
 from vitrage_tempest_tests.tests.common import vitrage_utils
 from vitrage_tempest_tests.tests import utils
@@ -47,12 +47,12 @@ class BaseRcaTest(BaseAlarmsTest):
 
     def _clean_all(self):
         nova_utils.delete_all_instances()
-        ceilometer_utils.delete_all_ceilometer_alarms()
+        aodh_utils.delete_all_aodh_alarms()
 
     def _create_alarm(self, resource_id, alarm_name, unic=False):
-        ceilometer_utils.create_ceilometer_alarm(resource_id=resource_id,
-                                                 name=alarm_name,
-                                                 unic=unic)
+        aodh_utils.create_aodh_alarm(resource_id=resource_id,
+                                     name=alarm_name,
+                                     unic=unic)
 
         list_alarms = self.vitrage_client.alarm.list(vitrage_id=None)
         expected_alarm = self._filter_list_by_pairs_parameters(

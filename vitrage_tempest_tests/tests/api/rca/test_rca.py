@@ -151,9 +151,9 @@ class TestRca(BaseRcaTest):
                 alarm_name=RCA_ALARM_NAME)
             vitrage_alarms = TempestClients.vitrage().alarm.list(
                 vitrage_id=None)
-            ceilometer_alarms = TempestClients.ceilometer().alarms.list()
+            aodh_alarms = TempestClients.aodh().alarm.list()
 
-            self._validate_notifier(alarms=ceilometer_alarms,
+            self._validate_notifier(alarms=aodh_alarms,
                                     vitrage_alarms=vitrage_alarms)
         except Exception as e:
             self._handle_exception(e)

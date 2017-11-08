@@ -29,6 +29,7 @@ class TempestClients(object):
         cls._neutron = None
         cls._heat = None
         cls._mistral = None
+        cls._aodh = None
 
     @classmethod
     def vitrage(cls):
@@ -78,3 +79,9 @@ class TempestClients(object):
         if not cls._mistral:
             cls._mistral = os_clients.mistral_client(cls._conf)
         return cls._mistral
+
+    @classmethod
+    def aodh(cls):
+        if not cls._aodh:
+            cls._aodh = os_clients.aodh_client(cls._conf)
+        return cls._aodh

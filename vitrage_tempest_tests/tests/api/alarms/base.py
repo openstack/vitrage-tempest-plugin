@@ -12,8 +12,10 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from vitrage.datasources.aodh.properties import AodhProperties as AodhProps
 from vitrage_tempest_tests.tests.base import BaseVitrageTempest
 from vitrage_tempest_tests.tests.common.tempest_clients import TempestClients
+
 
 TEMPLATES_RESOURCES_PATH = 'resources/templates/'
 TEMPLATES_SOURCES_PATH = '/etc/vitrage/templates/'
@@ -27,8 +29,8 @@ class BaseAlarmsTest(BaseVitrageTempest):
         super(BaseAlarmsTest, cls).setUpClass()
 
     def _check_num_alarms(self, num_alarms=0, state=''):
-        if len(TempestClients.ceilometer().alarms.list()) != num_alarms:
+        if len(TempestClients.aodh().alarm.list()) != num_alarms:
             return False
 
-        return all(alarm.state.upper() == state.upper()
-                   for alarm in TempestClients.ceilometer().alarms.list())
+        return all(alarm[AodhProps.STATE].upper() == state.upper()
+                   for alarm in TempestClients.aodh().alarm.list())
