@@ -55,7 +55,7 @@ class TestAlarms(BaseAlarmsTest):
             self._handle_exception(e)
             raise
         finally:
-            aodh_utils.delete_all_ceilometer_alarms()
+            aodh_utils.delete_all_aodh_alarms()
             nova_utils.delete_all_instances()
 
     def _compare_alarms_lists(self, api_alarms, cli_alarms,
