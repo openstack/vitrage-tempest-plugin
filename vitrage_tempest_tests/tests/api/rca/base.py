@@ -31,6 +31,7 @@ from vitrage.evaluator.actions.evaluator_event_transformer \
 from vitrage_tempest_tests.tests.api.alarms.base import BaseAlarmsTest
 from vitrage_tempest_tests.tests.common import aodh_utils
 from vitrage_tempest_tests.tests.common import nova_utils
+from vitrage_tempest_tests.tests.common.tempest_clients import TempestClients
 from vitrage_tempest_tests.tests.common import vitrage_utils
 from vitrage_tempest_tests.tests import utils
 
@@ -54,9 +55,10 @@ class BaseRcaTest(BaseAlarmsTest):
                                      name=alarm_name,
                                      unic=unic)
 
-        list_alarms = self.vitrage_client.alarm.list(vitrage_id=None)
+        list_alarms = self.vitrage_client.alarm.list(vitrage_id='all',
+                                                     all_tenants=True)
         expected_alarm = self._filter_list_by_pairs_parameters(
-            list_alarms, ['resource_id', VProps.VITRAGE_TYPE],
+            list_alarms, [VProps.RESOURCE_ID, VProps.VITRAGE_TYPE],
             [resource_id, AODH_DATASOURCE])
         if not expected_alarm:
             return None
@@ -96,23 +98,38 @@ class BaseRcaTest(BaseAlarmsTest):
         self.assertNotEqual(len(alarms), 0, 'The alarms list is empty')
         LOG.info("The alarms list is : " + str(json.dumps(alarms)))
 
+        # Find the vitrage_id of the deduced alarms using their original id.
+        vitrage_resources = TempestClients.vitrage().resource.list(
+            all_tenants=False)
+        vitrage_instance_0_id = self._filter_list_by_pairs_parameters(
+            vitrage_resources, [VProps.ID],
+            [utils.uni2str(instances[0].id)])[0]
+
+        vitrage_instance_1_id = self._filter_list_by_pairs_parameters(
+            vitrage_resources, [VProps.ID],
+            [utils.uni2str(instances[1].id)])[0]
+
+        # Find the deduced alarms based on their properties
         deduce_alarms_1 = self._filter_list_by_pairs_parameters(
             alarms,
-            [VProps.VITRAGE_TYPE, VProps.NAME, 'resource_type', 'resource_id'],
+            [VProps.VITRAGE_TYPE, VProps.NAME, VProps.VITRAGE_RESOURCE_TYPE,
+             VProps.VITRAGE_RESOURCE_ID],
             [VITRAGE_DATASOURCE, VITRAGE_ALARM_NAME,
              NOVA_INSTANCE_DATASOURCE,
-             utils.uni2str(instances[0].id)])
+             vitrage_instance_0_id[VProps.VITRAGE_ID]])
 
         deduce_alarms_2 = self._filter_list_by_pairs_parameters(
             alarms,
-            [VProps.VITRAGE_TYPE, VProps.NAME, 'resource_type', 'resource_id'],
+            [VProps.VITRAGE_TYPE, VProps.NAME, VProps.VITRAGE_RESOURCE_TYPE,
+             VProps.VITRAGE_RESOURCE_ID],
             [VITRAGE_DATASOURCE, VITRAGE_ALARM_NAME,
              NOVA_INSTANCE_DATASOURCE,
-             utils.uni2str(instances[1].id)])
+             vitrage_instance_1_id[VProps.VITRAGE_ID]])
 
-        self.assertEqual(3, len(alarms))
-        self.assertEqual(1, len(deduce_alarms_1))
-        self.assertEqual(1, len(deduce_alarms_2))
+        self.assertEqual(3, len(alarms), "Expected 3 alarms - 1 on host and "
+                                         "2 deduced")
+        self.assertEqual(1, len(deduce_alarms_1), "Deduced alarm not found")
+        self.assertEqual(1, len(deduce_alarms_2), "Deduced alarm not found")
 
     def _validate_relationship(self, links, alarms):
         self.assertNotEqual(len(links), 0, 'The links list is empty')

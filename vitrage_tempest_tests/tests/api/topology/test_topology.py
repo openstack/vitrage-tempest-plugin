@@ -45,7 +45,7 @@ class TestTopology(BaseTopologyTest):
 
     def _get_root_vertex_id(self):
         items = self.vitrage_client.resource.list(
-            resource_type=OPENSTACK_CLUSTER)
+            resource_type=OPENSTACK_CLUSTER, all_tenants=True)
         return items[0][VProps.VITRAGE_ID]
 
     @utils.tempest_logger
@@ -265,7 +265,7 @@ class TestTopology(BaseTopologyTest):
         finally:
             self._rollback_to_default()
 
-    @unittest.skip("testing skipping")
+    @unittest.skip("skipping test - not working")
     @utils.tempest_logger
     def test_graph_with_root_and_depth_exclude_instance(self):
         """tree_with_query
@@ -297,7 +297,7 @@ class TestTopology(BaseTopologyTest):
         finally:
             self._rollback_to_default()
 
-    @unittest.skip("testing skipping")
+    @unittest.skip("skipping test - not working")
     @utils.tempest_logger
     def test_graph_with_root_and_depth_include_instance(self):
         """graph_with_root_and_depth_include_instance
