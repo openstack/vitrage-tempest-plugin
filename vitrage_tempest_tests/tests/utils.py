@@ -17,12 +17,10 @@ from functools import wraps
 import socket
 import time
 
-from oslo_config import cfg
 from oslo_config.cfg import NoSuchOptError
 from oslo_log import log as logging
 
 import os
-import oslo_messaging
 import re
 import subprocess
 
@@ -113,13 +111,6 @@ def run_from_terminal(command):
 def change_terminal_dir(path):
     os.chdir(path)
     LOG.debug("The path is : " + path)
-
-
-def get_client():
-    transport = oslo_messaging.get_transport(cfg.CONF)
-    cfg.CONF.set_override('rpc_backend', 'rabbit')
-    target = oslo_messaging.Target(topic='rpcapiv1')
-    return oslo_messaging.RPCClient(transport, target)
 
 
 def get_regex_result(pattern, text):

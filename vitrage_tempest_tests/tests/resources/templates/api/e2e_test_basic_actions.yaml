@@ -1,0 +1,70 @@
+metadata:
+ name: e2e_test_basic_actions
+ description: this template includes vitrage basic actions
+definitions:
+ entities:
+  - entity:
+     category: ALARM
+     name: e2e.test_basic_actions.trigger.alarm1
+     template_id: trigger_alarm_1
+  - entity:
+     category: ALARM
+     name: e2e.test_basic_actions.trigger.alarm2
+     template_id: trigger_alarm_2
+  - entity:
+     category: ALARM
+     type: vitrage
+     name: e2e.test_basic_actions.deduced.alarm
+     template_id: deduced_alarm
+  - entity:
+     category: RESOURCE
+     type: nova.host
+     template_id: host
+ relationships:
+  - relationship:
+     source: trigger_alarm_1
+     relationship_type: on
+     target: host
+     template_id : trigger_alarm_1_on_host
+  - relationship:
+     source: trigger_alarm_2
+     relationship_type: on
+     target: host
+     template_id : trigger_alarm_2_on_host
+  - relationship:
+     source: deduced_alarm
+     relationship_type: on
+     target: host
+     template_id : deduced_alarm_on_host
+scenarios:
+ - scenario:
+    condition: trigger_alarm_1_on_host
+    actions:
+     - action:
+         action_type: set_state
+         action_target:
+            target: host
+         properties:
+            state: ERROR
+     - action:
+        action_type: mark_down
+        action_target:
+         target: host
+ - scenario:
+    condition: trigger_alarm_2_on_host
+    actions:
+     - action:
+        action_type: raise_alarm
+        action_target:
+         target: host
+        properties:
+         alarm_name: e2e.test_basic_actions.deduced.alarm
+         severity: WARNING
+ - scenario:
+    condition: trigger_alarm_2_on_host and deduced_alarm_on_host
+    actions:
+     - action:
+        action_type: add_causal_relationship
+        action_target:
+         source: trigger_alarm_2
+         target: deduced_alarm
