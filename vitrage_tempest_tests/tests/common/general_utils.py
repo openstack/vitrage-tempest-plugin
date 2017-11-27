@@ -14,17 +14,32 @@
 import six
 
 
-def get_first_match(list_of_dicts, subset_dict):
+def get_first_match(list_of_dicts, **kwargs):
+    subset_dict = _subset_dict(**kwargs)
     for d in list_of_dicts:
         if is_subset(subset_dict, d):
             return d
 
 
-def get_all_matchs(list_of_dicts, subset_dict):
+def get_all_matches(list_of_dicts, **kwargs):
     # TODO(idan_hefetz) this method can replace the notorious
     # TODO(idan_hefetz) '_filter_list_by_pairs_parameters'
+    subset_dict = _subset_dict(**kwargs)
     return [d for d in list_of_dicts if is_subset(subset_dict, d)]
 
 
 def is_subset(subset, full):
-    return six.viewitems(subset) <= six.viewitems(full)
+    if not subset:
+        return True
+    full_dict = full
+    if type(full) is not dict:
+        full_dict = full.__dict__
+    return six.viewitems(subset) <= six.viewitems(full_dict)
+
+
+def _subset_dict(**kwargs):
+    subset_dict_final = dict()
+    for keyword, arg in kwargs.items():
+        if arg is not None:
+            subset_dict_final[keyword] = arg
+    return subset_dict_final

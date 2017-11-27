@@ -76,21 +76,6 @@ class BaseVitrageTempest(base.BaseTestCase):
                 filtered_list.append(item)
         return filtered_list
 
-    def _check_num_instances(self, num_instances=0, state=''):
-        if len(TempestClients.nova().servers.list()) != num_instances:
-            return False
-
-        return all(instance.__dict__['status'].upper() == state.upper()
-                   for instance in TempestClients.nova().servers.list())
-
-    def _check_num_volumes(self, num_volumes=0, state=''):
-        if len(TempestClients.cinder().volumes.list()) != num_volumes:
-            return False
-
-        return all(volume.__dict__['status'].upper() == state.upper() and
-                   len(volume.__dict__['attachments']) == 1
-                   for volume in TempestClients.cinder().volumes.list())
-
     def _create_graph_from_graph_dictionary(self, api_graph):
         self.assertIsNotNone(api_graph)
         graph = NXGraph()
