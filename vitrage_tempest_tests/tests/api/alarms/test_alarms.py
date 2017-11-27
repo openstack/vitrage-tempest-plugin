@@ -24,6 +24,8 @@ from vitrage_tempest_tests.tests.common import nova_utils
 from vitrage_tempest_tests.tests.common.tempest_clients import TempestClients
 from vitrage_tempest_tests.tests import utils
 
+import unittest
+
 LOG = logging.getLogger(__name__)
 
 
@@ -34,18 +36,21 @@ class TestAlarms(BaseAlarmsTest):
     def setUpClass(cls):
         super(TestAlarms, cls).setUpClass()
 
+    @unittest.skip("CLI tests are ineffective and not maintained")
     @utils.tempest_logger
     def test_compare_cli_vs_api_alarms(self):
         """Wrapper that returns a test graph."""
         try:
-            instances = nova_utils.create_instances(num_instances=1)
+            instances = nova_utils.create_instances(num_instances=1,
+                                                    set_public_network=True)
             self.assertNotEqual(len(instances), 0,
                                 'The instances list is empty')
             aodh_utils.create_aodh_alarm(
                 resource_id=instances[0].id,
                 name='tempest_aodh_test')
 
-            api_alarms = TempestClients.vitrage().alarm.list(vitrage_id=None)
+            api_alarms = TempestClients.vitrage().alarm.list(vitrage_id='all',
+                                                             all_tenants=True)
             cli_alarms = utils.run_vitrage_command(
                 'vitrage alarm list', self.conf)
             self._compare_alarms_lists(

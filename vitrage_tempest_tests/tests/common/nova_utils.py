@@ -20,19 +20,19 @@ from vitrage_tempest_tests.tests.utils import wait_for_status
 
 
 def create_instances(num_instances, set_public_network=False, name='vm'):
-    kwargs = {}
+    nics = []
     flavor = get_first_flavor()
     image = glance_utils.get_first_image()
     if set_public_network:
         public_net = neutron_utils.get_public_network()
         if public_net:
-            kwargs.update({"networks": [{'uuid': public_net['id']}]})
+            nics = [{'net-id': public_net['id']}]
 
     resources = [TempestClients.nova().servers.create(
         name='%s-%s' % (name, index),
         flavor=flavor,
         image=image,
-        **kwargs) for index in range(num_instances)]
+        nics=nics) for index in range(num_instances)]
     wait_for_status(30, _check_num_instances, num_instances=num_instances,
                     state='active')
     time.sleep(2)
