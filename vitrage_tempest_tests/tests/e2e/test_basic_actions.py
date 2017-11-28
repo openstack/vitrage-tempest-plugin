@@ -20,16 +20,19 @@ from vitrage.common.constants import VertexProperties as VProps
 from vitrage.datasources.doctor import DOCTOR_DATASOURCE
 from vitrage.evaluator.actions.evaluator_event_transformer import \
     VITRAGE_DATASOURCE
-from vitrage_tempest_tests.tests.base import BaseVitrageTempest
 from vitrage_tempest_tests.tests.common import general_utils as g_utils
+from vitrage_tempest_tests.tests.common import nova_utils
 from vitrage_tempest_tests.tests.common.tempest_clients import TempestClients
 from vitrage_tempest_tests.tests.common import vitrage_utils
+from vitrage_tempest_tests.tests.e2e.test_actions_base import TestActionsBase
 from vitrage_tempest_tests.tests import utils
 
 LOG = logging.getLogger(__name__)
 
 TRIGGER_ALARM_1 = 'e2e.test_basic_actions.trigger.alarm1'
 TRIGGER_ALARM_2 = 'e2e.test_basic_actions.trigger.alarm2'
+TRIGGER_ALARM_3 = 'e2e.test_basic_actions.trigger.alarm3'
+TRIGGER_ALARM_4 = 'e2e.test_basic_actions.trigger.alarm4'
 DEDUCED = 'e2e.test_basic_actions.deduced.alarm'
 
 TRIGGER_ALARM_2_PROPS = {
@@ -45,35 +48,9 @@ DEDUCED_PROPS = {
 }
 
 
-class TestBasicActions(BaseVitrageTempest):
-    @classmethod
-    def setUpClass(cls):
-        super(TestBasicActions, cls).setUpClass()
-        host = vitrage_utils.get_first_host()
-        if not host:
-            raise Exception("No host found")
-        if not host.get(VProps.VITRAGE_AGGREGATED_STATE) == 'AVAILABLE':
-            raise Exception("Host is not running %s", str(host))
-        cls.orig_host = host
-
-    def _trigger_do_action(self, trigger_name):
-        vitrage_utils.generate_fake_host_alarm(
-            self.orig_host.get('name'),
-            enabled=True,
-            event_type=trigger_name
-        )
-        time.sleep(2)
-
-    def _trigger_undo_action(self, trigger_name):
-        vitrage_utils.generate_fake_host_alarm(
-            self.orig_host.get('name'),
-            enabled=False,
-            event_type=trigger_name
-        )
-        time.sleep(2)
-
+class TestBasicActions(TestActionsBase):
     @utils.tempest_logger
-    def test_action_set_state(self):
+    def test_action_set_state_host(self):
         try:
 
             # Do
@@ -90,7 +67,7 @@ class TestBasicActions(BaseVitrageTempest):
             self.assertEqual(
                 self.orig_host.get(VProps.VITRAGE_AGGREGATED_STATE),
                 curr_host.get(VProps.VITRAGE_AGGREGATED_STATE),
-                'state should change after set_state action')
+                'state should change after undo set_state action')
         except Exception as e:
             self._handle_exception(e)
             raise
@@ -98,18 +75,48 @@ class TestBasicActions(BaseVitrageTempest):
             self._trigger_undo_action(TRIGGER_ALARM_1)
 
     @utils.tempest_logger
+    def test_action_set_state_instance(self):
+
+        vm_id = ""
+        try:
+            vm_id = nova_utils.create_instances(set_public_network=True)[0].id
+
+            # Do
+            orig_instance = vitrage_utils.get_first_instance(id=vm_id)
+            self._trigger_do_action(TRIGGER_ALARM_3)
+            curr_instance = vitrage_utils.get_first_instance(id=vm_id)
+            self.assertEqual(
+                'ERROR',
+                curr_instance.get(VProps.VITRAGE_AGGREGATED_STATE),
+                'state should change after set_state action')
+
+            # Undo
+            self._trigger_undo_action(TRIGGER_ALARM_3)
+            curr_instance = vitrage_utils.get_first_instance(id=vm_id)
+            self.assertEqual(
+                orig_instance.get(VProps.VITRAGE_AGGREGATED_STATE),
+                curr_instance.get(VProps.VITRAGE_AGGREGATED_STATE),
+                'state should change after undo set_state action')
+        except Exception as e:
+            self._handle_exception(e)
+            raise
+        finally:
+            self._trigger_undo_action(TRIGGER_ALARM_3)
+            nova_utils.delete_all_instances(id=vm_id)
+
+    @utils.tempest_logger
     def test_action_mark_down_host(self):
         try:
             host_name = self.orig_host.get(VProps.NAME)
 
             # Do
-            self._trigger_do_action(TRIGGER_ALARM_1)
+            self._trigger_do_action(TRIGGER_ALARM_4)
             nova_service = TempestClients.nova().services.list(
                 host=host_name, binary='nova-compute')[0]
             self.assertEqual("down", str(nova_service.state))
 
             # Undo
-            self._trigger_undo_action(TRIGGER_ALARM_1)
+            self._trigger_undo_action(TRIGGER_ALARM_4)
             nova_service = TempestClients.nova().services.list(
                 host=host_name, binary='nova-compute')[0]
             self.assertEqual("up", str(nova_service.state))
@@ -117,7 +124,31 @@ class TestBasicActions(BaseVitrageTempest):
             self._handle_exception(e)
             raise
         finally:
-            self._trigger_undo_action(TRIGGER_ALARM_1)
+            self._trigger_undo_action(TRIGGER_ALARM_4)
+            # nova.host datasource may take up to snapshot_intreval to update
+            time.sleep(130)
+
+    @utils.tempest_logger
+    def test_action_mark_down_instance(self):
+        vm_id = ""
+        try:
+            vm_id = nova_utils.create_instances(set_public_network=True)[0].id
+            # Do
+            self._trigger_do_action(TRIGGER_ALARM_3)
+            nova_instance = TempestClients.nova().servers.get(vm_id)
+            self.assertEqual("ERROR", str(nova_instance.status))
+
+            # Undo
+            self._trigger_undo_action(TRIGGER_ALARM_3)
+            nova_instance = TempestClients.nova().servers.get(vm_id)
+            self.assertEqual("ACTIVE", str(nova_instance.status))
+        except Exception as e:
+            self._handle_exception(e)
+            raise
+        finally:
+            pass
+            self._trigger_undo_action(TRIGGER_ALARM_3)
+            nova_utils.delete_all_instances(id=vm_id)
 
     @utils.tempest_logger
     def test_action_deduce_alarm(self):
@@ -137,17 +168,6 @@ class TestBasicActions(BaseVitrageTempest):
         finally:
             self._trigger_undo_action(TRIGGER_ALARM_2)
 
-    def _check_deduced(self, deduced_count, deduced_props, resource_id):
-        alarms = TempestClients.vitrage().alarm.list(
-            vitrage_id=resource_id,
-            all_tenants=True)
-        deduces = g_utils.get_all_matchs(alarms, deduced_props)
-        self.assertEqual(
-            deduced_count,
-            len(deduces),
-            'Expected %s deduces\n - \n%s\n - \n%s' %
-            (str(deduced_count), str(alarms), str(deduces)))
-
     @utils.tempest_logger
     def test_action_add_causal_relationship(self):
         try:
@@ -156,9 +176,10 @@ class TestBasicActions(BaseVitrageTempest):
             alarms = TempestClients.vitrage().alarm.list(
                 vitrage_id=self.orig_host.get(VProps.VITRAGE_ID),
                 all_tenants=True)
+            self.assertEqual(True, len(alarms) >= 2, 'alarms %s' % str(alarms))
 
-            deduced = g_utils.get_all_matchs(alarms, DEDUCED_PROPS)[0]
-            trigger = g_utils.get_all_matchs(alarms, TRIGGER_ALARM_2_PROPS)[0]
+            deduced = g_utils.get_first_match(alarms, **DEDUCED_PROPS)
+            trigger = g_utils.get_first_match(alarms, **TRIGGER_ALARM_2_PROPS)
 
             # Get Rca for the deduced
             rca = TempestClients.vitrage().rca.get(
@@ -174,16 +195,3 @@ class TestBasicActions(BaseVitrageTempest):
             raise
         finally:
             self._trigger_undo_action(TRIGGER_ALARM_2)
-
-    def _check_rca(self, rca, expected_alarms, inspected):
-        self.assertEqual(len(expected_alarms), len(rca['nodes']))
-        for expected_alarm in expected_alarms:
-            self.assertIsNotNone(
-                g_utils.get_first_match(rca['nodes'], expected_alarm),
-                'expected_alarm is not in the rca %s' % str(expected_alarm))
-        rca_inspected = rca['nodes'][rca['inspected_index']]
-        self.assertEqual(
-            True,
-            g_utils.is_subset(inspected, rca_inspected),
-            'Invalid inspected item \n%s\n%s' %
-            (str(rca_inspected), str(inspected)))

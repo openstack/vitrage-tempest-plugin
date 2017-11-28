@@ -13,11 +13,11 @@
 # under the License.
 from datetime import datetime
 
-from vitrage.common.constants import VertexProperties as VProps
 from vitrage.datasources import NOVA_HOST_DATASOURCE
+from vitrage.datasources import NOVA_INSTANCE_DATASOURCE
 from vitrage_tempest_tests.tests.api.event.base import DOWN
 from vitrage_tempest_tests.tests.api.event.base import UP
-from vitrage_tempest_tests.tests.common.general_utils import get_first_match
+from vitrage_tempest_tests.tests.common import general_utils as g_utils
 from vitrage_tempest_tests.tests.common.tempest_clients import TempestClients
 
 
@@ -36,6 +36,13 @@ def generate_fake_host_alarm(hostname, event_type, enabled=True):
     TempestClients.vitrage().event.post(event_time_iso, event_type, details)
 
 
-def get_first_host():
-    nodes = TempestClients.vitrage().topology.get(all_tenants=True)['nodes']
-    return get_first_match(nodes, {VProps.VITRAGE_TYPE: NOVA_HOST_DATASOURCE})
+def get_first_host(**kwargs):
+    hosts = TempestClients.vitrage().resource.list(
+        NOVA_HOST_DATASOURCE, all_tenants=True)
+    return g_utils.get_first_match(hosts, **kwargs)
+
+
+def get_first_instance(**kwargs):
+    instances = TempestClients.vitrage().resource.list(
+        NOVA_INSTANCE_DATASOURCE, all_tenants=True)
+    return g_utils.get_first_match(instances, **kwargs)

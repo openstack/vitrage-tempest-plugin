@@ -13,13 +13,14 @@
 # under the License.
 import time
 
+from vitrage_tempest_tests.tests.common import general_utils as g_utils
 from vitrage_tempest_tests.tests.common import glance_utils
 from vitrage_tempest_tests.tests.common import neutron_utils
 from vitrage_tempest_tests.tests.common.tempest_clients import TempestClients
 from vitrage_tempest_tests.tests.utils import wait_for_status
 
 
-def create_instances(num_instances, set_public_network=False, name='vm'):
+def create_instances(num_instances=1, set_public_network=False, name='vm'):
     nics = []
     flavor = get_first_flavor()
     image = glance_utils.get_first_image()
@@ -39,14 +40,18 @@ def create_instances(num_instances, set_public_network=False, name='vm'):
     return resources
 
 
-def delete_all_instances():
+def delete_all_instances(**kwargs):
     instances = TempestClients.nova().servers.list()
-    for instance in instances:
+    instances_to_delete = g_utils.get_all_matches(instances, **kwargs)
+    for item in instances_to_delete:
         try:
-            TempestClients.nova().servers.delete(instance)
+            TempestClients.nova().servers.delete(item)
         except Exception:
             pass
-    wait_for_status(30, _check_num_instances, num_instances=0)
+    wait_for_status(
+        30,
+        _check_num_instances,
+        num_instances=len(instances) - len(instances_to_delete))
     time.sleep(2)
 
 
