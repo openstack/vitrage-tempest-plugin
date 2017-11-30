@@ -56,8 +56,7 @@ class BaseVitrageTempest(base.BaseTestCase):
 
         cls.num_default_networks = \
             len(TempestClients.neutron().list_networks()['networks'])
-        cls.num_default_ports = \
-            len(TempestClients.neutron().list_ports()['ports'])
+        cls.num_default_ports = 0
         cls.num_default_entities = 3
         cls.num_default_edges = 2
 
