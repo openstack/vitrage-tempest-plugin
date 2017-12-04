@@ -50,8 +50,7 @@ class TestRca(BaseRcaTest):
                 resource_id=instances[0].id,
                 alarm_name='instance_rca_alarm', unic=True)
 
-            vitrage_id = self._get_value(
-                instance_alarm, VProps.VITRAGE_ID)
+            vitrage_id = instance_alarm.get(VProps.VITRAGE_ID)
             api_rca = self.vitrage_client.rca.get(alarm_id=vitrage_id)
             cli_rca = utils.run_vitrage_command(
                 'vitrage rca show ' + vitrage_id, self.conf)
@@ -82,8 +81,7 @@ class TestRca(BaseRcaTest):
                 resource_id=self._get_hostname(),
                 alarm_name=RCA_ALARM_NAME)
             api_rca = self.vitrage_client.rca.get(
-                alarm_id=self._get_value(host_alarm,
-                                         VProps.VITRAGE_ID), all_tenants=True)
+                alarm_id=host_alarm.get(VProps.VITRAGE_ID), all_tenants=True)
 
             self._validate_rca(rca=api_rca['nodes'])
             self._validate_relationship(links=api_rca['links'],

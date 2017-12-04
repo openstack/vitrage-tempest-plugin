@@ -60,21 +60,6 @@ class BaseVitrageTempest(base.BaseTestCase):
         cls.num_default_entities = 3
         cls.num_default_edges = 2
 
-    @staticmethod
-    def _filter_list_by_pairs_parameters(origin_list,
-                                         keys, values):
-        filtered_list = []
-        for item in origin_list:
-            verification = 0
-            for index in range(len(keys)):
-                if utils.uni2str(item[keys[index]]) == values[index]:
-                    verification += 1
-                else:
-                    break
-            if verification == len(keys):
-                filtered_list.append(item)
-        return filtered_list
-
     def _create_graph_from_graph_dictionary(self, api_graph):
         self.assertIsNotNone(api_graph)
         graph = NXGraph()

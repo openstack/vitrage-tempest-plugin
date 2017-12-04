@@ -170,9 +170,9 @@ class TestOverlappingcActions(TestActionsBase):
                 vitrage_id=self.orig_host.get(VProps.VITRAGE_ID),
                 all_tenants=True)
 
-            deduced = g_utils.get_first_match(alarms, **DEDUCED_PROPS)
-            trigger1 = g_utils.get_first_match(alarms, **TRIGGER_ALARM_1_PROPS)
-            trigger2 = g_utils.get_first_match(alarms, **TRIGGER_ALARM_2_PROPS)
+            deduced = g_utils.first_match(alarms, **DEDUCED_PROPS)
+            trigger1 = g_utils.first_match(alarms, **TRIGGER_ALARM_1_PROPS)
+            trigger2 = g_utils.first_match(alarms, **TRIGGER_ALARM_2_PROPS)
 
             # Get Rca for the deduced
             rca = TempestClients.vitrage().rca.get(
@@ -195,8 +195,8 @@ class TestOverlappingcActions(TestActionsBase):
                 vitrage_id=self.orig_host.get(VProps.VITRAGE_ID),
                 all_tenants=True)
 
-            deduced = g_utils.get_first_match(alarms, **DEDUCED_PROPS)
-            trigger2 = g_utils.get_first_match(alarms, **TRIGGER_ALARM_2_PROPS)
+            deduced = g_utils.first_match(alarms, **DEDUCED_PROPS)
+            trigger2 = g_utils.first_match(alarms, **TRIGGER_ALARM_2_PROPS)
 
             # Get Rca for the deduced
             rca = TempestClients.vitrage().rca.get(
@@ -215,15 +215,15 @@ class TestOverlappingcActions(TestActionsBase):
                 all_tenants=True)
             self.assertEqual(
                 0,
-                len(g_utils.get_all_matches(alarms, **TRIGGER_ALARM_1_PROPS)),
+                len(g_utils.all_matches(alarms, **TRIGGER_ALARM_1_PROPS)),
                 'trigger alarm 1 should have been removed')
             self.assertEqual(
                 0,
-                len(g_utils.get_all_matches(alarms, **TRIGGER_ALARM_2_PROPS)),
+                len(g_utils.all_matches(alarms, **TRIGGER_ALARM_2_PROPS)),
                 'trigger alarm 2 should have been removed')
             self.assertEqual(
                 0,
-                len(g_utils.get_all_matches(alarms, **DEDUCED_PROPS)),
+                len(g_utils.all_matches(alarms, **DEDUCED_PROPS)),
                 'deduced alarm should have been removed')
 
         except Exception as e:

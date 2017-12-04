@@ -30,10 +30,10 @@ from vitrage.evaluator.actions.evaluator_event_transformer \
     import VITRAGE_DATASOURCE
 from vitrage_tempest_tests.tests.api.alarms.base import BaseAlarmsTest
 from vitrage_tempest_tests.tests.common import aodh_utils
+from vitrage_tempest_tests.tests.common import general_utils as g_utils
 from vitrage_tempest_tests.tests.common import nova_utils
 from vitrage_tempest_tests.tests.common.tempest_clients import TempestClients
 from vitrage_tempest_tests.tests.common import vitrage_utils
-from vitrage_tempest_tests.tests import utils
 
 LOG = logging.getLogger(__name__)
 RCA_ALARM_NAME = 'rca_test_host_alarm'
@@ -57,9 +57,10 @@ class BaseRcaTest(BaseAlarmsTest):
 
         list_alarms = self.vitrage_client.alarm.list(vitrage_id='all',
                                                      all_tenants=True)
-        expected_alarm = self._filter_list_by_pairs_parameters(
-            list_alarms, [VProps.RESOURCE_ID, VProps.VITRAGE_TYPE],
-            [resource_id, AODH_DATASOURCE])
+        expected_alarm = g_utils.all_matches(
+            list_alarms,
+            resource_id=resource_id,
+            vitrage_type=AODH_DATASOURCE)
         if not expected_alarm:
             return None
         return expected_alarm[0]
@@ -80,14 +81,16 @@ class BaseRcaTest(BaseAlarmsTest):
         self.assertNotEqual(len(rca), 0, 'The rca is empty')
         LOG.info("The rca alarms list is : " + str(json.dumps(rca)))
 
-        resource_alarm = self._filter_list_by_pairs_parameters(
-            rca, [VProps.VITRAGE_TYPE, VProps.NAME],
-            [AODH_DATASOURCE, RCA_ALARM_NAME])
+        resource_alarm = g_utils.all_matches(
+            rca,
+            vitrage_type=AODH_DATASOURCE,
+            name=RCA_ALARM_NAME)
 
-        deduce_alarms = self._filter_list_by_pairs_parameters(
-            rca, [VProps.VITRAGE_TYPE, VProps.NAME, VProps.SEVERITY],
-            [VITRAGE_DATASOURCE, VITRAGE_ALARM_NAME,
-             OperationalAlarmSeverity.WARNING])
+        deduce_alarms = g_utils.all_matches(
+            rca,
+            vitrage_type=VITRAGE_DATASOURCE,
+            name=VITRAGE_ALARM_NAME,
+            severity=OperationalAlarmSeverity.WARNING)
 
         self.assertEqual(3, len(rca))
         self.assertEqual(1, len(resource_alarm))
@@ -101,30 +104,26 @@ class BaseRcaTest(BaseAlarmsTest):
         # Find the vitrage_id of the deduced alarms using their original id.
         vitrage_resources = TempestClients.vitrage().resource.list(
             all_tenants=False)
-        vitrage_instance_0_id = self._filter_list_by_pairs_parameters(
-            vitrage_resources, [VProps.ID],
-            [utils.uni2str(instances[0].id)])[0]
+        vitrage_instance_0_id = g_utils.first_match(vitrage_resources,
+                                                    id=instances[0].id)
 
-        vitrage_instance_1_id = self._filter_list_by_pairs_parameters(
-            vitrage_resources, [VProps.ID],
-            [utils.uni2str(instances[1].id)])[0]
+        vitrage_instance_1_id = g_utils.first_match(vitrage_resources,
+                                                    id=instances[1].id)
 
         # Find the deduced alarms based on their properties
-        deduce_alarms_1 = self._filter_list_by_pairs_parameters(
+        deduce_alarms_1 = g_utils.all_matches(
             alarms,
-            [VProps.VITRAGE_TYPE, VProps.NAME, VProps.VITRAGE_RESOURCE_TYPE,
-             VProps.VITRAGE_RESOURCE_ID],
-            [VITRAGE_DATASOURCE, VITRAGE_ALARM_NAME,
-             NOVA_INSTANCE_DATASOURCE,
-             vitrage_instance_0_id[VProps.VITRAGE_ID]])
+            vitrage_type=VITRAGE_DATASOURCE,
+            name=VITRAGE_ALARM_NAME,
+            vitrage_resource_type=NOVA_INSTANCE_DATASOURCE,
+            vitrage_resource_id=vitrage_instance_0_id[VProps.VITRAGE_ID])
 
-        deduce_alarms_2 = self._filter_list_by_pairs_parameters(
+        deduce_alarms_2 = g_utils.all_matches(
             alarms,
-            [VProps.VITRAGE_TYPE, VProps.NAME, VProps.VITRAGE_RESOURCE_TYPE,
-             VProps.VITRAGE_RESOURCE_ID],
-            [VITRAGE_DATASOURCE, VITRAGE_ALARM_NAME,
-             NOVA_INSTANCE_DATASOURCE,
-             vitrage_instance_1_id[VProps.VITRAGE_ID]])
+            vitrage_type=VITRAGE_DATASOURCE,
+            name=VITRAGE_ALARM_NAME,
+            vitrage_resource_type=NOVA_INSTANCE_DATASOURCE,
+            vitrage_resource_id=vitrage_instance_1_id[VProps.VITRAGE_ID])
 
         self.assertEqual(3, len(alarms), "Expected 3 alarms - 1 on host and "
                                          "2 deduced")
@@ -137,12 +136,10 @@ class BaseRcaTest(BaseAlarmsTest):
 
         flag = True
         for item in links:
-            source_alarm_name = self._get_value(
-                alarms[item['source']], VProps.NAME)
-            target_alarm_name = self._get_value(
-                alarms[item['target']], VProps.NAME)
-            if self._get_value(item, 'key') != EdgeLabel.CAUSES \
-                    or self._get_value(item, EdgeProperties.RELATIONSHIP_TYPE) != EdgeLabel.CAUSES \
+            source_alarm_name = alarms[item['source']].get(VProps.NAME)
+            target_alarm_name = alarms[item['target']].get(VProps.NAME)
+            if item.get('key') != EdgeLabel.CAUSES \
+                    or item.get(EdgeProperties.RELATIONSHIP_TYPE) != EdgeLabel.CAUSES \
                     or source_alarm_name != RCA_ALARM_NAME \
                     or target_alarm_name != VITRAGE_ALARM_NAME:
                 flag = False
@@ -152,33 +149,26 @@ class BaseRcaTest(BaseAlarmsTest):
 
     def _validate_set_state(self, topology, instances):
         self.assertNotEqual(len(topology), 0, 'The topology graph is empty')
-
-        host = self._filter_list_by_pairs_parameters(
+        host = g_utils.all_matches(
             topology,
-            [VProps.VITRAGE_TYPE, VProps.ID, VProps.VITRAGE_STATE,
-             VProps.VITRAGE_AGGREGATED_STATE],
-            [NOVA_HOST_DATASOURCE,
-             self._get_hostname(),
-             OperationalResourceState.ERROR,
-             OperationalResourceState.ERROR])
+            vitrage_type=NOVA_HOST_DATASOURCE,
+            id=self._get_hostname(),
+            vitrage_state=OperationalResourceState.ERROR,
+            vitrage_aggregated_state=OperationalResourceState.ERROR)
 
-        vm1 = self._filter_list_by_pairs_parameters(
+        vm1 = g_utils.all_matches(
             topology,
-            [VProps.VITRAGE_TYPE, VProps.ID, VProps.VITRAGE_STATE,
-             VProps.VITRAGE_AGGREGATED_STATE],
-            [NOVA_INSTANCE_DATASOURCE,
-             utils.uni2str(instances[0].id),
-             OperationalResourceState.SUBOPTIMAL,
-             OperationalResourceState.SUBOPTIMAL])
+            vitrage_type=NOVA_INSTANCE_DATASOURCE,
+            id=instances[0].id,
+            vitrage_state=OperationalResourceState.SUBOPTIMAL,
+            vitrage_aggregated_state=OperationalResourceState.SUBOPTIMAL)
 
-        vm2 = self._filter_list_by_pairs_parameters(
+        vm2 = g_utils.all_matches(
             topology,
-            [VProps.VITRAGE_TYPE, VProps.ID, VProps.VITRAGE_STATE,
-             VProps.VITRAGE_AGGREGATED_STATE],
-            [NOVA_INSTANCE_DATASOURCE,
-             utils.uni2str(instances[1].id),
-             OperationalResourceState.SUBOPTIMAL,
-             OperationalResourceState.SUBOPTIMAL])
+            vitrage_type=NOVA_INSTANCE_DATASOURCE,
+            id=instances[1].id,
+            vitrage_state=OperationalResourceState.SUBOPTIMAL,
+            vitrage_aggregated_state=OperationalResourceState.SUBOPTIMAL)
 
         self.assertEqual(1, len(host))
         self.assertEqual(1, len(vm1))
@@ -208,7 +198,7 @@ class BaseRcaTest(BaseAlarmsTest):
 
     def _get_hostname(self):
         host = vitrage_utils.get_first_host()
-        return self._get_value(item=host, key=VProps.ID)
+        return host.get(VProps.ID)
 
     @staticmethod
     def _clean_timestamps(alist):

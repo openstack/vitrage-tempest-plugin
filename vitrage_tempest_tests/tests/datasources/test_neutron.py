@@ -16,6 +16,7 @@ from oslo_log import log as logging
 
 from vitrage.common.constants import VertexProperties as VProps
 from vitrage_tempest_tests.tests.api.topology.base import BaseTopologyTest
+from vitrage_tempest_tests.tests.common import general_utils as g_utils
 from vitrage_tempest_tests.tests.common import nova_utils
 from vitrage_tempest_tests.tests import utils
 
@@ -99,6 +100,5 @@ class TestNeutron(BaseTopologyTest):
     def _port_to_network_edges(self, networks, ports):
         counter = 0
         for net in networks:
-            counter += len(self._filter_list_by_pairs_parameters(
-                ports, ['network_id'], [net['id']]))
+            counter += len(g_utils.all_matches(ports, network_id=net['id']))
         return counter

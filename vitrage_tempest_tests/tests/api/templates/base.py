@@ -16,6 +16,7 @@ import json
 from oslo_log import log as logging
 
 from vitrage_tempest_tests.tests.base import BaseVitrageTempest
+from vitrage_tempest_tests.tests.common import general_utils as g_utils
 from vitrage_tempest_tests.tests import utils
 
 LOG = logging.getLogger(__name__)
@@ -77,8 +78,9 @@ class BaseTemplateTest(BaseVitrageTempest):
                          len(api_templates) + 4)
 
     def _validate_passed_templates_length(self, api_templates, cli_templates):
-        api_passes_templates = self._filter_list_by_pairs_parameters(
-            api_templates, ['status details'], [self.OK_MSG])
+        api_passes_templates = g_utils.all_matches(
+            api_templates,
+            **{'status details': self.OK_MSG})
         cli_passes_templates = cli_templates.count(' ' + self.OK_MSG + ' ')
         self.assertEqual(cli_passes_templates, len(api_passes_templates))
 

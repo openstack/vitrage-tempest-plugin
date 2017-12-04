@@ -39,10 +39,10 @@ def generate_fake_host_alarm(hostname, event_type, enabled=True):
 def get_first_host(**kwargs):
     hosts = TempestClients.vitrage().resource.list(
         NOVA_HOST_DATASOURCE, all_tenants=True)
-    return g_utils.get_first_match(hosts, **kwargs)
+    return g_utils.first_match(hosts, **kwargs)
 
 
 def get_first_instance(**kwargs):
     instances = TempestClients.vitrage().resource.list(
         NOVA_INSTANCE_DATASOURCE, all_tenants=True)
-    return g_utils.get_first_match(instances, **kwargs)
+    return g_utils.first_match(instances, **kwargs)

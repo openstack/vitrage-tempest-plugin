@@ -55,7 +55,7 @@ class TestActionsBase(BaseVitrageTempest):
         alarms = TempestClients.vitrage().alarm.list(
             vitrage_id=resource_id,
             all_tenants=True)
-        deduces = g_utils.get_all_matches(alarms, **deduced_props)
+        deduces = g_utils.all_matches(alarms, **deduced_props)
         self.assertEqual(
             deduced_count,
             len(deduces),
@@ -66,7 +66,7 @@ class TestActionsBase(BaseVitrageTempest):
         self.assertEqual(len(expected_alarms), len(rca['nodes']))
         for expected_alarm in expected_alarms:
             self.assertIsNotNone(
-                g_utils.get_first_match(rca['nodes'], **expected_alarm),
+                g_utils.first_match(rca['nodes'], **expected_alarm),
                 'expected_alarm is not in the rca %s' % str(expected_alarm))
         rca_inspected = rca['nodes'][rca['inspected_index']]
         self.assertEqual(
