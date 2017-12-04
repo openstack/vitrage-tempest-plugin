@@ -11,13 +11,10 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-from vitrage.common.constants import VertexProperties as VProps
+from vitrage_tempest_tests.tests.common import general_utils as g_utils
 from vitrage_tempest_tests.tests.common.tempest_clients import TempestClients
-from vitrage_tempest_tests.tests.utils import uni2str
 
 
 def get_public_network():
     nets = TempestClients.neutron().list_networks()
-    return next(
-        (n for n in nets['networks'] if uni2str(n[VProps.NAME]) == 'public'),
-        None)
+    return g_utils.first_match(nets['networks'], name='public')

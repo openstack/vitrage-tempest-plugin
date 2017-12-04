@@ -42,7 +42,7 @@ def create_instances(num_instances=1, set_public_network=False, name='vm'):
 
 def delete_all_instances(**kwargs):
     instances = TempestClients.nova().servers.list()
-    instances_to_delete = g_utils.get_all_matches(instances, **kwargs)
+    instances_to_delete = g_utils.all_matches(instances, **kwargs)
     for item in instances_to_delete:
         try:
             TempestClients.nova().servers.delete(item)

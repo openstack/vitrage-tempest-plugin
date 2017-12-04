@@ -178,8 +178,8 @@ class TestBasicActions(TestActionsBase):
                 all_tenants=True)
             self.assertEqual(True, len(alarms) >= 2, 'alarms %s' % str(alarms))
 
-            deduced = g_utils.get_first_match(alarms, **DEDUCED_PROPS)
-            trigger = g_utils.get_first_match(alarms, **TRIGGER_ALARM_2_PROPS)
+            deduced = g_utils.first_match(alarms, **DEDUCED_PROPS)
+            trigger = g_utils.first_match(alarms, **TRIGGER_ALARM_2_PROPS)
 
             # Get Rca for the deduced
             rca = TempestClients.vitrage().rca.get(

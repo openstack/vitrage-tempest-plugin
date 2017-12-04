@@ -16,10 +16,10 @@ import json
 
 from oslo_log import log as logging
 
-from vitrage.common.constants import VertexProperties as VProps
 from vitrage.datasources.aodh import AODH_DATASOURCE
 from vitrage_tempest_tests.tests.api.alarms.base import BaseAlarmsTest
 from vitrage_tempest_tests.tests.common import aodh_utils
+from vitrage_tempest_tests.tests.common import general_utils as g_utils
 from vitrage_tempest_tests.tests.common import nova_utils
 from vitrage_tempest_tests.tests.common.tempest_clients import TempestClients
 from vitrage_tempest_tests.tests import utils
@@ -55,7 +55,7 @@ class TestAlarms(BaseAlarmsTest):
                 'vitrage alarm list', self.conf)
             self._compare_alarms_lists(
                 api_alarms, cli_alarms, AODH_DATASOURCE,
-                utils.uni2str(instances[0].id))
+                instances[0].id)
         except Exception as e:
             self._handle_exception(e)
             raise
@@ -78,12 +78,11 @@ class TestAlarms(BaseAlarmsTest):
 
         cli_items = cli_alarms.splitlines()
 
-        api_by_type = self._filter_list_by_pairs_parameters(
-            api_alarms, [VProps.VITRAGE_TYPE], [resource_type])
+        api_by_type = g_utils.all_matches(
+            api_alarms, vitrage_type=resource_type)
         cli_by_type = cli_alarms.count(' ' + resource_type + ' ')
 
-        api_by_id = self._filter_list_by_pairs_parameters(
-            api_alarms, ['resource_id'], [resource_id])
+        api_by_id = g_utils.all_matches(api_alarms, resource_id=resource_id)
         cli_by_id = cli_alarms.count(resource_id)
 
         self.assertEqual(len(cli_items), len(api_alarms) + 4)
