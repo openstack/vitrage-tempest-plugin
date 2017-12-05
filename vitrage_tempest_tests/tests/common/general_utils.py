@@ -15,14 +15,14 @@ import six
 
 
 def first_match(list_of_dicts, **kwargs):
-    subset_dict = _subset_dict(**kwargs)
+    subset_dict = _remove_none_values(**kwargs)
     for d in list_of_dicts:
         if is_subset(subset_dict, d):
             return d
 
 
 def all_matches(list_of_dicts, **kwargs):
-    subset_dict = _subset_dict(**kwargs)
+    subset_dict = _remove_none_values(**kwargs)
     return [d for d in list_of_dicts if is_subset(subset_dict, d)]
 
 
@@ -35,9 +35,5 @@ def is_subset(subset, full):
     return six.viewitems(subset) <= six.viewitems(full_dict)
 
 
-def _subset_dict(**kwargs):
-    subset_dict_final = dict()
-    for keyword, arg in kwargs.items():
-        if arg is not None:
-            subset_dict_final[keyword] = arg
-    return subset_dict_final
+def _remove_none_values(**kwargs):
+    return {k: v for k, v in kwargs.items() if v is not None}
