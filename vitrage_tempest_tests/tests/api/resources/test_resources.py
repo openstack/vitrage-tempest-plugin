@@ -185,13 +185,15 @@ class TestResource(BaseVitrageTempest):
             key=lambda resource: resource["vitrage_id"])
 
         self.assertEqual(len(sorted_cli_resources),
-                         len(sorted_api_resources))
+                         len(sorted_api_resources), 'cli = %s --> api = %s' %
+                         (sorted_cli_resources, sorted_api_resources))
 
         for cli_resource, api_resource in \
                 zip(sorted_cli_resources, sorted_api_resources):
             for item in self.properties:
                 self.assertEqual(cli_resource.get(item).lower(),
-                                 api_resource.get(item).lower())
+                                 api_resource.get(item).lower(),
+                                 'for item %s' % item)
 
     def _compare_resource_show(self, api_resource_show,
                                cli_resource_show):
