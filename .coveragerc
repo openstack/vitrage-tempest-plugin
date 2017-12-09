@@ -1,0 +1,6 @@
+[run]
+branch = True
+source = virtage_tempest_plugin
+
+[report]
+ignore_errors = True
