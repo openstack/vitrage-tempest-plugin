@@ -16,7 +16,6 @@ import datetime
 import six
 
 from oslo_log import log as logging
-from oslo_serialization import jsonutils
 from vitrage.common.constants import DatasourceProperties as DSProps
 from vitrage.datasources import NEUTRON_PORT_DATASOURCE
 from vitrage.datasources import NOVA_INSTANCE_DATASOURCE
@@ -74,7 +73,8 @@ class TestEvents(BaseVitrageTempest):
             # Action
             time_before_action = datetime.datetime.utcnow()
             nova_utils.create_instances(num_instances=1,
-                                        name=INSTANCE_NAME)
+                                        name=INSTANCE_NAME,
+                                        set_public_network=True)
 
             writen_events = self._load_db_events(time_before_action)
 
@@ -128,6 +128,4 @@ class TestEvents(BaseVitrageTempest):
         writen_events = self.db_connection.events.query(
             gt_collector_timestamp=time_before_action)
 
-        for event in writen_events:
-            event.payload = jsonutils.loads(event.payload)
         return writen_events
