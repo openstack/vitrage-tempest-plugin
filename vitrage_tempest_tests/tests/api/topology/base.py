@@ -15,8 +15,10 @@
 import json
 import time
 
+
 from vitrage.common.constants import VertexProperties as VProps
 from vitrage_tempest_tests.tests.base import BaseVitrageTempest
+from vitrage_tempest_tests.tests.base import LOG
 from vitrage_tempest_tests.tests.common import cinder_utils
 from vitrage_tempest_tests.tests.common import nova_utils
 
@@ -38,14 +40,16 @@ class BaseTopologyTest(BaseVitrageTempest):
         num_default_entities = self.num_default_entities + \
             self.num_default_networks + self.num_default_ports
         num_default_edges = self.num_default_edges + self.num_default_ports
-        self._validate_graph_correctness(graph,
-                                         num_default_entities,
-                                         num_default_edges,
-                                         entities)
+        try:
+            self._validate_graph_correctness(graph,
+                                             num_default_entities,
+                                             num_default_edges,
+                                             entities)
+        except AssertionError as e:
+            LOG.error(e)
 
-    def _create_entities(self, num_instances=0, num_volumes=0, end_sleep=3):
-        if num_instances > 0:
-            resources = nova_utils.create_instances(num_instances)
+    def _create_entities(self, num_instances, num_volumes=0, end_sleep=3):
+        resources = nova_utils.create_instances(num_instances)
 
         self.assertNotEqual(len(resources), 0, 'The instances list is empty')
         if num_volumes > 0:
@@ -57,7 +61,8 @@ class BaseTopologyTest(BaseVitrageTempest):
         # entity graph processor
         time.sleep(end_sleep)
 
-    def _delete_entities(self):
+    @staticmethod
+    def _delete_entities():
         cinder_utils.delete_all_volumes()
         nova_utils.delete_all_instances()
 
