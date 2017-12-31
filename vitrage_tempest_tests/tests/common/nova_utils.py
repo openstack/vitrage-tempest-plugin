@@ -45,7 +45,7 @@ def delete_all_instances(**kwargs):
     instances_to_delete = g_utils.all_matches(instances, **kwargs)
     for item in instances_to_delete:
         try:
-            TempestClients.nova().servers.delete(item)
+            TempestClients.nova().servers.force_delete(item)
         except Exception:
             pass
     wait_for_status(
