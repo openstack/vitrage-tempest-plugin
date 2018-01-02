@@ -17,10 +17,7 @@ from testtools.matchers import HasLength
 
 from vitrage import os_clients
 from vitrage_tempest_tests.tests.api.event.base import BaseTestEvents
-from vitrage_tempest_tests.tests.api.event.base import DOWN
-from vitrage_tempest_tests.tests.api.event.base import UP
 from vitrage_tempest_tests.tests.common.tempest_clients import TempestClients
-from vitrage_tempest_tests.tests.common import vitrage_utils
 from vitrage_tempest_tests.tests import utils
 from vitrage_tempest_tests.tests.utils import wait_for_status
 
@@ -46,25 +43,34 @@ wf_for_tempest_test_1234:
 
 class TestMistralNotifier(BaseTestEvents):
 
+    TRIGGER_ALARM_1 = "notifiers.mistral.trigger.alarm.1"
+    TRIGGER_ALARM_2 = "notifiers.mistral.trigger.alarm.2"
+
     @classmethod
     def setUpClass(cls):
         super(TestMistralNotifier, cls).setUpClass()
         cls.mistral_client = os_clients.mistral_client(cls.conf)
 
     @utils.tempest_logger
-    def test_execute_mistral(self):
-        hostname = vitrage_utils.get_first_host()['name']
+    def test_execute_mistral_v1(self):
+        self._do_test_execute_mistral(self.TRIGGER_ALARM_1)
 
+    @utils.tempest_logger
+    def test_execute_mistral_v2(self):
+        self._do_test_execute_mistral(self.TRIGGER_ALARM_2)
+
+    def _do_test_execute_mistral(self, trigger_alarm):
         workflows = self.mistral_client.workflows.list()
-        self.assertIsNotNone(workflows)
+        self.assertIsNotNone(workflows, 'Failed to get the list of workflows')
         num_workflows = len(workflows)
 
         executions = self.mistral_client.executions.list()
-        self.assertIsNotNone(executions)
+        self.assertIsNotNone(executions,
+                             'Failed to get the list of workflow executions')
         num_executions = len(executions)
 
         alarms = utils.wait_for_answer(2, 0.5, self._check_alarms)
-        self.assertIsNotNone(alarms)
+        self.assertIsNotNone(alarms, 'Failed to get the list of alarms')
         num_alarms = len(alarms)
 
         try:
@@ -73,54 +79,58 @@ class TestMistralNotifier(BaseTestEvents):
 
             # Validate the workflow creation
             workflows = self.mistral_client.workflows.list()
-            self.assertIsNotNone(workflows)
-            self.assertThat(workflows, HasLength(num_workflows + 1))
+            self.assertIsNotNone(workflows,
+                                 'Failed to get the list of workflows')
+            self.assertThat(workflows, HasLength(num_workflows + 1),
+                            'Mistral workflow was not created')
 
-            # Send a Doctor event that should generate an alarm. According to
-            # execute_mistral.yaml template, the alarm should cause execution
-            # of the workflow
-            details = self._create_doctor_event_details(hostname, DOWN)
-            self._post_event(details)
+            # Trigger an alarm. According to v1_execute_mistral.yaml template,
+            # the alarm should cause execution of the workflow
+            self._trigger_do_action(trigger_alarm)
 
             # Wait for the alarm to be raised
             self.assertTrue(wait_for_status(
                 10,
                 self._check_num_vitrage_alarms,
-                num_alarms=num_alarms + 1))
+                num_alarms=num_alarms + 1),
+                'Trigger alarm was not raised')
 
             # Wait for the Mistral workflow execution
             self.assertTrue(wait_for_status(
                 20,
                 self._check_mistral_workflow_execution,
-                num_executions=num_executions + 1))
+                num_executions=num_executions + 1),
+                'Mistral workflow was not executed')
 
         except Exception as e:
             self._handle_exception(e)
             raise
         finally:
             self._rollback_to_default(WF_NAME, num_workflows,
-                                      hostname, num_alarms)
+                                      trigger_alarm, num_alarms)
             pass
 
     def _rollback_to_default(self, workflow_name, num_workflows,
-                             hostname, num_alarms):
+                             trigger_alarm, num_alarms):
         # Delete the workflow
         self.mistral_client.workflows.delete(workflow_name)
 
         workflows = self.mistral_client.workflows.list()
-        self.assertIsNotNone(workflows)
-        self.assertThat(workflows, HasLength(num_workflows))
+        self.assertIsNotNone(workflows, 'Failed to get the list of workflows')
+        self.assertThat(workflows, HasLength(num_workflows),
+                        'Failed to remove the test workflow')
 
-        # Clear the host down event and wait for the alarm to be deleted
-        details = self._create_doctor_event_details(hostname, UP)
-        self._post_event(details)
+        # Clear the trigger alarm and wait it to be deleted
+        self._trigger_undo_action(trigger_alarm)
 
         self.assertTrue(wait_for_status(
             10,
             self._check_num_vitrage_alarms,
-            num_alarms=num_alarms))
+            num_alarms=num_alarms),
+            'Vitrage trigger alarm was not deleted')
 
-    def _check_num_vitrage_alarms(self, num_alarms):
+    @staticmethod
+    def _check_num_vitrage_alarms(num_alarms):
         vitrage_alarms = TempestClients.vitrage().alarm.list(vitrage_id='all',
                                                              all_tenants=True)
         if len(vitrage_alarms) == num_alarms:

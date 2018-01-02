@@ -1,28 +1,30 @@
 metadata:
- name: execute_mistral
+ version: 2
+ name: v2_execute_mistral
  description: execute mistral
 definitions:
  entities:
   - entity:
      category: ALARM
-     name: compute.host.down
-     template_id: host_down_alarm
+     name: notifiers.mistral.trigger.alarm.2
+     template_id: alarm
   - entity:
      category: RESOURCE
      type: nova.host
      template_id: host
  relationships:
   - relationship:
-     source: host_down_alarm
+     source: alarm
      relationship_type: on
      target: host
-     template_id : host_down_alarm_on_host
+     template_id : alarm_on_host
 scenarios:
  - scenario:
-    condition: host_down_alarm_on_host
+    condition: alarm_on_host
     actions:
      - action:
         action_type: execute_mistral
         properties:
          workflow: wf_for_tempest_test_1234
-         farewell: Hello and Goodbye
+         input:
+          farewell: Hello and Goodbye

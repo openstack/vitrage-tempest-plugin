@@ -15,10 +15,11 @@ from datetime import datetime
 
 from vitrage.datasources import NOVA_HOST_DATASOURCE
 from vitrage.datasources import NOVA_INSTANCE_DATASOURCE
-from vitrage_tempest_tests.tests.api.event.base import DOWN
-from vitrage_tempest_tests.tests.api.event.base import UP
 from vitrage_tempest_tests.tests.common import general_utils as g_utils
 from vitrage_tempest_tests.tests.common.tempest_clients import TempestClients
+
+DOWN = 'down'
+UP = 'up'
 
 
 def generate_fake_host_alarm(hostname, event_type, enabled=True):

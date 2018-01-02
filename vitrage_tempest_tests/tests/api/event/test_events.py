@@ -21,7 +21,7 @@ from vitrage.common.constants import EntityCategory
 from vitrage.common.constants import EventProperties as EventProps
 from vitrage.common.constants import VertexProperties as VProps
 from vitrage_tempest_tests.tests.api.event.base import BaseTestEvents
-from vitrage_tempest_tests.tests.api.event.base import DOWN
+from vitrage_tempest_tests.tests.common.vitrage_utils import DOWN
 from vitrage_tempest_tests.tests.utils import wait_for_answer
 
 

@@ -14,14 +14,13 @@
 
 from datetime import datetime
 from oslo_log import log as logging
-from vitrage_tempest_tests.tests.base import BaseVitrageTempest
+
+from vitrage_tempest_tests.tests.e2e.test_basic_actions import TestActionsBase
 
 LOG = logging.getLogger(__name__)
-DOWN = 'down'
-UP = 'up'
 
 
-class BaseTestEvents(BaseVitrageTempest):
+class BaseTestEvents(TestActionsBase):
     """Test class for Vitrage event API"""
 
     # noinspection PyPep8Naming
