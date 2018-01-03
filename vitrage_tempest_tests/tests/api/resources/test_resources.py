@@ -179,7 +179,7 @@ class TestResource(BaseVitrageTempest):
 
         sorted_cli_resources = sorted(
             json.loads(cli_resources),
-            key=lambda resource: resource["vitrage_id"])
+            key=lambda resource: resource["ID"])
         sorted_api_resources = sorted(
             api_resources,
             key=lambda resource: resource["vitrage_id"])
@@ -190,10 +190,19 @@ class TestResource(BaseVitrageTempest):
 
         for cli_resource, api_resource in \
                 zip(sorted_cli_resources, sorted_api_resources):
-            for item in self.properties:
-                self.assertEqual(cli_resource.get(item).lower(),
-                                 api_resource.get(item).lower(),
-                                 'for item %s' % item)
+
+            self.assertEqual(
+                cli_resource.get("ID").lower(),
+                api_resource.get(VProps.VITRAGE_ID).lower())
+            self.assertEqual(
+                cli_resource.get("Type").lower(),
+                api_resource.get(VProps.VITRAGE_TYPE).lower())
+            self.assertEqual(
+                cli_resource.get("Data Source ID").lower(),
+                api_resource.get(VProps.ID).lower())
+            self.assertEqual(
+                cli_resource.get("State").lower(),
+                api_resource.get(VProps.VITRAGE_OPERATIONAL_STATE).lower())
 
     def _compare_resource_show(self, api_resource_show,
                                cli_resource_show):
