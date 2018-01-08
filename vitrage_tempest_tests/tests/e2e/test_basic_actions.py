@@ -176,7 +176,7 @@ class TestBasicActions(TestActionsBase):
             alarms = TempestClients.vitrage().alarm.list(
                 vitrage_id=self.orig_host.get(VProps.VITRAGE_ID),
                 all_tenants=True)
-            self.assertEqual(True, len(alarms) >= 2, 'alarms %s' % str(alarms))
+            self.assertTrue(len(alarms) >= 2, 'alarms %s' % str(alarms))
 
             deduced = g_utils.first_match(alarms, **DEDUCED_PROPS)
             trigger = g_utils.first_match(alarms, **TRIGGER_ALARM_2_PROPS)

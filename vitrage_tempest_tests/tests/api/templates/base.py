@@ -26,7 +26,7 @@ class BaseTemplateTest(BaseVitrageTempest):
     """Template test class for Vitrage API tests."""
 
     DEFAULT_PATH = '/etc/vitrage/templates/'
-    TEST_PATH = '/opt/stack/vitrage/vitrage_tempest_tests/' \
+    TEST_PATH = '/opt/stack/vitrage-tempest-plugin/vitrage_tempest_tests/' \
                 + 'tests/resources/templates/api/'
 
     NON_EXIST_FILE = 'non_exist_file.yaml'

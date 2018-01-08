@@ -69,8 +69,6 @@ class TestActionsBase(BaseVitrageTempest):
                 g_utils.first_match(rca['nodes'], **expected_alarm),
                 'expected_alarm is not in the rca %s' % str(expected_alarm))
         rca_inspected = rca['nodes'][rca['inspected_index']]
-        self.assertEqual(
-            True,
-            g_utils.is_subset(inspected, rca_inspected),
-            'Invalid inspected item \n%s\n%s' %
-            (str(rca_inspected), str(inspected)))
+        self.assertTrue(g_utils.is_subset(inspected, rca_inspected),
+                        'Invalid inspected item \n%s\n%s' %
+                        (str(rca_inspected), str(inspected)))
