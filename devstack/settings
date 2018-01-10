@@ -1,0 +1,3 @@
+GITREPO["vitrage-tempest-plugin"]=${VITRAGE_TEMPEST_REPO:-${GIT_BASE}/openstack/vitrage-tempest-plugin.git}
+GITDIR["vitrage-tempest-plugin"]=$DEST/vitrage-tempest-plugin
+GITBRANCH["vitrage-tempest-plugin"]=master
