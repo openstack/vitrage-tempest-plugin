@@ -77,17 +77,25 @@ def run_vitrage_command(command, conf):
 
     LOG.info('Full command: %s', full_command)
 
-    p = subprocess.Popen(full_command,
-                         shell=True,
-                         executable="/bin/bash",
-                         stdout=subprocess.PIPE,
-                         stderr=subprocess.PIPE)
-    stdout, stderr = p.communicate()
+    child = subprocess.Popen(full_command,
+                             shell=True,
+                             executable="/bin/bash",
+                             stdout=subprocess.PIPE,
+                             stderr=subprocess.PIPE)
+
+    stdout, stderr = child.communicate()
     if stderr:
         LOG.error('error from command %(command)s = %(error)s',
                   {'error': stderr, 'command': full_command})
 
-    return stdout.decode('utf-8')
+    output = stdout.decode('utf-8')
+
+    LOG.info('cli stdout: %s', output)
+
+    if child.returncode:
+        LOG.error('process return code is not 0 : return code = %d',
+                  child.returncode)
+    return output
 
 
 def get_property_value(environment_name, conf_name, default_value, conf):
