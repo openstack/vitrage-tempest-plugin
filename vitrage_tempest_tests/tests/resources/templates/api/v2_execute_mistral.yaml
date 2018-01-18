@@ -7,20 +7,29 @@ definitions:
   - entity:
      category: ALARM
      name: notifiers.mistral.trigger.alarm.2
-     template_id: alarm
+     template_id: alarm_2
+  - entity:
+     category: ALARM
+     name: notifiers.mistral.trigger.alarm.for.function
+     template_id: alarm_for_func
   - entity:
      category: RESOURCE
      type: nova.host
      template_id: host
  relationships:
   - relationship:
-     source: alarm
+     source: alarm_2
      relationship_type: on
      target: host
-     template_id : alarm_on_host
+     template_id : alarm_2_on_host
+  - relationship:
+     source: alarm_for_func
+     relationship_type: on
+     target: host
+     template_id : alarm_for_func_on_host
 scenarios:
  - scenario:
-    condition: alarm_on_host
+    condition: alarm_2_on_host
     actions:
      - action:
         action_type: execute_mistral
@@ -28,3 +37,12 @@ scenarios:
          workflow: wf_for_tempest_test_1234
          input:
           farewell: Hello and Goodbye
+ - scenario:
+    condition: alarm_for_func_on_host
+    actions:
+     - action:
+        action_type: execute_mistral
+        properties:
+         workflow: wf_for_tempest_test_1234
+         input:
+          farewell: get_attr(alarm_for_func,name)

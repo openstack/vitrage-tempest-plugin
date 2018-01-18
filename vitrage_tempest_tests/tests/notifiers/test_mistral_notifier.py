@@ -12,6 +12,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import json
 from oslo_log import log as logging
 from testtools.matchers import HasLength
 
@@ -45,6 +46,7 @@ class TestMistralNotifier(BaseTestEvents):
 
     TRIGGER_ALARM_1 = "notifiers.mistral.trigger.alarm.1"
     TRIGGER_ALARM_2 = "notifiers.mistral.trigger.alarm.2"
+    TRIGGER_ALARM_FOR_FUNCTION = "notifiers.mistral.trigger.alarm.for.function"
 
     @classmethod
     def setUpClass(cls):
@@ -58,6 +60,36 @@ class TestMistralNotifier(BaseTestEvents):
     @utils.tempest_logger
     def test_execute_mistral_v2(self):
         self._do_test_execute_mistral(self.TRIGGER_ALARM_2)
+
+    @utils.tempest_logger
+    def test_execute_mistral_with_function(self):
+        # Execute the basic test
+        self._do_test_execute_mistral(self.TRIGGER_ALARM_FOR_FUNCTION)
+
+        # Make sure that the workflow execution was done with the correct input
+        # (can be checked even if the Vitrage alarm is already down)
+        executions = self.mistral_client.executions.list()
+
+        last_execution = executions[0]
+        for execution in executions:
+            if execution.updated_at > last_execution.updated_at:
+                last_execution = execution
+
+        execution_input_str = last_execution.input
+        self.assertIsNotNone(execution_input_str,
+                             'The last execution had no input')
+        self.assertIn('farewell', execution_input_str,
+                      'No \'farewell\' key in the last execution input')
+
+        execution_input = json.loads(execution_input_str)
+
+        farewell_value = execution_input['farewell']
+        self.assertIsNotNone(farewell_value, '\'farewell\' input parameter is '
+                                             'None in last workflow execution')
+
+        self.assertEqual(self.TRIGGER_ALARM_FOR_FUNCTION, farewell_value,
+                         '\'farewell\' input parameter does not match the'
+                         'alarm name')
 
     def _do_test_execute_mistral(self, trigger_alarm):
         workflows = self.mistral_client.workflows.list()
