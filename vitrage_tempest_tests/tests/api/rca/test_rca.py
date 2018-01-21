@@ -39,7 +39,7 @@ class TestRca(BaseRcaTest):
         """compare_cli_and_api test
 
         There test validate correctness of rca of created
-        aodh event alarms, and compare them with cli rca
+        aodh event alarms, and equals them with cli rca
         """
         try:
             instances = nova_utils.create_instances(num_instances=1,
@@ -97,7 +97,7 @@ class TestRca(BaseRcaTest):
         """validate_deduce_alarms test
 
         There tests validates correctness of deduce alarms
-        (created by special template file), and compare there
+        (created by special template file), and equals there
         resource_id with created instances id
         """
         try:

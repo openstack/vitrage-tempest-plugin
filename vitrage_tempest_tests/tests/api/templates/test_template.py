@@ -12,14 +12,29 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from oslo_log import log as logging
-
-from vitrage_tempest_tests.tests.api.templates.base import BaseTemplateTest
-import vitrage_tempest_tests.tests.utils as utils
-
 import unittest
 
+from oslo_log import log as logging
+
+from vitrage.common.constants import TemplateStatus
+from vitrage.common.constants import TemplateTypes as TTypes
+from vitrage.evaluator.template_db.template_repository import \
+    load_template_file
+from vitrage_tempest_tests.tests.api.templates.base import BaseTemplateTest
+from vitrage_tempest_tests.tests.common import general_utils as g_utils
+from vitrage_tempest_tests.tests.common.tempest_clients import TempestClients
+from vitrage_tempest_tests.tests.common import vitrage_utils
+import vitrage_tempest_tests.tests.utils as utils
+from vitrageclient.exceptions import ClientException
+
 LOG = logging.getLogger(__name__)
+
+STANDARD_TEMPLATE = 'host_high_memory_usage_scenarios.yaml'
+EQUIVALENCE_TEMPLATE = 'basic_equivalence_templates.yaml'
+DEFINITION_TEMPLATE = 'basic_def_template.yaml'
+STANDARD_ERROR = 'corrupted_template.yaml'
+
+FAKE_UUID = 'ade68276-0fe9-42cd-9ec2-e7f20470a771'
 
 
 class TestValidate(BaseTemplateTest):
@@ -33,7 +48,7 @@ class TestValidate(BaseTemplateTest):
         """template_list test
 
         There test validate correctness of template list,
-        compare templates files existence with default folder
+        equals templates files existence with default folder
         and between cli via api ...
         """
         api_template_list = self.vitrage_client.template.list()
@@ -46,7 +61,7 @@ class TestValidate(BaseTemplateTest):
         """template_validate test
 
         There test validate correctness of template validation,
-        compare templates files validation between cli via api
+        equals templates files validation between cli via api
         """
         path = self.DEFAULT_PATH
         api_template_validation = \
@@ -132,3 +147,162 @@ class TestValidate(BaseTemplateTest):
             self._compare_template_show(
                 api_template_show, cli_template_show)
             self._validate_template_structure(item, api_template_show)
+
+
+class TemplatesDBTest(BaseTemplateTest):
+    """Template DB test class for vitrage API tests"""
+
+    @classmethod
+    def setUpClass(cls):
+        super(TemplatesDBTest, cls).setUpClass()
+        cls.client = TempestClients.vitrage()
+
+    def test_template_add(self):
+        """template add test
+
+        test standard , definition and equivalence templates
+        """
+        templates_names = list()
+        try:
+            # TODO(ikinory): add folder of templates
+            # Add standard ,equivalence and definition templates
+            templates_names = self._add_templates()
+            vitrage_utils.add_template(STANDARD_TEMPLATE,
+                                       template_type=TTypes.STANDARD)
+            # assert standard template
+            db_row = vitrage_utils.get_first_template(
+                name='host_high_memory_usage_scenarios', type=TTypes.STANDARD)
+            self.assertEqual(db_row['name'],
+                             'host_high_memory_usage_scenarios',
+                             'standard template not found in list')
+
+            # assert equivalence template
+            db_row = vitrage_utils.get_first_template(
+                name='entity equivalence example',
+                type=TTypes.EQUIVALENCE)
+            self.assertEqual(db_row['name'],
+                             'entity equivalence example',
+                             'equivalence template not found in list')
+
+            # assert definition template
+            db_row = vitrage_utils.get_first_template(
+                name='basic_def_template',
+                type=TTypes.DEFINITION,
+                status=TemplateStatus.ACTIVE)
+
+            self.assertEqual(db_row['name'],
+                             'basic_def_template',
+                             'definition template not found in list')
+
+            # assert corrupted template - validate failed
+            db_row = vitrage_utils.get_first_template(
+                name='corrupted_template',
+                type=TTypes.STANDARD,
+                status=TemplateStatus.ERROR)
+            self.assertIsNotNone(
+                db_row,
+                'corrupted template template presented in list')
+
+        except Exception as e:
+            self._handle_exception(e)
+            raise
+        finally:
+            self._rollback_to_default(templates_names)
+
+    def test_template_delete(self):
+        try:
+
+            # add standard template
+            vitrage_utils.add_template(STANDARD_TEMPLATE,
+                                       template_type=TTypes.STANDARD)
+            db_row = vitrage_utils.get_first_template(
+                name='host_high_memory_usage_scenarios',
+                type=TTypes.STANDARD,
+                status=TemplateStatus.ACTIVE)
+            self.assertIsNotNone(db_row,
+                                 'Template should appear in templates list')
+
+            # delete template
+            uuid = db_row['uuid']
+            vitrage_utils.delete_template(uuid)
+            db_row = vitrage_utils.get_first_template(
+                name='host_high_memory_usage_scenarios', type=TTypes.STANDARD)
+            self.assertIsNone(db_row, 'Template should not appear in list')
+
+            # delete the same template again - should raise VitrageError
+            self.assertRaises(ClientException,
+                              vitrage_utils.delete_template, uuid)
+
+            # delete non-existing template - should raise VitrageError
+            self.assertRaises(ClientException,
+                              vitrage_utils.delete_template, FAKE_UUID)
+
+        except Exception as e:
+            self._handle_exception(e)
+            raise
+
+    def test_compare_cli_to_api(self):
+        """Compare between api template list
+
+        to cli template list
+        compares each template in list
+        """
+        templates_names = list()
+        try:
+            # Add standard ,equivalence and definition templates
+            templates_names = self._add_templates()
+            cli_templates_list = utils.run_vitrage_command(
+                "vitrage template list", self.conf)
+            api_templates_list = self.client.template.list()
+
+            self.assertNotEqual(len(api_templates_list), 0,
+                                'The template list taken from api is empty')
+            self.assertIsNotNone(cli_templates_list,
+                                 'The template list taken from cli is empty')
+            self._validate_templates_list_length(api_templates_list,
+                                                 cli_templates_list)
+            self._validate_passed_templates_length(api_templates_list,
+                                                   cli_templates_list)
+            self._compare_each_template_in_list(api_templates_list,
+                                                cli_templates_list)
+        except Exception as e:
+            self._handle_exception(e)
+            raise
+        finally:
+            self._rollback_to_default(templates_names)
+
+    def test_template_show(self):
+        """Compare template content from file to DB"""
+        try:
+            # add standard template
+            template_path = \
+                g_utils.tempest_resources_dir() + '/templates/api/'\
+                + STANDARD_TEMPLATE
+            vitrage_utils.add_template(STANDARD_TEMPLATE,
+                                       template_type=TTypes.STANDARD)
+            db_row = vitrage_utils.get_first_template(
+                name='host_high_memory_usage_scenarios',
+                type=TTypes.STANDARD,
+                status=TemplateStatus.ACTIVE)
+            payload_from_db = self.client.template.show(db_row['uuid'])
+            payload_from_file = load_template_file(template_path)
+            self.assertEqual(payload_from_file, payload_from_db,
+                             "Template content doesn't match")
+            vitrage_utils.delete_template(db_row['uuid'])
+        except Exception as e:
+            self._handle_exception(e)
+            raise
+
+    def _add_templates(self):
+        vitrage_utils.add_template(STANDARD_TEMPLATE,
+                                   template_type=TTypes.STANDARD)
+        vitrage_utils.add_template(EQUIVALENCE_TEMPLATE,
+                                   template_type=TTypes.EQUIVALENCE)
+        vitrage_utils.add_template(DEFINITION_TEMPLATE,
+                                   template_type=TTypes.DEFINITION)
+        vitrage_utils.add_template(STANDARD_ERROR,
+                                   template_type=TTypes.STANDARD)
+        return ['host_high_memory_usage_scenarios',
+                'entity equivalence example',
+                'basic_def_template',
+                'corrupted_template']

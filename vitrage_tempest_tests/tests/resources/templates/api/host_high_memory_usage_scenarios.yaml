@@ -1,0 +1,73 @@
+metadata:
+ name: host_high_memory_usage_scenarios
+ description: scenarios triggered by high memory usage on physical host
+definitions:
+ entities:
+  - entity:
+     category: ALARM
+     type: zabbix
+     rawtext: Lack of available memory on server {HOST.NAME}
+     template_id: lack_of_available_memory_alarm
+  - entity:
+     category: ALARM
+     type: vitrage
+     name: Instance memory performance degraded
+     template_id: instance_memory_performance_degraded_alarm
+  - entity:
+     category: RESOURCE
+     type: nova.instance
+     template_id: instance
+  - entity:
+     category: RESOURCE
+     type: nova.host
+     template_id: host
+ relationships:
+  - relationship:
+     source: lack_of_available_memory_alarm
+     relationship_type: on
+     target: host
+     template_id : lack_of_available_memory_alarm_on_host
+  - relationship:
+     source: host
+     relationship_type: contains
+     target: instance
+     template_id : host_contains_instance
+  - relationship:
+     source: instance_memory_performance_degraded_alarm
+     relationship_type: on
+     target: instance
+     template_id : memory_performance_degraded_alarm_on_instance
+scenarios:
+ - scenario:
+    condition: lack_of_available_memory_alarm_on_host and host_contains_instance
+    actions:
+     - action:
+        action_type: raise_alarm
+        action_target:
+         target: instance
+        properties:
+         alarm_name: Instance memory performance degraded
+         severity: warning
+ - scenario:
+    condition: lack_of_available_memory_alarm_on_host and host_contains_instance and memory_performance_degraded_alarm_on_instance
+    actions:
+     - action:
+        action_type: add_causal_relationship
+        action_target:
+         source: lack_of_available_memory_alarm
+         target: instance_memory_performance_degraded_alarm
+     - action:
+        action_type: set_state
+        action_target:
+         target: instance
+        properties:
+         state: SUBOPTIMAL
+ - scenario:
+    condition: lack_of_available_memory_alarm_on_host
+    actions: 
+     - action: 
+        action_type: set_state
+        action_target:
+         target: host
+        properties:
+         state: SUBOPTIMAL

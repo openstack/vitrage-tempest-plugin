@@ -15,9 +15,12 @@ import json
 
 from oslo_log import log as logging
 
+from vitrage.common.exception import VitrageError
 from vitrage_tempest_tests.tests.base import BaseVitrageTempest
 from vitrage_tempest_tests.tests.common import general_utils as g_utils
+from vitrage_tempest_tests.tests.common import vitrage_utils
 from vitrage_tempest_tests.tests import utils
+
 
 LOG = logging.getLogger(__name__)
 
@@ -26,7 +29,7 @@ class BaseTemplateTest(BaseVitrageTempest):
     """Template test class for Vitrage API tests."""
 
     DEFAULT_PATH = '/etc/vitrage/templates/'
-    TEST_PATH = '/opt/stack/vitrage-tempest-plugin/vitrage_tempest_tests/' \
+    TEST_PATH = '/opt/stack/vitrage/vitrage_tempest_tests/' \
                 + 'tests/resources/templates/api/'
 
     NON_EXIST_FILE = 'non_exist_file.yaml'
@@ -162,3 +165,11 @@ class BaseTemplateTest(BaseVitrageTempest):
             relationships, len(template_show['definitions']['relationships']))
         self.assertEqual(
             scenarios, len(template_show['scenarios']))
+
+    def _rollback_to_default(self, templates):
+        try:
+            for t in templates:
+                db_row = vitrage_utils.get_first_template(name=t)
+                vitrage_utils.delete_template(db_row['uuid'])
+        except Exception as e:
+            raise VitrageError('Rollback to default failed %s', e)

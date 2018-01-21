@@ -177,9 +177,6 @@ class TestResource(BaseVitrageTempest):
         self.assertNotEqual(len(cli_resources), 0,
                             'The resources taken from terminal is empty')
 
-        LOG.info('api-resources=%(api)s cli-resources=%(cli)s',
-                 {'api': api_resources, 'cli': cli_resources})
-
         sorted_cli_resources = sorted(
             json.loads(cli_resources),
             key=lambda resource: resource["ID"])

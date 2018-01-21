@@ -11,6 +11,7 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+from os import path
 import six
 
 
@@ -37,3 +38,7 @@ def is_subset(subset, full):
 
 def _remove_none_values(**kwargs):
     return {k: v for k, v in kwargs.items() if v is not None}
+
+
+def tempest_resources_dir():
+    return path.join(path.dirname(path.dirname(__file__)), 'resources')

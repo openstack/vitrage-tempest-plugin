@@ -167,5 +167,5 @@ def wait_for_status(max_waiting, func, **kwargs):
             return True
         count += 1
         time.sleep(2)
-    LOG.info("wait_for_status - False")
+    LOG.error("wait_for_status - False")
     return False
