@@ -52,6 +52,9 @@ class TestResource(BaseVitrageTempest):
                                 'The instances list is empty')
             api_resources = self.vitrage_client.resource.list(
                 all_tenants=True)
+
+            LOG.info("api_resources = %s", api_resources)
+
             cli_resources = utils.run_vitrage_command(
                 'vitrage resource list --all -f json', self.conf)
 
