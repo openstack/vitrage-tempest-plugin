@@ -53,7 +53,14 @@ DEDUCED_PROPS = {
 }
 
 
-class TestOverlappingcActions(TestActionsBase):
+class TestOverlappingActions(TestActionsBase):
+
+    def setUp(self):
+        super(TestOverlappingActions, self).setUp()
+
+    def tearDown(self):
+        super(TestOverlappingActions, self).tearDown()
+
     @utils.tempest_logger
     def test_overlapping_action_set_state(self):
         try:

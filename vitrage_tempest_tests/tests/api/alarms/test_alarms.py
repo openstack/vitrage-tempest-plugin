@@ -32,6 +32,12 @@ LOG = logging.getLogger(__name__)
 class TestAlarms(BaseAlarmsTest):
     """Alarms test class for Vitrage API tests."""
 
+    def setUp(self):
+        super(TestAlarms, self).setUp()
+
+    def tearDown(self):
+        super(TestAlarms, self).tearDown()
+
     @classmethod
     def setUpClass(cls):
         super(TestAlarms, cls).setUpClass()

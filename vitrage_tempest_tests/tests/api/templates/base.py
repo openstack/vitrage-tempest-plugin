@@ -40,6 +40,12 @@ class BaseTemplateTest(BaseVitrageTempest):
     OK_STATUS = 'validation OK'
     OK_MSG = 'Template validation is OK'
 
+    def setUp(self):
+        super(BaseTemplateTest, self).setUp()
+
+    def tearDown(self):
+        super(BaseTemplateTest, self).tearDown()
+
     @classmethod
     def setUpClass(cls):
         super(BaseTemplateTest, cls).setUpClass()

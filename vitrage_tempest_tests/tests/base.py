@@ -12,6 +12,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import six
 import traceback
 
 from oslo_log import log as logging
@@ -37,7 +38,13 @@ from vitrage import service
 from vitrage_tempest_tests.tests.common.tempest_clients import TempestClients
 from vitrage_tempest_tests.tests import utils
 
+import warnings
+
 LOG = logging.getLogger(__name__)
+
+if six.PY2:
+    class ResourceWarning(Warning):
+        pass
 
 
 class BaseVitrageTempest(base.BaseTestCase):
@@ -46,10 +53,25 @@ class BaseVitrageTempest(base.BaseTestCase):
     NUM_VERTICES_PER_TYPE = 'num_vertices'
     NUM_EDGES_PER_TYPE = 'num_edges_per_type'
 
+    def setUp(self):
+        super(BaseVitrageTempest, self).setUp()
+        warnings.filterwarnings(action="ignore",
+                                message="unclosed",
+                                category=ResourceWarning)
+
+    def tearDown(self):
+        super(BaseVitrageTempest, self).tearDown()
+        warnings.filterwarnings(action="ignore",
+                                message="unclosed",
+                                category=ResourceWarning)
+
     # noinspection PyPep8Naming
     @classmethod
     def setUpClass(cls):
         super(BaseVitrageTempest, cls).setUpClass()
+        warnings.filterwarnings(action="ignore",
+                                message="unclosed",
+                                category=ResourceWarning)
         cls.conf = service.prepare_service([])
         TempestClients.class_init(cls.conf)
         cls.vitrage_client = TempestClients.vitrage()

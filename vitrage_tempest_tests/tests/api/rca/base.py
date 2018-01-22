@@ -42,6 +42,12 @@ VITRAGE_ALARM_NAME = 'instance_deduce'
 
 class BaseRcaTest(BaseAlarmsTest):
 
+    def setUp(self):
+        super(BaseRcaTest, self).setUp()
+
+    def tearDown(self):
+        super(BaseRcaTest, self).tearDown()
+
     @classmethod
     def setUpClass(cls):
         super(BaseRcaTest, cls).setUpClass()

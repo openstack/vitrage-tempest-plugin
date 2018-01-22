@@ -39,6 +39,12 @@ class TestTopology(BaseTopologyTest):
     NUM_INSTANCE = 3
     NUM_VOLUME = 1
 
+    def setUp(self):
+        super(TestTopology, self).setUp()
+
+    def tearDown(self):
+        super(TestTopology, self).tearDown()
+
     @classmethod
     def setUpClass(cls):
         super(TestTopology, cls).setUpClass()
