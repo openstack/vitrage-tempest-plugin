@@ -2,6 +2,7 @@ metadata:
  version: 2
  name: v2_execute_mistral
  description: execute mistral
+ type: standard
 definitions:
  entities:
   - entity:

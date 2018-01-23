@@ -1,0 +1,14 @@
+metadata:
+ name: v2_equivalence
+ version: 2
+ type: equivalence
+equivalences:
+ - equivalence:
+    - entity:
+       category: ALARM
+       type: nagios
+       name: host_problem
+    - entity:
+       category: ALARM
+       type: zabbix
+       name: host_problem

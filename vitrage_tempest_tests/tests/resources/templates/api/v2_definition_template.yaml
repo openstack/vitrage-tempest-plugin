@@ -1,0 +1,30 @@
+metadata:
+ version: 2
+ name: v2_definition
+ description: v2 definition template
+ type: definition
+definitions:
+ entities:
+  - entity:
+     category: ALARM
+     name: notifiers.mistral.trigger.alarm.2
+     template_id: alarm_2
+  - entity:
+     category: ALARM
+     name: notifiers.mistral.trigger.alarm.for.function
+     template_id: alarm_for_func
+  - entity:
+     category: RESOURCE
+     type: nova.host
+     template_id: host
+ relationships:
+  - relationship:
+     source: alarm_2
+     relationship_type: on
+     target: host
+     template_id : alarm_2_on_host
+  - relationship:
+     source: alarm_for_func
+     relationship_type: on
+     target: host
+     template_id : alarm_for_func_on_host
