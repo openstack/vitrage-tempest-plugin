@@ -23,6 +23,12 @@ class TestCinderVolume(BaseTopologyTest):
     NUM_INSTANCE = 3
     NUM_VOLUME = 1
 
+    def setUp(self):
+        super(TestCinderVolume, self).setUp()
+
+    def tearDown(self):
+        super(TestCinderVolume, self).tearDown()
+
     @classmethod
     def setUpClass(cls):
         super(TestCinderVolume, cls).setUpClass()

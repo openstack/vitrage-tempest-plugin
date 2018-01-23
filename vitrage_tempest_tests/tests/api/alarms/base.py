@@ -24,6 +24,12 @@ TEMPLATES_SOURCES_PATH = '/etc/vitrage/templates/'
 class BaseAlarmsTest(BaseVitrageTempest):
     """Topology test class for Vitrage API tests."""
 
+    def setUp(self):
+        super(BaseAlarmsTest, self).setUp()
+
+    def tearDown(self):
+        super(BaseAlarmsTest, self).tearDown()
+
     @classmethod
     def setUpClass(cls):
         super(BaseAlarmsTest, cls).setUpClass()

@@ -27,6 +27,12 @@ class TestAodhAlarm(BaseAlarmsTest):
     NUM_INSTANCE = 1
     NUM_ALARM = 1
 
+    def setUp(self):
+        super(TestAodhAlarm, self).setUp()
+
+    def tearDown(self):
+        super(TestAodhAlarm, self).tearDown()
+
     @classmethod
     def setUpClass(cls):
         super(TestAodhAlarm, cls).setUpClass()

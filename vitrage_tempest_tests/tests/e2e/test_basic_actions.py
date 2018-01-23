@@ -49,6 +49,12 @@ DEDUCED_PROPS = {
 
 
 class TestBasicActions(TestActionsBase):
+    def setUp(self):
+        super(TestBasicActions, self).setUp()
+
+    def tearDown(self):
+        super(TestBasicActions, self).tearDown()
+
     @utils.tempest_logger
     def test_action_set_state_host(self):
         try:

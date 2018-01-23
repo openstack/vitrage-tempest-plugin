@@ -26,6 +26,12 @@ from vitrage_tempest_tests.tests.common import nova_utils
 class BaseTopologyTest(BaseVitrageTempest):
     """Topology test class for Vitrage API tests."""
 
+    def setUp(self):
+        super(BaseTopologyTest, self).setUp()
+
+    def tearDown(self):
+        super(BaseTopologyTest, self).tearDown()
+
     @classmethod
     def setUpClass(cls):
         super(BaseTopologyTest, cls).setUpClass()

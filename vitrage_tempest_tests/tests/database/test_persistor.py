@@ -54,6 +54,12 @@ def get_first_match(events, event):
 class TestEvents(BaseVitrageTempest):
     """Test class for Vitrage persisror service"""
 
+    def setUp(self):
+        super(TestEvents, self).setUp()
+
+    def tearDown(self):
+        super(TestEvents, self).tearDown()
+
     # noinspection PyPep8Naming
     @classmethod
     def setUpClass(cls):

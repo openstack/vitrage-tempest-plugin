@@ -26,6 +26,12 @@ LOG = logging.getLogger(__name__)
 class TestStaticPhysical(BaseVitrageTempest):
     NUM_SWITCH = 2
 
+    def setUp(self):
+        super(TestStaticPhysical, self).setUp()
+
+    def tearDown(self):
+        super(TestStaticPhysical, self).tearDown()
+
     @classmethod
     def setUpClass(cls):
         super(TestStaticPhysical, cls).setUpClass()

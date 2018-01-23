@@ -38,6 +38,12 @@ class TestResource(BaseVitrageTempest):
                   VProps.STATE,
                   VProps.VITRAGE_AGGREGATED_STATE)
 
+    def setUp(self):
+        super(TestResource, self).setUp()
+
+    def tearDown(self):
+        super(TestResource, self).tearDown()
+
     @classmethod
     def setUpClass(cls):
         super(TestResource, cls).setUpClass()
