@@ -1,0 +1,29 @@
+metadata:
+ name: e2e_webhook
+definitions:
+ entities:
+  - entity:
+     category: ALARM
+     name: e2e.test_webhook.alarm_with_deduced
+     template_id: host_alarm
+  - entity:
+     category: RESOURCE
+     type: nova.host
+     template_id: host
+ relationships:
+  - relationship:
+     source: host_alarm
+     target: host
+     relationship_type: on
+     template_id : alarm_on_host
+scenarios:
+ - scenario:
+    condition: alarm_on_host
+    actions:
+     - action:
+        action_type: raise_alarm
+        action_target:
+         target: host
+        properties:
+         alarm_name: e2e.test_webhook.deduced
+         severity: WARNING

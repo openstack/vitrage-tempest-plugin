@@ -13,12 +13,9 @@
 # under the License.
 import sys
 
-from vitrage.common.constants import TemplateStatus
-from vitrage.common.constants import TemplateTypes as TType
-from vitrage.evaluator.template_db.template_repository import \
-    add_template_to_db
 from vitrage import service
 from vitrage import storage
+from vitrage.tests.functional.test_configuration import TestConfiguration
 from vitrage_tempest_tests.tests.common import general_utils
 
 files = ['corrupted_template.yaml', 'e2e_test_basic_actions.yaml',
@@ -32,12 +29,10 @@ def main():
     resources_path = general_utils.tempest_resources_dir() + '/templates/api/'
     conf = service.prepare_service()
     db = storage.get_connection_from_config(conf)
+    TestConfiguration._db = db
     for f in files:
         full_path = resources_path + f
-        template = add_template_to_db(db, full_path, TType.STANDARD)
-        if template[0]['name'] != 'corrupted_template':
-            db.templates.update(template[0]['uuid'],
-                                'status', TemplateStatus.ACTIVE)
+        TestConfiguration.add_templates(full_path)
 
 if __name__ == "__main__":
     sys.exit(main())

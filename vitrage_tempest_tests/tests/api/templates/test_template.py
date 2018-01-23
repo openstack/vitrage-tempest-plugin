@@ -18,8 +18,7 @@ from oslo_log import log as logging
 
 from vitrage.common.constants import TemplateStatus
 from vitrage.common.constants import TemplateTypes as TTypes
-from vitrage.evaluator.template_db.template_repository import \
-    load_template_file
+from vitrage.utils import file
 from vitrage_tempest_tests.tests.api.templates.base import BaseTemplateTest
 from vitrage_tempest_tests.tests.common import general_utils as g_utils
 from vitrage_tempest_tests.tests.common.tempest_clients import TempestClients
@@ -285,7 +284,7 @@ class TemplatesDBTest(BaseTemplateTest):
                 type=TTypes.STANDARD,
                 status=TemplateStatus.ACTIVE)
             payload_from_db = self.client.template.show(db_row['uuid'])
-            payload_from_file = load_template_file(template_path)
+            payload_from_file = file.load_yaml_file(template_path)
             self.assertEqual(payload_from_file, payload_from_db,
                              "Template content doesn't match")
             vitrage_utils.delete_template(db_row['uuid'])
