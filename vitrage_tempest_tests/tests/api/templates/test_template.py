@@ -24,7 +24,6 @@ from vitrage_tempest_tests.tests.common import general_utils as g_utils
 from vitrage_tempest_tests.tests.common.tempest_clients import TempestClients
 from vitrage_tempest_tests.tests.common import vitrage_utils
 import vitrage_tempest_tests.tests.utils as utils
-from vitrageclient.exceptions import ClientException
 
 LOG = logging.getLogger(__name__)
 
@@ -233,14 +232,6 @@ class TemplatesDBTest(BaseTemplateTest):
             db_row = vitrage_utils.get_first_template(
                 name='host_high_memory_usage_scenarios', type=TTypes.STANDARD)
             self.assertIsNone(db_row, 'Template should not appear in list')
-
-            # delete the same template again - should raise VitrageError
-            self.assertRaises(ClientException,
-                              vitrage_utils.delete_template, uuid)
-
-            # delete non-existing template - should raise VitrageError
-            self.assertRaises(ClientException,
-                              vitrage_utils.delete_template, FAKE_UUID)
 
         except Exception as e:
             self._handle_exception(e)

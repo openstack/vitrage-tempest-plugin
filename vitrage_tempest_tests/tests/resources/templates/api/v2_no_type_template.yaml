@@ -1,0 +1,21 @@
+metadata:
+ version: 2
+ name: v2_no_type
+ description: invalid v2 template - with no type
+definitions:
+ entities:
+  - entity:
+     category: ALARM
+     name: invalid.template.alarm
+     template_id: alarm
+ relationships:
+scenarios:
+ - scenario:
+    condition: alarm
+    actions:
+     - action:
+        action_type: execute_mistral
+        properties:
+         workflow: wf_for_tempest_test_1234
+         input:
+          farewell: Hello and Goodbye
