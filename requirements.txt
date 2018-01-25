@@ -1,23 +1,24 @@
-# The order of packages isrequirementst, because pip processes them in the order
+# The order of packages is significant, because pip processes them in the order
 # of appearance. Changing the order has an impact on the overall integration
 # process, which may cause wedges in the gate later.
+# The order of packages isrequirementst, because pip processes them in the order
 
-pbr>=2.0 # Apache-2.0
+pbr!=2.1.0,>=2.0.0 # Apache-2.0
 aodhclient>=0.9.0 # Apache-2.0
 python-heatclient>=1.10.0 # Apache-2.0
 python-ceilometerclient>=2.5.0 # Apache-2.0
-python-cinderclient>=3.2.0 # Apache-2.0
+python-cinderclient>=3.3.0 # Apache-2.0
 python-dateutil>=2.4.2 # BSD
 python-keystoneclient>=3.8.0 # Apache-2.0
 python-neutronclient>=6.3.0 # Apache-2.0
 python-novaclient>=9.1.0 # Apache-2.0
 python-mistralclient>=3.1.0 # Apache-2.0
-python-glanceclient>=2.0.0 # Apache-2.0
+python-glanceclient>=2.8.0 # Apache-2.0
 six>=1.10.0 # MIT
 oslo.config>=5.1.0 # Apache-2.0
 oslo.serialization!=2.19.1,>=2.18.0 # Apache-2.0
-oslo.log>=3.30.0 # Apache-2.0
+oslo.log>=3.36.0 # Apache-2.0
 testtools>=2.2.0 # MIT
-oslotest>=1.10.0 # Apache-2.0
-tempest>=17.2.0 # Apache-2.0
+oslotest>=3.2.0 # Apache-2.0
+tempest>=17.1.0 # Apache-2.0
 networkx<2.0,>=1.10 # BSD
