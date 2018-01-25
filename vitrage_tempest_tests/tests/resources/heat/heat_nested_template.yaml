@@ -9,4 +9,4 @@ resources:
     properties:
       count: 1
       resource_def:
-        type: file:///etc/vitrage/server.yaml
+        type: server.yaml

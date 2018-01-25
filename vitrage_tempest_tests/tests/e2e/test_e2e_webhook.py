@@ -85,6 +85,7 @@ class TestWebhook(TestActionsBase):
             self._trigger_undo_action(TRIGGER_ALARM_1)
             self.mock_server.reset_requests_list()
 
+    @utils.tempest_logger
     def test_webhook_with_no_filter(self):
         """Test to see that a webhook with no filter receives all
 
@@ -119,6 +120,7 @@ class TestWebhook(TestActionsBase):
             self._trigger_undo_action(TRIGGER_ALARM_2)
             self.mock_server.reset_requests_list()
 
+    @utils.tempest_logger
     def test_webhook_with_no_match(self):
         """Test to check that filters with no match do not send event """
 
@@ -150,6 +152,7 @@ class TestWebhook(TestActionsBase):
             self._trigger_undo_action(TRIGGER_ALARM_2)
             self.mock_server.reset_requests_list()
 
+    @utils.tempest_logger
     def test_multiple_webhooks(self):
         """Test to check filter by type and by ID (with 2 different
 

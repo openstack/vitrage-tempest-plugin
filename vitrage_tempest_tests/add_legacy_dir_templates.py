@@ -34,5 +34,6 @@ def main():
         full_path = resources_path + f
         TestConfiguration.add_templates(full_path)
 
+
 if __name__ == "__main__":
     sys.exit(main())

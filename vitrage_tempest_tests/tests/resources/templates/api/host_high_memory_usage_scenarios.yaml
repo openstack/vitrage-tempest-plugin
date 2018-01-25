@@ -64,8 +64,8 @@ scenarios:
          state: SUBOPTIMAL
  - scenario:
     condition: lack_of_available_memory_alarm_on_host
-    actions: 
-     - action: 
+    actions:
+     - action:
         action_type: set_state
         action_target:
          target: host

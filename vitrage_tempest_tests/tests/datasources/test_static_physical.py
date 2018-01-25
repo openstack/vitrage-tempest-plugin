@@ -18,6 +18,8 @@ import time
 
 from oslo_log import log as logging
 from vitrage_tempest_tests.tests.base import BaseVitrageTempest
+from vitrage_tempest_tests.tests.common.general_utils \
+    import tempest_resources_dir
 from vitrage_tempest_tests.tests import utils
 
 LOG = logging.getLogger(__name__)
@@ -71,7 +73,8 @@ class TestStaticPhysical(BaseVitrageTempest):
         hostname = socket.gethostname()
 
         # template file
-        file_path = '/etc/vitrage/static_physical_configuration.yaml'
+        resources_path = tempest_resources_dir() + '/static_physical/'
+        file_path = resources_path + '/static_physical_configuration.yaml'
         with open(file_path, 'r') as f:
             template_data = f.read()
         template_data = template_data.replace('tmp-devstack', hostname)

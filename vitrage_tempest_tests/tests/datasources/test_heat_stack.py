@@ -16,6 +16,8 @@ from oslo_log import log as logging
 from vitrage_tempest_tests.tests import utils
 
 from vitrage_tempest_tests.tests.api.topology.base import BaseTopologyTest
+from vitrage_tempest_tests.tests.common.general_utils\
+    import tempest_resources_dir
 from vitrage_tempest_tests.tests.common import heat_utils
 
 LOG = logging.getLogger(__name__)
@@ -36,21 +38,19 @@ class TestHeatStack(BaseTopologyTest):
 
     @utils.tempest_logger
     def test_nested_heat_stack(self):
-        self._test_heat_stack(
-            nested=True,
-            template_file='/etc/vitrage/heat_nested_template.yaml')
+        self._test_heat_stack(nested=True,
+                              tmpl_file='heat_nested_template.yaml')
 
     @utils.tempest_logger
     def test_heat_stack(self):
-        self._test_heat_stack(
-            nested=False, template_file='/etc/vitrage/heat_template.yaml')
+        self._test_heat_stack(nested=False, tmpl_file='heat_template.yaml')
 
-    def _test_heat_stack(self, nested, template_file):
+    def _test_heat_stack(self, nested, tmpl_file):
         """heat stack test
 
         This test validate correctness topology graph with heat stack module
         """
-
+        template_file = tempest_resources_dir() + '/heat/' + tmpl_file
         try:
             # Action
             heat_utils.create_stacks(self.NUM_STACKS, nested, template_file)
