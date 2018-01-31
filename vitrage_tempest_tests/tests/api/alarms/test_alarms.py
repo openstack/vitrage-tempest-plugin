@@ -22,6 +22,7 @@ from vitrage_tempest_tests.tests.common import aodh_utils
 from vitrage_tempest_tests.tests.common import general_utils as g_utils
 from vitrage_tempest_tests.tests.common import nova_utils
 from vitrage_tempest_tests.tests.common.tempest_clients import TempestClients
+from vitrage_tempest_tests.tests.common import vitrage_utils as v_utils
 from vitrage_tempest_tests.tests import utils
 
 import unittest
@@ -41,6 +42,12 @@ class TestAlarms(BaseAlarmsTest):
     @classmethod
     def setUpClass(cls):
         super(TestAlarms, cls).setUpClass()
+        cls._template = v_utils.add_template('nagios_alarm_for_alarms.yaml')
+
+    @classmethod
+    def tearDownClass(cls):
+        if cls._template is not None:
+            v_utils.delete_template(cls._template['uuid'])
 
     @unittest.skip("CLI tests are ineffective and not maintained")
     @utils.tempest_logger

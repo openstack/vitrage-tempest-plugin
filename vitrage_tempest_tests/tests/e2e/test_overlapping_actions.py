@@ -22,7 +22,7 @@ from vitrage.evaluator.actions.evaluator_event_transformer import \
     VITRAGE_DATASOURCE
 from vitrage_tempest_tests.tests.common import general_utils as g_utils
 from vitrage_tempest_tests.tests.common.tempest_clients import TempestClients
-from vitrage_tempest_tests.tests.common import vitrage_utils
+from vitrage_tempest_tests.tests.common import vitrage_utils as v_utils
 from vitrage_tempest_tests.tests.e2e.test_actions_base import TestActionsBase
 from vitrage_tempest_tests.tests import utils
 
@@ -55,18 +55,29 @@ DEDUCED_PROPS = {
 
 class TestOverlappingActions(TestActionsBase):
 
+    @classmethod
+    def setUpClass(cls):
+        super(TestOverlappingActions, cls).setUpClass()
+        cls._template = v_utils.add_template(
+            'e2e_test_overlapping_actions.yaml')
+
     def setUp(self):
         super(TestOverlappingActions, self).setUp()
 
     def tearDown(self):
         super(TestOverlappingActions, self).tearDown()
 
+    @classmethod
+    def tearDownClass(cls):
+        if cls._template is not None:
+            v_utils.delete_template(cls._template['uuid'])
+
     @utils.tempest_logger
     def test_overlapping_action_set_state(self):
         try:
             # Do - first
             self._trigger_do_action(TRIGGER_ALARM_1)
-            curr_host = vitrage_utils.get_first_host()
+            curr_host = v_utils.get_first_host()
             self.assertEqual(
                 'ERROR',
                 curr_host.get(VProps.VITRAGE_AGGREGATED_STATE),
@@ -74,7 +85,7 @@ class TestOverlappingActions(TestActionsBase):
 
             # Do - second
             self._trigger_do_action(TRIGGER_ALARM_2)
-            curr_host = vitrage_utils.get_first_host()
+            curr_host = v_utils.get_first_host()
             self.assertEqual(
                 'ERROR',
                 curr_host.get(VProps.VITRAGE_AGGREGATED_STATE),
@@ -82,7 +93,7 @@ class TestOverlappingActions(TestActionsBase):
 
             # Undo - first
             self._trigger_undo_action(TRIGGER_ALARM_1)
-            curr_host = vitrage_utils.get_first_host()
+            curr_host = v_utils.get_first_host()
             self.assertEqual(
                 'ERROR',
                 curr_host.get(VProps.VITRAGE_AGGREGATED_STATE),
@@ -90,7 +101,7 @@ class TestOverlappingActions(TestActionsBase):
 
             # Undo - second
             self._trigger_undo_action(TRIGGER_ALARM_2)
-            curr_host = vitrage_utils.get_first_host()
+            curr_host = v_utils.get_first_host()
             self.assertEqual(
                 self.orig_host.get(VProps.VITRAGE_AGGREGATED_STATE),
                 curr_host.get(VProps.VITRAGE_AGGREGATED_STATE),

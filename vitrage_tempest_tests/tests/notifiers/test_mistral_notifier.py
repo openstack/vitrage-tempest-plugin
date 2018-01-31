@@ -19,6 +19,7 @@ from testtools.matchers import HasLength
 from vitrage import os_clients
 from vitrage_tempest_tests.tests.api.event.base import BaseTestEvents
 from vitrage_tempest_tests.tests.common.tempest_clients import TempestClients
+from vitrage_tempest_tests.tests.common import vitrage_utils as v_utils
 from vitrage_tempest_tests.tests import utils
 from vitrage_tempest_tests.tests.utils import wait_for_status
 
@@ -58,6 +59,15 @@ class TestMistralNotifier(BaseTestEvents):
     def setUpClass(cls):
         super(TestMistralNotifier, cls).setUpClass()
         cls.mistral_client = os_clients.mistral_client(cls.conf)
+        cls._templates = []
+        cls._templates.append(v_utils.add_template('v1_execute_mistral.yaml'))
+        cls._templates.append(v_utils.add_template('v2_execute_mistral.yaml'))
+
+    @classmethod
+    def tearDownClass(cls):
+        if cls._templates is not None:
+            v_utils.delete_template(cls._templates[0]['uuid'])
+            v_utils.delete_template(cls._templates[1]['uuid'])
 
     @utils.tempest_logger
     def test_execute_mistral_v1(self):

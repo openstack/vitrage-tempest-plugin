@@ -17,10 +17,6 @@ from vitrage_tempest_tests.tests.base import BaseVitrageTempest
 from vitrage_tempest_tests.tests.common.tempest_clients import TempestClients
 
 
-TEMPLATES_RESOURCES_PATH = 'resources/templates/'
-TEMPLATES_SOURCES_PATH = '/etc/vitrage/templates/'
-
-
 class BaseAlarmsTest(BaseVitrageTempest):
     """Topology test class for Vitrage API tests."""
 

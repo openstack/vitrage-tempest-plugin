@@ -22,7 +22,7 @@ from vitrage.utils import file
 from vitrage_tempest_tests.tests.api.templates.base import BaseTemplateTest
 from vitrage_tempest_tests.tests.common import general_utils as g_utils
 from vitrage_tempest_tests.tests.common.tempest_clients import TempestClients
-from vitrage_tempest_tests.tests.common import vitrage_utils
+from vitrage_tempest_tests.tests.common import vitrage_utils as v_utils
 import vitrage_tempest_tests.tests.utils as utils
 
 LOG = logging.getLogger(__name__)
@@ -47,6 +47,12 @@ class TestValidate(BaseTemplateTest):
     @classmethod
     def setUpClass(cls):
         super(TestValidate, cls).setUpClass()
+        cls._template = v_utils.add_template(STANDARD_TEMPLATE)
+
+    @classmethod
+    def tearDownClass(cls):
+        if cls._template is not None:
+            v_utils.delete_template(cls._template['uuid'])
 
     def test_templates_list(self):
         """template_list test
@@ -171,17 +177,17 @@ class TemplatesDBTest(BaseTemplateTest):
             # TODO(ikinory): add folder of templates
             # Add standard ,equivalence and definition templates
             templates_names = self._add_templates()
-            vitrage_utils.add_template(STANDARD_TEMPLATE,
-                                       template_type=TTypes.STANDARD)
+            v_utils.add_template(STANDARD_TEMPLATE,
+                                 template_type=TTypes.STANDARD)
             # assert standard template
-            db_row = vitrage_utils.get_first_template(
+            db_row = v_utils.get_first_template(
                 name='host_high_memory_usage_scenarios', type=TTypes.STANDARD)
             self.assertEqual(db_row['name'],
                              'host_high_memory_usage_scenarios',
                              'standard template not found in list')
 
             # assert equivalence template
-            db_row = vitrage_utils.get_first_template(
+            db_row = v_utils.get_first_template(
                 name='entity equivalence example',
                 type=TTypes.EQUIVALENCE)
             self.assertEqual(db_row['name'],
@@ -189,7 +195,7 @@ class TemplatesDBTest(BaseTemplateTest):
                              'equivalence template not found in list')
 
             # assert definition template
-            db_row = vitrage_utils.get_first_template(
+            db_row = v_utils.get_first_template(
                 name='basic_def_template',
                 type=TTypes.DEFINITION,
                 status=TemplateStatus.ACTIVE)
@@ -199,7 +205,7 @@ class TemplatesDBTest(BaseTemplateTest):
                              'definition template not found in list')
 
             # assert corrupted template - validate failed
-            db_row = vitrage_utils.get_first_template(
+            db_row = v_utils.get_first_template(
                 name='corrupted_template',
                 type=TTypes.STANDARD,
                 status=TemplateStatus.ERROR)
@@ -217,9 +223,9 @@ class TemplatesDBTest(BaseTemplateTest):
         try:
 
             # add standard template
-            vitrage_utils.add_template(STANDARD_TEMPLATE,
-                                       template_type=TTypes.STANDARD)
-            db_row = vitrage_utils.get_first_template(
+            v_utils.add_template(STANDARD_TEMPLATE,
+                                 template_type=TTypes.STANDARD)
+            db_row = v_utils.get_first_template(
                 name='host_high_memory_usage_scenarios',
                 type=TTypes.STANDARD,
                 status=TemplateStatus.ACTIVE)
@@ -228,8 +234,8 @@ class TemplatesDBTest(BaseTemplateTest):
 
             # delete template
             uuid = db_row['uuid']
-            vitrage_utils.delete_template(uuid)
-            db_row = vitrage_utils.get_first_template(
+            v_utils.delete_template(uuid)
+            db_row = v_utils.get_first_template(
                 name='host_high_memory_usage_scenarios', type=TTypes.STANDARD)
             self.assertIsNone(db_row, 'Template should not appear in list')
 
@@ -274,9 +280,9 @@ class TemplatesDBTest(BaseTemplateTest):
             template_path = \
                 g_utils.tempest_resources_dir() + '/templates/api/'\
                 + STANDARD_TEMPLATE
-            vitrage_utils.add_template(STANDARD_TEMPLATE,
-                                       template_type=TTypes.STANDARD)
-            db_row = vitrage_utils.get_first_template(
+            v_utils.add_template(STANDARD_TEMPLATE,
+                                 template_type=TTypes.STANDARD)
+            db_row = v_utils.get_first_template(
                 name='host_high_memory_usage_scenarios',
                 type=TTypes.STANDARD,
                 status=TemplateStatus.ACTIVE)
@@ -284,20 +290,20 @@ class TemplatesDBTest(BaseTemplateTest):
             payload_from_file = file.load_yaml_file(template_path)
             self.assertEqual(payload_from_file, payload_from_db,
                              "Template content doesn't match")
-            vitrage_utils.delete_template(db_row['uuid'])
+            v_utils.delete_template(db_row['uuid'])
         except Exception as e:
             self._handle_exception(e)
             raise
 
     def _add_templates(self):
-        vitrage_utils.add_template(STANDARD_TEMPLATE,
-                                   template_type=TTypes.STANDARD)
-        vitrage_utils.add_template(EQUIVALENCE_TEMPLATE,
-                                   template_type=TTypes.EQUIVALENCE)
-        vitrage_utils.add_template(DEFINITION_TEMPLATE,
-                                   template_type=TTypes.DEFINITION)
-        vitrage_utils.add_template(STANDARD_ERROR,
-                                   template_type=TTypes.STANDARD)
+        v_utils.add_template(STANDARD_TEMPLATE,
+                             template_type=TTypes.STANDARD)
+        v_utils.add_template(EQUIVALENCE_TEMPLATE,
+                             template_type=TTypes.EQUIVALENCE)
+        v_utils.add_template(DEFINITION_TEMPLATE,
+                             template_type=TTypes.DEFINITION)
+        v_utils.add_template(STANDARD_ERROR,
+                             template_type=TTypes.STANDARD)
         return ['host_high_memory_usage_scenarios',
                 'entity equivalence example',
                 'basic_def_template',
