@@ -19,6 +19,7 @@ from vitrage_tempest_tests.tests.api.rca.base import BaseRcaTest
 from vitrage_tempest_tests.tests.api.rca.base import RCA_ALARM_NAME
 from vitrage_tempest_tests.tests.common import nova_utils
 from vitrage_tempest_tests.tests.common.tempest_clients import TempestClients
+from vitrage_tempest_tests.tests.common import vitrage_utils as v_utils
 from vitrage_tempest_tests.tests import utils
 
 import unittest
@@ -38,6 +39,12 @@ class TestRca(BaseRcaTest):
     @classmethod
     def setUpClass(cls):
         super(TestRca, cls).setUpClass()
+        cls._template = v_utils.add_template('host_aodh_alarm_for_rca.yaml')
+
+    @classmethod
+    def tearDownClass(cls):
+        if cls._template is not None:
+            v_utils.delete_template(cls._template['uuid'])
 
     @unittest.skip("CLI tests are ineffective and not maintained")
     @utils.tempest_logger

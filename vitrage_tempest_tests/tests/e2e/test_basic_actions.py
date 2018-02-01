@@ -23,7 +23,7 @@ from vitrage.evaluator.actions.evaluator_event_transformer import \
 from vitrage_tempest_tests.tests.common import general_utils as g_utils
 from vitrage_tempest_tests.tests.common import nova_utils
 from vitrage_tempest_tests.tests.common.tempest_clients import TempestClients
-from vitrage_tempest_tests.tests.common import vitrage_utils
+from vitrage_tempest_tests.tests.common import vitrage_utils as v_utils
 from vitrage_tempest_tests.tests.e2e.test_actions_base import TestActionsBase
 from vitrage_tempest_tests.tests import utils
 
@@ -49,11 +49,21 @@ DEDUCED_PROPS = {
 
 
 class TestBasicActions(TestActionsBase):
+    @classmethod
+    def setUpClass(cls):
+        super(TestBasicActions, cls).setUpClass()
+        cls._template = v_utils.add_template("e2e_test_basic_actions.yaml")
+
     def setUp(self):
         super(TestBasicActions, self).setUp()
 
     def tearDown(self):
         super(TestBasicActions, self).tearDown()
+
+    @classmethod
+    def tearDownClass(cls):
+        if cls._template is not None:
+            v_utils.delete_template(cls._template['uuid'])
 
     @utils.tempest_logger
     def test_action_set_state_host(self):
@@ -61,7 +71,7 @@ class TestBasicActions(TestActionsBase):
 
             # Do
             self._trigger_do_action(TRIGGER_ALARM_1)
-            curr_host = vitrage_utils.get_first_host()
+            curr_host = v_utils.get_first_host()
             self.assertEqual(
                 'ERROR',
                 curr_host.get(VProps.VITRAGE_AGGREGATED_STATE),
@@ -69,7 +79,7 @@ class TestBasicActions(TestActionsBase):
 
             # Undo
             self._trigger_undo_action(TRIGGER_ALARM_1)
-            curr_host = vitrage_utils.get_first_host()
+            curr_host = v_utils.get_first_host()
             self.assertEqual(
                 self.orig_host.get(VProps.VITRAGE_AGGREGATED_STATE),
                 curr_host.get(VProps.VITRAGE_AGGREGATED_STATE),
@@ -88,9 +98,9 @@ class TestBasicActions(TestActionsBase):
             vm_id = nova_utils.create_instances(set_public_network=True)[0].id
 
             # Do
-            orig_instance = vitrage_utils.get_first_instance(id=vm_id)
+            orig_instance = v_utils.get_first_instance(id=vm_id)
             self._trigger_do_action(TRIGGER_ALARM_3)
-            curr_instance = vitrage_utils.get_first_instance(id=vm_id)
+            curr_instance = v_utils.get_first_instance(id=vm_id)
             self.assertEqual(
                 'ERROR',
                 curr_instance.get(VProps.VITRAGE_AGGREGATED_STATE),
@@ -98,7 +108,7 @@ class TestBasicActions(TestActionsBase):
 
             # Undo
             self._trigger_undo_action(TRIGGER_ALARM_3)
-            curr_instance = vitrage_utils.get_first_instance(id=vm_id)
+            curr_instance = v_utils.get_first_instance(id=vm_id)
             self.assertEqual(
                 orig_instance.get(VProps.VITRAGE_AGGREGATED_STATE),
                 curr_instance.get(VProps.VITRAGE_AGGREGATED_STATE),
