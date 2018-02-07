@@ -18,7 +18,6 @@ from six.moves import BaseHTTPServer
 import socket
 from threading import Thread
 
-from vitrage.common.constants import VertexProperties as VProps
 from vitrage_tempest_tests.tests.common.tempest_clients import TempestClients
 from vitrage_tempest_tests.tests.e2e.test_actions_base import TestActionsBase
 from vitrage_tempest_tests.tests import utils
@@ -159,9 +158,6 @@ class TestWebhook(TestActionsBase):
         webhooks)
         """
 
-        host_id = self.orig_host[VProps.VITRAGE_ID]
-        ID_FILTER = '{"%s": "%s"}' % (VProps.VITRAGE_RESOURCE_ID, host_id)
-
         try:
 
             # Add webhook
@@ -171,8 +167,7 @@ class TestWebhook(TestActionsBase):
             )
 
             TempestClients.vitrage().webhook.add(
-                url=self.URL_PROPS,
-                regex_filter=ID_FILTER,
+                url=self.URL_PROPS
             )
 
             # Raise alarm
