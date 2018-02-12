@@ -54,7 +54,7 @@ class TestWebhook(TestActionsBase):
         cls.URL_PROPS = 'http://localhost:%s/' % cls.mock_server_port
 
     @utils.tempest_logger
-    def test_webhook_basic_event(self):
+    def test_basic_event(self):
 
         try:
 
@@ -85,7 +85,7 @@ class TestWebhook(TestActionsBase):
             self.mock_server.reset_requests_list()
 
     @utils.tempest_logger
-    def test_webhook_with_no_filter(self):
+    def test_with_no_filter(self):
         """Test to see that a webhook with no filter receives all
 
         notifications
@@ -120,7 +120,7 @@ class TestWebhook(TestActionsBase):
             self.mock_server.reset_requests_list()
 
     @utils.tempest_logger
-    def test_webhook_with_no_match(self):
+    def test_with_no_match(self):
         """Test to check that filters with no match do not send event """
 
         try:
