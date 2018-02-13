@@ -13,10 +13,13 @@
 #    under the License.
 
 import six
+import sys
 import traceback
 
 from oslo_log import log as logging
+from oslo_utils import timeutils
 from oslotest import base
+from testtools.matchers import HasLength
 
 from vitrage.common.constants import EdgeProperties
 from vitrage.common.constants import EntityCategory
@@ -42,6 +45,8 @@ import warnings
 
 LOG = logging.getLogger(__name__)
 
+IsEmpty = lambda: HasLength(0)
+
 if six.PY2:
     class ResourceWarning(Warning):
         pass
@@ -52,6 +57,45 @@ class BaseVitrageTempest(base.BaseTestCase):
 
     NUM_VERTICES_PER_TYPE = 'num_vertices'
     NUM_EDGES_PER_TYPE = 'num_edges_per_type'
+
+    def assert_list_equal(self, l1, l2):
+        if tuple(sys.version_info)[0:2] < (2, 7):
+            # for python 2.6 compatibility
+            self.assertEqual(l1, l2)
+        else:
+            super(BaseVitrageTempest, self).assertListEqual(l1, l2)
+
+    def assert_dict_equal(self, d1, d2, message):
+        if tuple(sys.version_info)[0:2] < (2, 7):
+            # for python 2.6 compatibility
+            self.assertEqual(d1, d2)
+        else:
+            super(BaseVitrageTempest, self).assertDictEqual(d1, d2, message)
+
+    def assert_timestamp_equal(self, first, second, msg=None):
+        """Checks that two timestamps are equals.
+
+        This relies on assertAlmostEqual to avoid rounding problem, and only
+        checks up the first microsecond values.
+
+        """
+        return self.assertAlmostEqual(timeutils.delta_seconds(first, second),
+                                      0.0,
+                                      places=5, msg=msg)
+
+    def assert_is_empty(self, obj):
+        try:
+            if len(obj) != 0:
+                self.fail("%s is not empty" % type(obj))
+        except (TypeError, AttributeError):
+            self.fail("%s doesn't have length" % type(obj))
+
+    def assert_is_not_empty(self, obj):
+        try:
+            if len(obj) == 0:
+                self.fail("%s is empty" % type(obj))
+        except (TypeError, AttributeError):
+            self.fail("%s doesn't have length" % type(obj))
 
     def setUp(self):
         super(BaseVitrageTempest, self).setUp()
