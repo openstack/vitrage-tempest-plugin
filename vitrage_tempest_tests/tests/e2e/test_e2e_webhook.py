@@ -20,6 +20,7 @@ import socket
 from threading import Thread
 import time
 
+from vitrage_tempest_tests.tests.base import IsEmpty
 from vitrage_tempest_tests.tests.common.constants import VertexProperties as \
     VProps
 from vitrage_tempest_tests.tests.common.tempest_clients import TempestClients
@@ -173,15 +174,15 @@ class TestWebhook(TestActionsBase):
             self._trigger_do_action(TRIGGER_ALARM_1)
 
             # Check event not received
-            self.assertEqual(0, len(self.mock_server.requests),
-                             'event should not have passed filter')
+            self.assertThat(self.mock_server.requests, IsEmpty(),
+                            'event should not have passed filter')
 
             # Raise another alarm
             self._trigger_do_action(TRIGGER_ALARM_2)
 
             # Check second event not received
-            self.assertEqual(0, len(self.mock_server.requests),
-                             'event should not have passed filter')
+            self.assertThat(self.mock_server.requests, IsEmpty(),
+                            'event should not have passed filter')
 
         finally:
             self._trigger_undo_action(TRIGGER_ALARM_1)
@@ -282,8 +283,9 @@ class TestWebhook(TestActionsBase):
             # payload and resource
             passed_filter = utils.filter_data(alarm, MAIN_FILTER, False)
 
-            self.assertEqual(0, len(passed_filter),
-                             "Wrong main fields sent")
+            self.assertThat(passed_filter,
+                            IsEmpty(),
+                            "Wrong main fields sent %s" % passed_filter)
 
             payload = alarm.get(PAYLOAD)
             if payload:
@@ -291,8 +293,9 @@ class TestWebhook(TestActionsBase):
                                                   DOCTOR_ALARM_FILTER,
                                                   False)
 
-                self.assertEqual(0, len(passed_filter),
-                                 "Wrong alarm fields sent")
+                self.assertThat(passed_filter,
+                                IsEmpty(),
+                                "Wrong alarm fields sent %s", passed_filter)
 
                 sent_fields = utils.filter_data(payload,
                                                 DOCTOR_ALARM_FILTER,
@@ -307,8 +310,10 @@ class TestWebhook(TestActionsBase):
                                                       RESOURCE_FILTER,
                                                       False)
 
-                    self.assertEqual(0, len(passed_filter),
-                                     "Wrong resource fields sent")
+                    self.assertThat(passed_filter,
+                                    IsEmpty(),
+                                    "Wrong resource fields sent %s",
+                                    passed_filter)
 
                     sent_fields = utils.filter_data(resource,
                                                     RESOURCE_FILTER,
