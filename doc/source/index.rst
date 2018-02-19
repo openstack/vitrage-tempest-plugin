@@ -13,7 +13,7 @@ Contents:
    :maxdepth: 2
 
    readme
-   contributor
+   contributing
    installation
 
 Indices and tables
