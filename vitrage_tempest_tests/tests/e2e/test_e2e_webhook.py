@@ -285,7 +285,7 @@ class TestWebhook(TestActionsBase):
 
             self.assertThat(passed_filter,
                             IsEmpty(),
-                            "Wrong main fields sent %s" % passed_filter)
+                            "Wrong main fields sent")
 
             payload = alarm.get(PAYLOAD)
             if payload:
@@ -295,7 +295,7 @@ class TestWebhook(TestActionsBase):
 
                 self.assertThat(passed_filter,
                                 IsEmpty(),
-                                "Wrong alarm fields sent %s", passed_filter)
+                                "Wrong alarm fields sent")
 
                 sent_fields = utils.filter_data(payload,
                                                 DOCTOR_ALARM_FILTER,
@@ -312,8 +312,7 @@ class TestWebhook(TestActionsBase):
 
                     self.assertThat(passed_filter,
                                     IsEmpty(),
-                                    "Wrong resource fields sent %s",
-                                    passed_filter)
+                                    "Wrong resource fields sent")
 
                     sent_fields = utils.filter_data(resource,
                                                     RESOURCE_FILTER,
@@ -360,7 +359,7 @@ class MockServerRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     def do_POST(self):
         # Process a HTTP Post request and return status code 200
 
-        content_len = int(self.headers.getheader('content-length', 0))
+        content_len = int(self.headers.get('content-length', 0))
         # save received JSON
         messages.append(str(self.rfile.read(content_len)))
         # send fake response
