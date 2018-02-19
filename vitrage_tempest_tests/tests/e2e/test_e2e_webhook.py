@@ -58,10 +58,12 @@ DOCTOR_ALARM_FILTER = (VProps.VITRAGE_ID,
 RESOURCE_FILTER = (VProps.VITRAGE_ID,
                    VProps.ID,
                    VProps.NAME,
+                   VProps.VITRAGE_CATEGORY,
                    VProps.UPDATE_TIMESTAMP,
                    VProps.VITRAGE_OPERATIONAL_STATE,
                    VProps.VITRAGE_TYPE,
-                   )
+                   VProps.PROJECT_ID,
+                   VProps.UPDATE_TIMESTAMP)
 messages = []
 
 
