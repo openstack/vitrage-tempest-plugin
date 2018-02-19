@@ -169,3 +169,9 @@ def wait_for_status(max_waiting, func, **kwargs):
         time.sleep(2)
     LOG.error("wait_for_status - False")
     return False
+
+
+def filter_data(data, filter, match_filter=True):
+    if match_filter:
+        return [k for k in data if k in filter]
+    return [k for k in data if k not in filter]
