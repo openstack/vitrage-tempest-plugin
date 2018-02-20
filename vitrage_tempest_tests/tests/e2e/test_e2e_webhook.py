@@ -366,3 +366,6 @@ class MockServerRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         self.send_response(requests.codes.ok)
         self.end_headers()
         return
+
+    def log_message(self, format, *args):
+        pass
