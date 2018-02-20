@@ -17,6 +17,7 @@ from oslo_log import log as logging
 import requests
 from six.moves import BaseHTTPServer
 import socket
+from testtools import matchers
 from threading import Thread
 import time
 
@@ -45,24 +46,23 @@ TYPE_FILTER = '{"vitrage_type": "doctor"}'
 FILTER_NO_MATCH = '{"name": "NO MATCH"}'
 NOTIFICATION = 'notification'
 PAYLOAD = 'payload'
-MAIN_FILTER = (NOTIFICATION,
-               PAYLOAD)
-DOCTOR_ALARM_FILTER = (VProps.VITRAGE_ID,
+MAIN_FILTER = {NOTIFICATION,
+               PAYLOAD}
+DOCTOR_ALARM_FILTER = {VProps.VITRAGE_ID,
                        VProps.RESOURCE,
                        VProps.NAME,
                        VProps.UPDATE_TIMESTAMP,
                        VProps.VITRAGE_TYPE,
                        VProps.VITRAGE_CATEGORY,
                        VProps.STATE,
-                       VProps.VITRAGE_OPERATIONAL_SEVERITY)
-RESOURCE_FILTER = (VProps.VITRAGE_ID,
+                       VProps.VITRAGE_OPERATIONAL_SEVERITY}
+RESOURCE_FILTER = {VProps.VITRAGE_ID,
                    VProps.ID,
                    VProps.NAME,
                    VProps.VITRAGE_CATEGORY,
                    VProps.UPDATE_TIMESTAMP,
                    VProps.VITRAGE_OPERATIONAL_STATE,
-                   VProps.VITRAGE_TYPE,
-                   VProps.PROJECT_ID)
+                   VProps.VITRAGE_TYPE}
 messages = []
 
 
@@ -113,15 +113,15 @@ class TestWebhook(TestActionsBase):
             self._trigger_do_action(TRIGGER_ALARM_1)
 
             # Check event received
-            self.assertEqual(1, len(self.mock_server.requests),
-                             'Wrong number of notifications for raise alarm')
+            self.assertThat(self.mock_server.requests, matchers.HasLength(1),
+                            'Wrong number of notifications for raise alarm')
 
             # Undo
             self._trigger_undo_action(TRIGGER_ALARM_1)
 
             # Check event undo received
-            self.assertEqual(2, len(self.mock_server.requests),
-                             'Wrong number of notifications for clear alarm')
+            self.assertThat(self.mock_server.requests, matchers.HasLength(2),
+                            'Wrong number of notifications for clear alarm')
 
         finally:
             self._trigger_undo_action(TRIGGER_ALARM_1)
@@ -145,15 +145,15 @@ class TestWebhook(TestActionsBase):
             self._trigger_do_action(TRIGGER_ALARM_1)
 
             # Check event received
-            self.assertEqual(1, len(self.mock_server.requests),
-                             'Wrong number of notifications for raise alarm')
+            self.assertThat(self.mock_server.requests, matchers.HasLength(1),
+                            'Wrong number of notifications for raise alarm')
 
             # Raise another alarm
             self._trigger_do_action(TRIGGER_ALARM_2)
 
             # Check second event received
-            self.assertEqual(2, len(self.mock_server.requests),
-                             'Wrong number of notifications for clear alarm')
+            self.assertThat(self.mock_server.requests, matchers.HasLength(2),
+                            'Wrong number of notifications for clear alarm')
 
         finally:
             self._trigger_undo_action(TRIGGER_ALARM_1)
@@ -212,15 +212,15 @@ class TestWebhook(TestActionsBase):
             self._trigger_do_action(TRIGGER_ALARM_1)
 
             # Check event received
-            self.assertEqual(2, len(self.mock_server.requests),
-                             'event not posted to all webhooks')
+            self.assertThat(self.mock_server.requests, matchers.HasLength(2),
+                            'event not posted to all webhooks')
 
             # Raise another alarm
             self._trigger_do_action(TRIGGER_ALARM_2)
 
             # Check second event received
-            self.assertEqual(4, len(self.mock_server.requests),
-                             'event not posted to all webhooks')
+            self.assertThat(self.mock_server.requests, matchers.HasLength(4),
+                            'event not posted to all webhooks')
 
         finally:
             self._trigger_undo_action(TRIGGER_ALARM_1)
@@ -244,17 +244,17 @@ class TestWebhook(TestActionsBase):
             # (the trigger alarm does not pass the filter). This test verifies
             # that the webhook is called only once for the deduced alarm.
             time.sleep(1)
-            self.assertEqual(1, len(self.mock_server.requests),
-                             'Wrong number of notifications for deduced alarm')
+            self.assertThat(self.mock_server.requests, matchers.HasLength(1),
+                            'Wrong number of notifications for deduced alarm')
 
             # Undo
             self._trigger_undo_action(TRIGGER_ALARM_WITH_DEDUCED)
 
             # Check event undo received
             time.sleep(1)
-            self.assertEqual(2, len(self.mock_server.requests),
-                             'Wrong number of notifications for clear deduced '
-                             'alarm')
+            self.assertThat(self.mock_server.requests, matchers.HasLength(2),
+                            'Wrong number of notifications '
+                            'for clear deduced alarm')
 
         finally:
             self._trigger_undo_action(TRIGGER_ALARM_WITH_DEDUCED)
@@ -273,16 +273,18 @@ class TestWebhook(TestActionsBase):
             self._trigger_do_action(TRIGGER_ALARM_1)
 
             # pre check that correct amount of notifications sent
-            self.assertEqual(1, len(self.mock_server.requests),
-                             'Wrong number of notifications for alarm')
-            self.assertEqual(1, len(messages),
-                             'Wrong number of messages for alarm')
+            self.assertThat(self.mock_server.requests, matchers.HasLength(1),
+                            'Wrong number of notifications for alarm')
+            self.assertThat(messages, matchers.HasLength(1),
+                            'Wrong number of messages for alarm')
 
             alarm = ast.literal_eval(messages[0])
 
             # check that only specified fields are sent for the alarm,
             # payload and resource
-            passed_filter = utils.filter_data(alarm, MAIN_FILTER, False)
+            passed_filter = utils.filter_data(alarm,
+                                              MAIN_FILTER,
+                                              match_filter=False)
 
             self.assertThat(passed_filter,
                             IsEmpty(),
@@ -292,39 +294,36 @@ class TestWebhook(TestActionsBase):
             if payload:
                 passed_filter = utils.filter_data(payload,
                                                   DOCTOR_ALARM_FILTER,
-                                                  False)
+                                                  match_filter=False)
 
                 self.assertThat(passed_filter,
                                 IsEmpty(),
                                 "Wrong alarm fields sent")
 
-                sent_fields = utils.filter_data(payload,
-                                                DOCTOR_ALARM_FILTER,
-                                                True)
+                sent_fields = utils.filter_data(payload, DOCTOR_ALARM_FILTER)
 
-                self.assertEqual(len(sent_fields), len(DOCTOR_ALARM_FILTER),
+                self.assertEqual(DOCTOR_ALARM_FILTER, sent_fields,
                                  "Some alarm fields not sent")
 
                 resource = payload.get(VProps.RESOURCE)
                 if resource:
                     passed_filter = utils.filter_data(resource,
                                                       RESOURCE_FILTER,
-                                                      False)
+                                                      match_filter=False)
 
                     self.assertThat(passed_filter,
                                     IsEmpty(),
                                     "Wrong resource fields sent")
 
-                    sent_fields = utils.filter_data(resource,
-                                                    RESOURCE_FILTER,
-                                                    True)
+                    sent_fields = utils.filter_data(resource, RESOURCE_FILTER)
 
-                    self.assertEqual(len(sent_fields), len(RESOURCE_FILTER),
+                    self.assertEqual(RESOURCE_FILTER, sent_fields,
                                      "Some resource fields not sent")
         finally:
             self._trigger_undo_action(TRIGGER_ALARM_1)
 
-    def _delete_webhooks(self):
+    @staticmethod
+    def _delete_webhooks():
         webhooks = TempestClients.vitrage().webhook.list()
         for webhook in webhooks:
             TempestClients.vitrage().webhook.delete(webhook['id'])

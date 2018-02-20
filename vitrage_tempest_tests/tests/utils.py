@@ -171,7 +171,7 @@ def wait_for_status(max_waiting, func, **kwargs):
     return False
 
 
-def filter_data(data, filter, match_filter=True):
+def filter_data(data, filter_, match_filter=True):
     if match_filter:
-        return [k for k in data if k in filter]
-    return [k for k in data if k not in filter]
+        return {k for k in data if k in filter_}
+    return {k for k in data if k not in filter_}
