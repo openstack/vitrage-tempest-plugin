@@ -62,8 +62,7 @@ RESOURCE_FILTER = (VProps.VITRAGE_ID,
                    VProps.UPDATE_TIMESTAMP,
                    VProps.VITRAGE_OPERATIONAL_STATE,
                    VProps.VITRAGE_TYPE,
-                   VProps.PROJECT_ID,
-                   VProps.UPDATE_TIMESTAMP)
+                   VProps.PROJECT_ID)
 messages = []
 
 
