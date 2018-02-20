@@ -363,7 +363,7 @@ class MockServerRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
         content_len = int(self.headers.get('content-length', 0))
         # save received JSON
-        messages.append(str(self.rfile.read(content_len)))
+        messages.append(self.rfile.read(content_len).decode('utf-8'))
         # send fake response
         self.send_response(requests.codes.ok)
         self.end_headers()
