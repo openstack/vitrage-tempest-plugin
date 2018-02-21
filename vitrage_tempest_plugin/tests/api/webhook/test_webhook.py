@@ -13,6 +13,7 @@
 #    under the License.
 
 from oslo_log import log as logging
+from testtools import matchers
 
 from vitrage_tempest_plugin.tests.base import BaseVitrageTempest
 from vitrage_tempest_plugin.tests.common.tempest_clients import TempestClients
@@ -39,10 +40,10 @@ class TestWebhook(BaseVitrageTempest):
     def test_add_webhook(self):
 
         webhooks = TempestClients.vitrage().webhook.list()
-        self.assertEqual(self.pre_test_webhook_count,
-                         len(webhooks),
-                         'Amount of webhooks should be the same as '
-                         'before the test')
+        self.assertThat(webhooks,
+                        matchers.HasLength(self.pre_test_webhook_count),
+                        'Amount of webhooks should be '
+                        'the same as before the test')
 
         created_webhook = TempestClients.vitrage().webhook.add(
             url="https://www.test.com",
@@ -64,16 +65,17 @@ class TestWebhook(BaseVitrageTempest):
 
         webhooks = TempestClients.vitrage().webhook.list()
 
-        self.assertEqual(self.pre_test_webhook_count + 1, len(webhooks))
+        self.assertThat(webhooks,
+                        matchers.HasLength(self.pre_test_webhook_count + 1))
         TempestClients.vitrage().webhook.delete(
             created_webhook['id'])
 
     def test_delete_webhook(self):
         webhooks = TempestClients.vitrage().webhook.list()
-        self.assertEqual(self.pre_test_webhook_count,
-                         len(webhooks),
-                         'Amount of webhooks should be the same as '
-                         'before the test')
+        self.assertThat(webhooks,
+                        matchers.HasLength(self.pre_test_webhook_count),
+                        'Amount of webhooks should '
+                        'be the same as before the test')
 
         created_webhook = TempestClients.vitrage().webhook.add(
             url="https://www.test.com",
@@ -85,8 +87,9 @@ class TestWebhook(BaseVitrageTempest):
             id=created_webhook['id'])
         self.assertIsNotNone(created_webhook.get('SUCCESS'),
                              'failed to delete')
-        self.assertEqual(self.pre_test_webhook_count, len(webhooks),
-                         'No webhooks should exist after deletion')
+        self.assertThat(webhooks,
+                        matchers.HasLength(self.pre_test_webhook_count),
+                        'No webhooks should exist after deletion')
 
     def test_delete_non_existing_webhook(self):
         self.assertRaises(ClientException,
@@ -96,10 +99,10 @@ class TestWebhook(BaseVitrageTempest):
     def test_list_webhook(self):
 
         webhooks = TempestClients.vitrage().webhook.list()
-        self.assertEqual(self.pre_test_webhook_count,
-                         len(webhooks),
-                         'Amount of webhooks should be the same as '
-                         'before the test')
+        self.assertThat(webhooks,
+                        matchers.HasLength(self.pre_test_webhook_count),
+                        'Amount of webhooks should be '
+                        'the same as before the test')
 
         created_webhook = TempestClients.vitrage().webhook.add(
             url="https://www.test.com",
@@ -108,7 +111,8 @@ class TestWebhook(BaseVitrageTempest):
         )
 
         webhooks = TempestClients.vitrage().webhook.list()
-        self.assertEqual(self.pre_test_webhook_count + 1, len(webhooks))
+        self.assertThat(webhooks,
+                        matchers.HasLength(self.pre_test_webhook_count + 1))
         self.assertEqual(created_webhook[HEADERS], webhooks[0][HEADERS])
         self.assertEqual(created_webhook['id'], webhooks[0]['id'])
         self.assertEqual(created_webhook[REGEX_FILTER],
@@ -119,10 +123,10 @@ class TestWebhook(BaseVitrageTempest):
 
     def test_show_webhook(self):
         webhooks = TempestClients.vitrage().webhook.list()
-        self.assertEqual(self.pre_test_webhook_count,
-                         len(webhooks),
-                         'Amount of webhooks should be the same as '
-                         'before the test')
+        self.assertThat(webhooks,
+                        matchers.HasLength(self.pre_test_webhook_count),
+                        'Amount of webhooks should be '
+                        'the same as before the test')
 
         created_webhook = TempestClients.vitrage().webhook.add(
             url="https://www.test.com",

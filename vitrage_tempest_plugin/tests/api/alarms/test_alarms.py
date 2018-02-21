@@ -15,9 +15,11 @@
 import json
 
 from oslo_log import log as logging
+from testtools import matchers
 
 from vitrage.datasources.aodh import AODH_DATASOURCE
 from vitrage_tempest_plugin.tests.api.alarms.base import BaseAlarmsTest
+from vitrage_tempest_plugin.tests.base import IsNotEmpty
 from vitrage_tempest_plugin.tests.common import aodh_utils
 from vitrage_tempest_plugin.tests.common import general_utils as g_utils
 from vitrage_tempest_plugin.tests.common import nova_utils
@@ -56,8 +58,8 @@ class TestAlarms(BaseAlarmsTest):
         try:
             instances = nova_utils.create_instances(num_instances=1,
                                                     set_public_network=True)
-            self.assertNotEqual(len(instances), 0,
-                                'The instances list is empty')
+            self.assertThat(instances, IsNotEmpty(),
+                            'The instances list is empty')
             aodh_utils.create_aodh_alarm(
                 resource_id=instances[0].id,
                 name='tempest_aodh_test')
@@ -79,10 +81,10 @@ class TestAlarms(BaseAlarmsTest):
     def _compare_alarms_lists(self, api_alarms, cli_alarms,
                               resource_type, resource_id):
         """Validate alarm existence """
-        self.assertNotEqual(len(api_alarms), 0,
-                            'The alarms list taken from api is empty')
-        self.assertIsNotNone(cli_alarms,
-                             'The alarms list taken from cli is empty')
+        self.assertThat(api_alarms, IsNotEmpty(),
+                        'The alarms list taken from api is empty')
+        self.assertThat(cli_alarms, IsNotEmpty(),
+                        'The alarms list taken from cli is empty')
 
         LOG.info("The alarms list taken from cli is : " +
                  str(cli_alarms))
@@ -99,5 +101,5 @@ class TestAlarms(BaseAlarmsTest):
         cli_by_id = cli_alarms.count(resource_id)
 
         self.assertEqual(len(cli_items), len(api_alarms) + 4)
-        self.assertEqual(cli_by_type, len(api_by_type))
-        self.assertEqual(cli_by_id, len(api_by_id))
+        self.assertThat(api_by_type, matchers.HasLength(cli_by_type))
+        self.assertThat(api_by_id, matchers.HasLength(cli_by_id))

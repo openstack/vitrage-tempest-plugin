@@ -18,6 +18,7 @@ import time
 
 from vitrage.common.constants import VertexProperties as VProps
 from vitrage_tempest_plugin.tests.base import BaseVitrageTempest
+from vitrage_tempest_plugin.tests.base import IsNotEmpty
 from vitrage_tempest_plugin.tests.base import LOG
 from vitrage_tempest_plugin.tests.common import cinder_utils
 from vitrage_tempest_plugin.tests.common import nova_utils
@@ -57,7 +58,8 @@ class BaseTopologyTest(BaseVitrageTempest):
     def _create_entities(self, num_instances, num_volumes=0, end_sleep=3):
         resources = nova_utils.create_instances(num_instances)
 
-        self.assertNotEqual(len(resources), 0, 'The instances list is empty')
+        self.assertThat(resources, IsNotEmpty(),
+                        'The instances list is empty')
         if num_volumes > 0:
             cinder_utils.create_volume_and_attach('volume-1', 1,
                                                   resources[0].id,
@@ -78,10 +80,10 @@ class BaseTopologyTest(BaseVitrageTempest):
 
     def _compare_graphs(self, api_graph, cli_graph):
         """Compare Graph object to graph form terminal """
-        self.assertNotEqual(len(api_graph), 0,
-                            'The topology graph taken from rest api is empty')
-        self.assertNotEqual(len(cli_graph), 0,
-                            'The topology graph taken from terminal is empty')
+        self.assertThat(api_graph, IsNotEmpty(),
+                        'The topology graph taken from rest api is empty')
+        self.assertThat(cli_graph, IsNotEmpty(),
+                        'The topology graph taken from terminal is empty')
 
         parsed_topology = json.loads(cli_graph)
 

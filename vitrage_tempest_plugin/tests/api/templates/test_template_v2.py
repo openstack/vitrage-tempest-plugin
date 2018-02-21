@@ -13,6 +13,7 @@
 # under the License.
 
 from oslo_log import log as logging
+from testtools import matchers
 
 from vitrage_tempest_plugin.tests.api.templates.base import BaseTemplateTest
 
@@ -37,7 +38,7 @@ class TestValidateV2(BaseTemplateTest):
         try:
             path = self.TEST_PATH + NO_TYPE_TEMPLATE
             validation = self.vitrage_client.template.validate(path=path)
-            self.assertEqual(1, len(validation['results']))
+            self.assertThat(validation['results'], matchers.HasLength(1))
             self._run_template_validation(
                 validation['results'][0], path, negative=True)
         except Exception:
@@ -47,7 +48,7 @@ class TestValidateV2(BaseTemplateTest):
         try:
             path = self.TEST_PATH + EXECUTE_MISTRAL_TEMPLATE
             validation = self.vitrage_client.template.validate(path=path)
-            self.assertEqual(1, len(validation['results']))
+            self.assertThat(validation['results'], matchers.HasLength(1))
             self._run_template_validation(
                 validation['results'][0], path)
         except Exception:
@@ -57,7 +58,7 @@ class TestValidateV2(BaseTemplateTest):
         try:
             path = self.TEST_PATH + DEFINITION_TEMPLATE
             validation = self.vitrage_client.template.validate(path=path)
-            self.assertEqual(1, len(validation['results']))
+            self.assertThat(validation['results'], matchers.HasLength(1))
             self._run_template_validation(
                 validation['results'][0], path)
         except Exception:

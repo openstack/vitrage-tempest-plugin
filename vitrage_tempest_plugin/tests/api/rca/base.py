@@ -15,6 +15,7 @@
 import json
 
 from oslo_log import log as logging
+from testtools import matchers
 
 from vitrage.common.constants import EdgeLabel
 from vitrage.common.constants import EdgeProperties
@@ -29,6 +30,7 @@ from vitrage.entity_graph.mappings.operational_resource_state \
 from vitrage.evaluator.actions.evaluator_event_transformer \
     import VITRAGE_DATASOURCE
 from vitrage_tempest_plugin.tests.api.alarms.base import BaseAlarmsTest
+from vitrage_tempest_plugin.tests.base import IsNotEmpty
 from vitrage_tempest_plugin.tests.common import aodh_utils
 from vitrage_tempest_plugin.tests.common import general_utils as g_utils
 from vitrage_tempest_plugin.tests.common import nova_utils
@@ -72,7 +74,8 @@ class BaseRcaTest(BaseAlarmsTest):
         return expected_alarm[0]
 
     def _compare_rca(self, api_rca, cli_rca):
-        self.assertNotEqual(len(api_rca), 0, 'The rca taken from api is empty')
+        self.assertThat(api_rca, IsNotEmpty(),
+                        'The rca taken from api is empty')
         self.assertIsNotNone(cli_rca, 'The rca taken from cli is empty')
 
         LOG.info("The rca taken from cli is : " + str(cli_rca))
@@ -84,7 +87,7 @@ class BaseRcaTest(BaseAlarmsTest):
         self.assertEqual(sorted_cli_graph, sorted_api_graph)
 
     def _validate_rca(self, rca):
-        self.assertNotEqual(len(rca), 0, 'The rca is empty')
+        self.assertThat(rca, IsNotEmpty, 'The rca is empty')
         LOG.info("The rca alarms list is : " + str(json.dumps(rca)))
 
         resource_alarm = g_utils.all_matches(
@@ -98,13 +101,13 @@ class BaseRcaTest(BaseAlarmsTest):
             name=VITRAGE_ALARM_NAME,
             severity=OperationalAlarmSeverity.WARNING)
 
-        self.assertEqual(3, len(rca))
-        self.assertEqual(1, len(resource_alarm))
-        self.assertEqual(2, len(deduce_alarms))
+        self.assertThat(rca, matchers.HasLength(3))
+        self.assertThat(resource_alarm, matchers.HasLength(1))
+        self.assertThat(deduce_alarms, matchers.HasLength(2))
 
     def _validate_deduce_alarms(self, alarms, instances):
         """Validate alarm existence """
-        self.assertNotEqual(len(alarms), 0, 'The alarms list is empty')
+        self.assertThat(alarms, IsNotEmpty(), 'The alarms list is empty')
         LOG.info("The alarms list is : " + str(json.dumps(alarms)))
 
         # Find the vitrage_id of the deduced alarms using their original id.
@@ -131,14 +134,16 @@ class BaseRcaTest(BaseAlarmsTest):
             vitrage_resource_type=NOVA_INSTANCE_DATASOURCE,
             vitrage_resource_id=vitrage_instance_1_id[VProps.VITRAGE_ID])
 
-        self.assertEqual(3, len(alarms), "Expected 3 alarms - 1 on host and "
-                                         "2 deduced")
-        self.assertEqual(1, len(deduce_alarms_1), "Deduced alarm not found")
-        self.assertEqual(1, len(deduce_alarms_2), "Deduced alarm not found")
+        self.assertThat(alarms, matchers.HasLength(3),
+                        "Expected 3 alarms - 1 on host and 2 deduced")
+        self.assertThat(deduce_alarms_1, matchers.HasLength(1),
+                        "Deduced alarm not found")
+        self.assertThat(deduce_alarms_2, matchers.HasLength(1),
+                        "Deduced alarm not found")
 
     def _validate_relationship(self, links, alarms):
-        self.assertNotEqual(len(links), 0, 'The links list is empty')
-        self.assertNotEqual(len(alarms), 0, 'The alarms list is empty')
+        self.assertThat(links, IsNotEmpty(), 'The links list is empty')
+        self.assertThat(alarms, IsNotEmpty(), 'The alarms list is empty')
 
         flag = True
         for item in links:
@@ -150,11 +155,11 @@ class BaseRcaTest(BaseAlarmsTest):
                     or target_alarm_name != VITRAGE_ALARM_NAME:
                 flag = False
 
-        self.assertEqual(3, len(alarms))
+        self.assertThat(alarms, matchers.HasLength(3))
         self.assertTrue(flag)
 
     def _validate_set_state(self, topology, instances):
-        self.assertNotEqual(len(topology), 0, 'The topology graph is empty')
+        self.assertThat(topology, IsNotEmpty(), 'The topology graph is empty')
         host = g_utils.all_matches(
             topology,
             vitrage_type=NOVA_HOST_DATASOURCE,
@@ -176,14 +181,14 @@ class BaseRcaTest(BaseAlarmsTest):
             vitrage_state=OperationalResourceState.SUBOPTIMAL,
             vitrage_aggregated_state=OperationalResourceState.SUBOPTIMAL)
 
-        self.assertEqual(1, len(host))
-        self.assertEqual(1, len(vm1))
-        self.assertEqual(1, len(vm2))
+        self.assertThat(host, matchers.HasLength(1))
+        self.assertThat(vm1, matchers.HasLength(1))
+        self.assertThat(vm2, matchers.HasLength(1))
 
     def _validate_notifier(self, alarms, vitrage_alarms):
-        self.assertNotEqual(len(alarms), 0, 'The aodh alarms list is empty')
-        self.assertNotEqual(len(vitrage_alarms), 0,
-                            'The vitrage alarms list is empty')
+        self.assertThat(alarms, IsNotEmpty(), 'The aodh alarms list is empty')
+        self.assertThat(vitrage_alarms, IsNotEmpty(),
+                        'The vitrage alarms list is empty')
 
         validation = 0
         for itemC in alarms:
@@ -199,8 +204,8 @@ class BaseRcaTest(BaseAlarmsTest):
                     validation += 1
                     break
 
-        self.assertEqual(validation, len(vitrage_alarms))
-        self.assertEqual(3, len(alarms))
+        self.assertThat(vitrage_alarms, matchers.HasLength(validation))
+        self.assertThat(alarms, matchers.HasLength(3))
 
     def _get_hostname(self):
         host = vitrage_utils.get_first_host()
