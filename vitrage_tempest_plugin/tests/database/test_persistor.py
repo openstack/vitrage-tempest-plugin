@@ -14,7 +14,6 @@
 
 import datetime
 import six
-import unittest
 
 from oslo_log import log as logging
 from vitrage.common.constants import DatasourceProperties as DSProps
@@ -67,7 +66,6 @@ class TestEvents(BaseVitrageTempest):
         super(TestEvents, cls).setUpClass()
         cls.db_connection = storage.get_connection_from_config(cls.conf)
 
-    @unittest.skip("persistency is disabled in queens")
     def test_create_instance(self):
         """This function validates creating instance events.
 
