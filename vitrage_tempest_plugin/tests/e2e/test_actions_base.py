@@ -14,6 +14,7 @@
 import time
 
 from oslo_log import log as logging
+from testtools import matchers
 
 from vitrage.common.constants import VertexProperties as VProps
 from vitrage_tempest_plugin.tests.base import BaseVitrageTempest
@@ -62,11 +63,9 @@ class TestActionsBase(BaseVitrageTempest):
             vitrage_id=resource_id,
             all_tenants=True)
         deduces = g_utils.all_matches(alarms, **deduced_props)
-        self.assertEqual(
-            deduced_count,
-            len(deduces),
-            'Expected %s deduces\n - \n%s\n - \n%s' %
-            (str(deduced_count), str(alarms), str(deduces)))
+        self.assertThat(deduces, matchers.HasLength(deduced_count),
+                        'Expected %s deduces\n - \n%s\n - \n%s' %
+                        (str(deduced_count), str(alarms), str(deduces)))
 
     def _check_rca(self, rca, expected_alarms, inspected):
         self.assertEqual(len(expected_alarms), len(rca['nodes']))

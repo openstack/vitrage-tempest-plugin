@@ -20,6 +20,7 @@ from oslo_log import log as logging
 from oslo_utils import timeutils
 from oslotest import base
 from testtools.matchers import HasLength
+from testtools.matchers import Not
 
 from vitrage.common.constants import EdgeProperties
 from vitrage.common.constants import EntityCategory
@@ -46,6 +47,7 @@ import warnings
 LOG = logging.getLogger(__name__)
 
 IsEmpty = lambda: HasLength(0)
+IsNotEmpty = lambda: Not(IsEmpty())
 
 if six.PY2:
     class ResourceWarning(Warning):

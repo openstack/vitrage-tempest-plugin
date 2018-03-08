@@ -15,14 +15,17 @@
 import unittest
 
 from oslo_log import log as logging
+from testtools import matchers
 
 from vitrage.common.constants import TemplateStatus
 from vitrage.common.constants import TemplateTypes as TTypes
 from vitrage.utils import file
 from vitrage_tempest_plugin.tests.api.templates.base import BaseTemplateTest
+from vitrage_tempest_plugin.tests.base import IsNotEmpty
 from vitrage_tempest_plugin.tests.common import general_utils as g_utils
 from vitrage_tempest_plugin.tests.common.tempest_clients import TempestClients
 from vitrage_tempest_plugin.tests.common import vitrage_utils as v_utils
+
 import vitrage_tempest_plugin.tests.utils as utils
 
 LOG = logging.getLogger(__name__)
@@ -92,7 +95,7 @@ class TestValidate(BaseTemplateTest):
         """
         path = self.DEFAULT_PATH
         validation = self.vitrage_client.template.validate(path=path)
-        self.assertNotEqual(len(validation), 0)
+        self.assertThat(validation, IsNotEmpty())
         for item in validation['results']:
             self._run_template_validation(item, path)
 
@@ -119,7 +122,7 @@ class TestValidate(BaseTemplateTest):
         try:
             path = self.TEST_PATH + self.ERROR_FILE
             validation = self.vitrage_client.template.validate(path=path)
-            self.assertEqual(1, len(validation['results']))
+            self.assertThat(validation['results'], matchers.HasLength(1))
             self._run_template_validation(
                 validation['results'][0], path, negative=True)
         except Exception:
@@ -133,7 +136,7 @@ class TestValidate(BaseTemplateTest):
         try:
             path = self.TEST_PATH + self.OK_FILE
             validation = self.vitrage_client.template.validate(path=path)
-            self.assertEqual(1, len(validation['results']))
+            self.assertThat(validation['results'], matchers.HasLength(1))
             self._run_template_validation(
                 validation['results'][0], path)
         except Exception:
@@ -148,7 +151,7 @@ class TestValidate(BaseTemplateTest):
         (in /etc/vitrage/templates folder)
         """
         template_list = self.vitrage_client.template.list()
-        self.assertNotEqual(len(template_list), 0)
+        self.assertThat(template_list, IsNotEmpty())
         for item in template_list:
             api_template_show = self.vitrage_client.template.show(item['uuid'])
             cli_template_show = utils.run_vitrage_command(
@@ -257,8 +260,8 @@ class TemplatesDBTest(BaseTemplateTest):
                 "vitrage template list", self.conf)
             api_templates_list = self.client.template.list()
 
-            self.assertNotEqual(len(api_templates_list), 0,
-                                'The template list taken from api is empty')
+            self.assertThat(api_templates_list, IsNotEmpty(),
+                            'The template list taken from api is empty')
             self.assertIsNotNone(cli_templates_list,
                                  'The template list taken from cli is empty')
             self._validate_templates_list_length(api_templates_list,

@@ -17,6 +17,7 @@ from oslo_log import log as logging
 from vitrage.common.constants import VertexProperties as VProps
 from vitrage_tempest_plugin.tests.api.rca.base import BaseRcaTest
 from vitrage_tempest_plugin.tests.api.rca.base import RCA_ALARM_NAME
+from vitrage_tempest_plugin.tests.base import IsNotEmpty
 from vitrage_tempest_plugin.tests.common import nova_utils
 from vitrage_tempest_plugin.tests.common.tempest_clients import TempestClients
 from vitrage_tempest_plugin.tests.common import vitrage_utils as v_utils
@@ -57,7 +58,8 @@ class TestRca(BaseRcaTest):
         try:
             instances = nova_utils.create_instances(num_instances=1,
                                                     set_public_network=True)
-            self.assertNotEqual(len(instances), 0, 'Failed to create instance')
+            self.assertThat(instances, IsNotEmpty(),
+                            'Failed to create instance')
 
             instance_alarm = self._create_alarm(
                 resource_id=instances[0].id,

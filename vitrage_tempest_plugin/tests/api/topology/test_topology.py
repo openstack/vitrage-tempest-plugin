@@ -17,6 +17,7 @@ from oslo_log import log as logging
 from vitrage.common.constants import VertexProperties as VProps
 from vitrage.datasources import OPENSTACK_CLUSTER
 from vitrage_tempest_plugin.tests.api.topology.base import BaseTopologyTest
+from vitrage_tempest_plugin.tests.base import IsEmpty
 import vitrage_tempest_plugin.tests.utils as utils
 from vitrageclient.exceptions import ClientException
 
@@ -382,12 +383,9 @@ class TestTopology(BaseTopologyTest):
                 query=self._graph_no_match_query(), all_tenants=True)
 
             # Test Assertions
-            self.assertEqual(
-                0,
-                len(api_graph['nodes']), 'num of vertex node')
-            self.assertEqual(
-                0,
-                len(api_graph['links']), 'num of edges')
+            self.assertThat(api_graph['nodes'],
+                            IsEmpty(), 'num of vertex node')
+            self.assertThat(api_graph['links'], IsEmpty(), 'num of edges')
         except Exception as e:
             self._handle_exception(e)
             raise

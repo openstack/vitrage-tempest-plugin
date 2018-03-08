@@ -14,9 +14,11 @@
 import json
 
 from oslo_log import log as logging
+from testtools import matchers
 
 from vitrage.common.exception import VitrageError
 from vitrage_tempest_plugin.tests.base import BaseVitrageTempest
+from vitrage_tempest_plugin.tests.base import IsNotEmpty
 from vitrage_tempest_plugin.tests.common import general_utils as g_utils
 from vitrage_tempest_plugin.tests.common import vitrage_utils
 from vitrage_tempest_plugin.tests import utils
@@ -51,8 +53,8 @@ class BaseTemplateTest(BaseVitrageTempest):
         super(BaseTemplateTest, cls).setUpClass()
 
     def _compare_template_lists(self, api_templates, cli_templates):
-        self.assertNotEqual(len(api_templates), 0,
-                            'The template list taken from api is empty')
+        self.assertThat(api_templates, IsNotEmpty(),
+                        'The template list taken from api is empty')
         self.assertIsNotNone(cli_templates,
                              'The template list taken from cli is empty')
 
@@ -67,8 +69,8 @@ class BaseTemplateTest(BaseVitrageTempest):
         self._validate_templates_existence_in_default_folder(api_templates)
 
     def _compare_template_validations(self, api_templates, cli_templates):
-        self.assertNotEqual(len(api_templates), 0,
-                            'The template validations taken from api is empty')
+        self.assertThat(api_templates, IsNotEmpty(),
+                        'The template validations taken from api is empty')
         self.assertIsNotNone(
             cli_templates, 'The template validations taken from cli is empty')
 
@@ -91,7 +93,8 @@ class BaseTemplateTest(BaseVitrageTempest):
             api_templates,
             **{'status details': self.OK_MSG})
         cli_passes_templates = cli_templates.count(' ' + self.OK_MSG + ' ')
-        self.assertEqual(cli_passes_templates, len(api_passes_templates))
+        self.assertThat(api_passes_templates,
+                        matchers.HasLength(cli_passes_templates))
 
     def _compare_each_template_in_list(self, api_templates, cli_templates):
         counter = 0
@@ -102,7 +105,7 @@ class BaseTemplateTest(BaseVitrageTempest):
                 if name_start > 0 and status_start > 0:
                     counter += 1
                     break
-        self.assertEqual(counter, len(api_templates))
+        self.assertThat(api_templates, matchers.HasLength(counter))
 
     def _validate_templates_existence_in_default_folder(self, templates_list):
         counter = 0
@@ -111,12 +114,12 @@ class BaseTemplateTest(BaseVitrageTempest):
             name_start = text_out.count(' ' + item['name'] + ' ')
             if name_start > -1:
                 counter += 1
-        self.assertEqual(counter, len(templates_list))
+        self.assertThat(templates_list, matchers.HasLength(counter))
 
     def _run_default_template_validation(
             self, template, validation, path):
-        self.assertNotEqual(len(validation), 0,
-                            'The template validation is empty')
+        self.assertThat(validation, IsNotEmpty(),
+                        'The template validation is empty')
         self.assertEqual(path, validation['file path'])
         self.assertEqual(0, validation['status code'])
         self.assertEqual(self.OK_STATUS, validation['status'])
@@ -138,8 +141,8 @@ class BaseTemplateTest(BaseVitrageTempest):
         self.assertEqual(self.OK_MSG, validation['message'])
 
     def _compare_template_show(self, api_templates, cli_templates):
-        self.assertNotEqual(len(api_templates), 0,
-                            'The template validations taken from api is empty')
+        self.assertThat(api_templates, IsNotEmpty(),
+                        'The template validations taken from api is empty')
         self.assertIsNotNone(
             cli_templates, 'The template validations taken from cli is empty')
 
@@ -163,14 +166,13 @@ class BaseTemplateTest(BaseVitrageTempest):
         relationships = template_content.count('relationship:')
         scenarios = template_content.count('scenario:')
 
-        self.assertIn(
-            template_show['metadata']['name'], template_content)
-        self.assertEqual(
-            entities, len(template_show['definitions']['entities']))
-        self.assertEqual(
-            relationships, len(template_show['definitions']['relationships']))
-        self.assertEqual(
-            scenarios, len(template_show['scenarios']))
+        self.assertIn(template_show['metadata']['name'], template_content)
+        self.assertThat(template_show['definitions']['entities'],
+                        matchers.HasLength(entities))
+        self.assertThat(template_show['definitions']['relationships'],
+                        matchers.HasLength(relationships))
+        self.assertThat(template_show['scenarios'],
+                        matchers.HasLength(scenarios))
 
     def _rollback_to_default(self, templates):
         try:

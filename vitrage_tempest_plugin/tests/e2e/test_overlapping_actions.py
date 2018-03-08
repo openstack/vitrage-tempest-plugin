@@ -20,6 +20,7 @@ from vitrage.common.constants import VertexProperties as VProps
 from vitrage.datasources.doctor import DOCTOR_DATASOURCE
 from vitrage.evaluator.actions.evaluator_event_transformer import \
     VITRAGE_DATASOURCE
+from vitrage_tempest_plugin.tests.base import IsEmpty
 from vitrage_tempest_plugin.tests.common import general_utils as g_utils
 from vitrage_tempest_plugin.tests.common.tempest_clients import TempestClients
 from vitrage_tempest_plugin.tests.common import vitrage_utils as v_utils
@@ -231,17 +232,17 @@ class TestOverlappingActions(TestActionsBase):
             alarms = TempestClients.vitrage().alarm.list(
                 vitrage_id=self.orig_host.get(VProps.VITRAGE_ID),
                 all_tenants=True)
-            self.assertEqual(
-                0,
-                len(g_utils.all_matches(alarms, **TRIGGER_ALARM_1_PROPS)),
+            self.assertThat(
+                g_utils.all_matches(alarms, **TRIGGER_ALARM_1_PROPS),
+                IsEmpty(),
                 'trigger alarm 1 should have been removed')
-            self.assertEqual(
-                0,
-                len(g_utils.all_matches(alarms, **TRIGGER_ALARM_2_PROPS)),
+            self.assertThat(
+                g_utils.all_matches(alarms, **TRIGGER_ALARM_2_PROPS),
+                IsEmpty(),
                 'trigger alarm 2 should have been removed')
-            self.assertEqual(
-                0,
-                len(g_utils.all_matches(alarms, **DEDUCED_PROPS)),
+            self.assertThat(
+                g_utils.all_matches(alarms, **DEDUCED_PROPS),
+                IsEmpty(),
                 'deduced alarm should have been removed')
 
         except Exception as e:

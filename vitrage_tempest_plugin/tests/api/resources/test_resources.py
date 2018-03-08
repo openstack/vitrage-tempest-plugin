@@ -15,13 +15,15 @@
 import json
 
 from oslo_log import log as logging
-
+from testtools import matchers
 import unittest
 
 from vitrage.common.constants import VertexProperties as VProps
 from vitrage.datasources import CINDER_VOLUME_DATASOURCE
 from vitrage.datasources import NOVA_INSTANCE_DATASOURCE
 from vitrage_tempest_plugin.tests.base import BaseVitrageTempest
+from vitrage_tempest_plugin.tests.base import IsEmpty
+from vitrage_tempest_plugin.tests.base import IsNotEmpty
 from vitrage_tempest_plugin.tests.common import nova_utils
 from vitrage_tempest_plugin.tests import utils
 from vitrageclient.exceptions import ClientException
@@ -54,8 +56,8 @@ class TestResource(BaseVitrageTempest):
         try:
             instances = nova_utils.create_instances(num_instances=1,
                                                     set_public_network=True)
-            self.assertNotEqual(len(instances), 0,
-                                'The instances list is empty')
+            self.assertThat(instances, IsNotEmpty(),
+                            'The instances list is empty')
             api_resources = self.vitrage_client.resource.list(
                 all_tenants=True)
 
@@ -80,10 +82,10 @@ class TestResource(BaseVitrageTempest):
         try:
             instances = nova_utils.create_instances(num_instances=1,
                                                     set_public_network=True)
-            self.assertNotEqual(len(instances), 0,
-                                'The instances list is empty')
+            self.assertThat(instances, IsNotEmpty(),
+                            'The instances list is empty')
             resources = self.vitrage_client.resource.list(all_tenants=False)
-            self.assertEqual(3, len(resources))
+            self.assertThat(resources, matchers.HasLength(3))
         except Exception as e:
             self._handle_exception(e)
             raise
@@ -102,8 +104,8 @@ class TestResource(BaseVitrageTempest):
                 all_tenants=True)
             instances = nova_utils.create_instances(num_instances=1,
                                                     set_public_network=True)
-            self.assertNotEqual(len(instances), 0,
-                                'The instances list is empty')
+            self.assertThat(instances, IsNotEmpty(),
+                            'The instances list is empty')
             resources = self.vitrage_client.resource.list(all_tenants=True)
 
             self.assertEqual(len(resources_before) + 2, len(resources))
@@ -122,12 +124,12 @@ class TestResource(BaseVitrageTempest):
         try:
             instances = nova_utils.create_instances(num_instances=1,
                                                     set_public_network=True)
-            self.assertNotEqual(len(instances), 0,
-                                'The instances list is empty')
+            self.assertThat(instances, IsNotEmpty(),
+                            'The instances list is empty')
             resources = self.vitrage_client.resource.list(
                 resource_type=NOVA_INSTANCE_DATASOURCE,
                 all_tenants=True)
-            self.assertEqual(1, len(resources))
+            self.assertThat(resources, matchers.HasLength(1))
         except Exception as e:
             self._handle_exception(e)
             raise
@@ -140,12 +142,12 @@ class TestResource(BaseVitrageTempest):
         try:
             instances = nova_utils.create_instances(num_instances=1,
                                                     set_public_network=True)
-            self.assertNotEqual(len(instances), 0,
-                                'The instances list is empty')
+            self.assertThat(instances, IsNotEmpty(),
+                            'The instances list is empty')
             resources = self.vitrage_client.resource.list(
                 resource_type=CINDER_VOLUME_DATASOURCE,
                 all_tenants=True)
-            self.assertEqual(0, len(resources))
+            self.assertThat(resources, IsEmpty())
         except Exception as e:
             self._handle_exception(e)
             raise
@@ -156,7 +158,7 @@ class TestResource(BaseVitrageTempest):
     def test_compare_resource_show(self):
         """resource_show test"""
         resource_list = self.vitrage_client.resource.list(all_tenants=False)
-        self.assertNotEqual(len(resource_list), 0)
+        self.self.assertThat(resource_list, IsNotEmpty())
         for resource in resource_list:
             api_resource_show = \
                 self.vitrage_client.resource.get(resource[VProps.VITRAGE_ID])
@@ -181,10 +183,10 @@ class TestResource(BaseVitrageTempest):
             nova_utils.delete_all_instances()
 
     def _compare_resources(self, api_resources, cli_resources):
-        self.assertNotEqual(len(api_resources), 0,
-                            'The resources taken from rest api is empty')
-        self.assertNotEqual(len(cli_resources), 0,
-                            'The resources taken from terminal is empty')
+        self.assertThat(api_resources, IsNotEmpty(),
+                        'The resources taken from rest api is empty')
+        self.assertThat(cli_resources, IsNotEmpty(),
+                        'The resources taken from rest api is empty')
 
         sorted_cli_resources = sorted(
             json.loads(cli_resources),
