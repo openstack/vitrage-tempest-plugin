@@ -111,6 +111,40 @@ class TestTopology(BaseTopologyTest):
             self._rollback_to_default()
 
     @utils.tempest_logger
+    def test_default_graph_for_tenant(self):
+        """default_graph
+
+        This test validate correctness of default topology graph when queried
+        by another tenant.
+        """
+        try:
+            # Action - create entities as the default tenant
+            self._create_entities(num_instances=self.NUM_INSTANCE,
+                                  num_volumes=self.NUM_VOLUME)
+
+            # Calculate expected results for another tenant - the other tenant
+            # should not see instances and volumes of the default tenant.
+            # All it can see is its private network.
+            tenant_client = self.vitrage_client_for_demo_user
+            api_graph = tenant_client.topology.get(all_tenants=False)
+            graph = self._create_graph_from_graph_dictionary(api_graph)
+
+            entities = self._entities_validation_data(
+                cluster_entities=0, cluster_edges=0, zone_entities=0,
+                zone_edges=0, host_entities=0, host_edges=0,
+                instance_entities=0, instance_edges=0, volume_entities=0,
+                volume_edges=0)
+            num_entities = self.num_demo_tenant_networks
+
+            # Test Assertions
+            self._validate_graph_correctness(graph, num_entities, 0, entities)
+        except Exception as e:
+            self._handle_exception(e)
+            raise
+        finally:
+            self._rollback_to_default()
+
+    @utils.tempest_logger
     def test_graph_with_query(self):
         """graph_with_query
 
@@ -140,6 +174,38 @@ class TestTopology(BaseTopologyTest):
                                              num_entities,
                                              num_edges,
                                              entities)
+        except Exception as e:
+            self._handle_exception(e)
+            raise
+        finally:
+            self._rollback_to_default()
+
+    @utils.tempest_logger
+    def test_graph_with_query_for_tenant(self):
+        """graph_with_query
+
+        This test validate correctness of topology graph
+        with query, when queried by another tenant.
+        """
+        try:
+            # Action - create entities as the default tenant
+            self._create_entities(num_instances=self.NUM_INSTANCE,
+                                  num_volumes=self.NUM_VOLUME)
+
+            # Calculate expected results - the other tenant should not see
+            # instances and volumes of the default tenant
+            tenant_client = self.vitrage_client_for_demo_user
+            api_graph = tenant_client.topology.get(query=self._graph_query())
+            graph = self._create_graph_from_graph_dictionary(api_graph)
+
+            entities = self._entities_validation_data(
+                cluster_entities=0, cluster_edges=0, zone_entities=0,
+                zone_edges=0, host_entities=0, host_edges=0,
+                instance_entities=0, instance_edges=0, volume_entities=0,
+                volume_edges=0)
+
+            # Test Assertions
+            self._validate_graph_correctness(graph, 0, 0, entities)
         except Exception as e:
             self._handle_exception(e)
             raise
