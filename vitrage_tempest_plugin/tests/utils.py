@@ -36,7 +36,12 @@ def get_from_terminal(command):
 
 def run_vitrage_command(command, conf):
     # AUTH_URL
-    local_ip = socket.gethostbyname(socket.gethostname())
+    local_ip = '127.0.0.1'
+    try:
+        local_ip = socket.gethostbyname(socket.gethostname())
+    except socket.error:
+        LOG.info("didn't get local ip using default hostname=%s",
+                 socket.gethostname())
     auth_url = get_property_value('OS_AUTH_URL', 'auth_url',
                                   'http://%s:5000/v2.0' % local_ip, conf)
     auth_url_param = '--os-auth-url ' + auth_url
