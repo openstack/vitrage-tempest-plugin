@@ -59,6 +59,10 @@ class BaseVitrageTempest(base.BaseTestCase):
 
     NUM_VERTICES_PER_TYPE = 'num_vertices'
     NUM_EDGES_PER_TYPE = 'num_edges_per_type'
+    DEMO_USERNAME = 'demo'
+    DEMO_USER_DOMAIN_ID = 'default'
+    DEMO_PROJECT_NAME = 'demo'
+    DEMO_PROJECT_DOMAIN_ID = 'default'
 
     def assert_list_equal(self, l1, l2):
         if tuple(sys.version_info)[0:2] < (2, 7):
@@ -121,12 +125,17 @@ class BaseVitrageTempest(base.BaseTestCase):
         cls.conf = service.prepare_service([])
         TempestClients.class_init(cls.conf)
         cls.vitrage_client = TempestClients.vitrage()
+        cls.vitrage_client_for_demo_user = \
+            TempestClients.vitrage_client_for_user(
+                cls.DEMO_USERNAME, cls.DEMO_USER_DOMAIN_ID,
+                cls.DEMO_PROJECT_NAME, cls.DEMO_PROJECT_DOMAIN_ID)
 
         cls.num_default_networks = \
             len(TempestClients.neutron().list_networks()['networks'])
         cls.num_default_ports = 0
         cls.num_default_entities = 3
         cls.num_default_edges = 2
+        cls.num_demo_tenant_networks = cls._calc_num_demo_tenant_networks()
 
     def _create_graph_from_graph_dictionary(self, api_graph):
         self.assertIsNotNone(api_graph)
@@ -302,3 +311,20 @@ class BaseVitrageTempest(base.BaseTestCase):
         traceback.print_exc()
         LOG.exception(exception)
         self._print_entity_graph()
+
+    @classmethod
+    def _calc_num_demo_tenant_networks(cls):
+        neutron_client = TempestClients.neutron_client_for_user(
+            cls.DEMO_USERNAME, cls.DEMO_USER_DOMAIN_ID,
+            cls.DEMO_PROJECT_NAME, cls.DEMO_PROJECT_DOMAIN_ID)
+        tenant_networks = neutron_client.list_networks(
+            tenant_id=cls._get_demo_tenant_id())['networks']
+        return len(tenant_networks)
+
+    @classmethod
+    def _get_demo_tenant_id(cls):
+        projects = TempestClients.keystone().projects.list()
+        for project in projects:
+            if cls.DEMO_PROJECT_NAME == project.name:
+                return project.id
+        return None

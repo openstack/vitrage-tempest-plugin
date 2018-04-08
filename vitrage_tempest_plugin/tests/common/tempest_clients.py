@@ -12,8 +12,12 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from keystoneauth1 import loading as ka_loading
+from keystoneauth1 import session as ka_session
+from neutronclient.v2_0 import client as neutron_client
 from vitrage import keystone_client
 from vitrage import os_clients
+from vitrage_tempest_plugin.tests.utils import get_property_value
 from vitrageclient import client as vc
 
 
@@ -30,6 +34,7 @@ class TempestClients(object):
         cls._heat = None
         cls._mistral = None
         cls._aodh = None
+        cls._keystone = None
 
     @classmethod
     def vitrage(cls):
@@ -41,6 +46,24 @@ class TempestClients(object):
             cls._vitrage = vc.Client(
                 '1', session=keystone_client.get_session(cls._conf))
         return cls._vitrage
+
+    @classmethod
+    def vitrage_client_for_user(cls, username, user_domain_id,
+                                project_name, project_domain_id):
+        """vitrage client for a specific user and tenant
+
+        :rtype: vitrageclient.v1.client.Client
+        """
+        session = cls._get_session_for_user(
+            username, user_domain_id, project_name, project_domain_id)
+        return vc.Client('1', session=session)
+
+    @classmethod
+    def neutron_client_for_user(cls, username, user_domain_id,
+                                project_name, project_domain_id):
+        session = cls._get_session_for_user(
+            username, user_domain_id, project_name, project_domain_id)
+        return neutron_client.Client(session=session)
 
     @classmethod
     def ceilometer(cls):
@@ -121,3 +144,26 @@ class TempestClients(object):
         if not cls._aodh:
             cls._aodh = os_clients.aodh_client(cls._conf)
         return cls._aodh
+
+    @classmethod
+    def keystone(cls):
+        """keystone client
+
+        :rtype: keystoneclient.v3.client.Client
+        """
+        if not cls._keystone:
+            cls._keystone = keystone_client.get_client(cls._conf)
+        return cls._keystone
+
+    @classmethod
+    def _get_session_for_user(cls, username, user_domain_id,
+                              project_name, project_domain_id):
+        password = get_property_value(
+            'OS_PASSWORD', 'password', 'password', cls._conf)
+        loader = ka_loading.get_plugin_loader('password')
+        auth_plugin = loader.load_from_options(
+            auth_url=cls._conf.service_credentials.auth_url,
+            username=username, password=password, project_name=project_name,
+            project_domain_id=project_domain_id,
+            user_domain_id=user_domain_id)
+        return ka_session.Session(auth=auth_plugin)
