@@ -12,7 +12,7 @@ parameters:
     default: public
   flavor:
     type: string
-    default: m1.small
+    default: m1.nano
 
 resources:
   server_2:

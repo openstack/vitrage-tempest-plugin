@@ -56,7 +56,7 @@ def delete_all_instances(**kwargs):
 
 
 def get_first_flavor():
-    return TempestClients.nova().flavors.list()[0]
+    return TempestClients.nova().flavors.list(sort_key='memory_mb')[0]
 
 
 def _check_num_instances(num_instances=0, state=''):
