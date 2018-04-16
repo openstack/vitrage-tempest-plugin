@@ -29,13 +29,16 @@ def create_volume_and_attach(name, size, instance_id, mount_point):
 
 
 def delete_all_volumes():
-    volumes = TempestClients.cinder().volumes.list()
+    cinder = TempestClients.cinder()
+    volumes = cinder.volumes.list()
     for volume in volumes:
         try:
-            TempestClients.cinder().volumes.detach(volume)
-            TempestClients.cinder().volumes.force_delete(volume)
+            cinder.volumes.detach(volume)
+            cinder.volumes.force_delete(volume)
         except Exception:
-            TempestClients.cinder().volumes.force_delete(volume)
+            cinder.volumes.reset_state(volume, state='available',
+                                       attach_status='detached')
+            cinder.volumes.force_delete(volume)
     wait_for_status(30, _check_num_volumes, num_volumes=0)
     time.sleep(2)
 
