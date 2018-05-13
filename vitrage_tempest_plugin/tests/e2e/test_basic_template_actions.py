@@ -171,6 +171,7 @@ class TestTemplateActions(TestActionsBase):
         This checks that the evaluators are reloaded for both templates
          and run on all existing vertices.
         """
+        second_template = None
         try:
             host_id = self.orig_host.get(VProps.VITRAGE_ID)
             self._trigger_do_action(TRIGGER_ALARM_1)
@@ -187,3 +188,5 @@ class TestTemplateActions(TestActionsBase):
         finally:
             if second_template:
                 v_util.delete_template(second_template['uuid'])
+            self._trigger_undo_action(TRIGGER_ALARM_1)
+            self._trigger_undo_action(TRIGGER_ALARM_2)
