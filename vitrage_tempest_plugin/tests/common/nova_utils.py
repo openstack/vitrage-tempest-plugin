@@ -13,11 +13,15 @@
 # under the License.
 import time
 
+from oslo_log import log as logging
+
 from vitrage_tempest_plugin.tests.common import general_utils as g_utils
 from vitrage_tempest_plugin.tests.common import glance_utils
 from vitrage_tempest_plugin.tests.common import neutron_utils
 from vitrage_tempest_plugin.tests.common.tempest_clients import TempestClients
 from vitrage_tempest_plugin.tests.utils import wait_for_status
+
+LOG = logging.getLogger(__name__)
 
 
 def create_instances(num_instances=1, set_public_network=False, name='vm'):
@@ -29,15 +33,30 @@ def create_instances(num_instances=1, set_public_network=False, name='vm'):
         if public_net:
             nics = [{'net-id': public_net['id']}]
 
+    for i in range(3):
+        success, resources = _create_instances(flavor, image, name, nics,
+                                               num_instances)
+        time.sleep(2)
+        if success:
+            return resources
+        if not success:
+            LOG.warning("create instance failed, delete and retry %s",
+                        str(resources))
+            for r in resources:
+                delete_all_instances(id=r.id)
+            time.sleep(10)
+    raise AssertionError("Unable to create vms, retries failed")
+
+
+def _create_instances(flavor, image, name, nics, num_instances):
     resources = [TempestClients.nova().servers.create(
         name='%s-%s' % (name, index),
         flavor=flavor,
         image=image,
         nics=nics) for index in range(num_instances)]
-    wait_for_status(30, _check_num_instances, num_instances=num_instances,
-                    state='active')
-    time.sleep(2)
-    return resources
+    success = wait_for_status(
+        30, check_new_instances, ids=[instance.id for instance in resources])
+    return success, resources
 
 
 def delete_all_instances(**kwargs):
@@ -50,8 +69,8 @@ def delete_all_instances(**kwargs):
             pass
     wait_for_status(
         30,
-        _check_num_instances,
-        num_instances=len(instances) - len(instances_to_delete))
+        check_deleted_instances,
+        ids=[instance.id for instance in instances_to_delete])
     time.sleep(2)
 
 
@@ -59,9 +78,22 @@ def get_first_flavor():
     return TempestClients.nova().flavors.list(sort_key='memory_mb')[0]
 
 
-def _check_num_instances(num_instances=0, state=''):
-    if len(TempestClients.nova().servers.list()) != num_instances:
-        return False
+def check_deleted_instances(ids):
+    servers = TempestClients.nova().servers.list()
+    for s in servers:
+        if s.id in ids:
+            return False
+    return True
 
-    return all(instance.__dict__['status'].upper() == state.upper()
-               for instance in TempestClients.nova().servers.list())
+
+def check_new_instances(ids):
+    servers = TempestClients.nova().servers.list()
+    for _id in ids:
+        ok = False
+        for s in servers:
+            if _id == s.id and s.status.lower() == 'active':
+                ok = True
+                break
+        if not ok:
+            return False
+    return True
