@@ -21,6 +21,10 @@ definitions:
      template_id: trigger_alarm_4
   - entity:
      category: ALARM
+     name: e2e.test_basic_actions.trigger.alarm5
+     template_id: trigger_alarm_5
+  - entity:
+     category: ALARM
      type: vitrage
      name: e2e.test_basic_actions.deduced.alarm
      template_id: deduced_alarm
@@ -53,6 +57,11 @@ definitions:
      relationship_type: on
      target: host
      template_id : trigger_alarm_4_on_host
+  - relationship:
+     source: trigger_alarm_5
+     relationship_type: on
+     target: host
+     template_id : trigger_alarm_5_on_host
   - relationship:
      source: deduced_alarm
      relationship_type: on
@@ -107,6 +116,9 @@ scenarios:
             target: instance
          properties:
             state: ERROR
+ - scenario:
+    condition: trigger_alarm_5_on_host and host_contains_instance
+    actions:
      - action:
         action_type: mark_down
         action_target:

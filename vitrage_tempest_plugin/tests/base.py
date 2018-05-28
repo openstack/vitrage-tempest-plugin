@@ -39,6 +39,8 @@ from vitrage.graph.driver.networkx_graph import NXGraph
 from vitrage.graph import Edge
 from vitrage.graph import Vertex
 from vitrage import service
+
+from vitrage_tempest_plugin.tests.common import general_utils
 from vitrage_tempest_plugin.tests.common.tempest_clients import TempestClients
 from vitrage_tempest_plugin.tests import utils
 
@@ -132,10 +134,16 @@ class BaseVitrageTempest(base.BaseTestCase):
 
         cls.num_default_networks = \
             len(TempestClients.neutron().list_networks()['networks'])
-        cls.num_default_ports = 0
+        cls.num_default_ports = cls._get_num_default_ports()
         cls.num_default_entities = 3
         cls.num_default_edges = 2
         cls.num_demo_tenant_networks = cls._calc_num_demo_tenant_networks()
+
+    @classmethod
+    def _get_num_default_ports(cls):
+        ports = TempestClients.neutron().list_ports()['ports']
+        return len(general_utils.all_matches(
+            ports, device_owner='compute:nova'))
 
     def _create_graph_from_graph_dictionary(self, api_graph):
         self.assertIsNotNone(api_graph)

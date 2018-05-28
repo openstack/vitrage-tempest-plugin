@@ -33,6 +33,7 @@ TRIGGER_ALARM_1 = 'e2e.test_basic_actions.trigger.alarm1'
 TRIGGER_ALARM_2 = 'e2e.test_basic_actions.trigger.alarm2'
 TRIGGER_ALARM_3 = 'e2e.test_basic_actions.trigger.alarm3'
 TRIGGER_ALARM_4 = 'e2e.test_basic_actions.trigger.alarm4'
+TRIGGER_ALARM_5 = 'e2e.test_basic_actions.trigger.alarm5'
 DEDUCED = 'e2e.test_basic_actions.deduced.alarm'
 
 TRIGGER_ALARM_2_PROPS = {
@@ -150,12 +151,12 @@ class TestBasicActions(TestActionsBase):
         try:
             vm_id = nova_utils.create_instances(set_public_network=True)[0].id
             # Do
-            self._trigger_do_action(TRIGGER_ALARM_3)
+            self._trigger_do_action(TRIGGER_ALARM_5)
             nova_instance = TempestClients.nova().servers.get(vm_id)
             self.assertEqual("ERROR", str(nova_instance.status))
 
             # Undo
-            self._trigger_undo_action(TRIGGER_ALARM_3)
+            self._trigger_undo_action(TRIGGER_ALARM_5)
             nova_instance = TempestClients.nova().servers.get(vm_id)
             self.assertEqual("ACTIVE", str(nova_instance.status))
         except Exception as e:
@@ -163,7 +164,7 @@ class TestBasicActions(TestActionsBase):
             raise
         finally:
             pass
-            self._trigger_undo_action(TRIGGER_ALARM_3)
+            self._trigger_undo_action(TRIGGER_ALARM_5)
             nova_utils.delete_all_instances(id=vm_id)
 
     @utils.tempest_logger
