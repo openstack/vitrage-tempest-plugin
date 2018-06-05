@@ -12,6 +12,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 from datetime import datetime
+import os
+
 from oslo_log import log as logging
 
 from vitrage.common.constants import TemplateStatus
@@ -67,7 +69,7 @@ def add_template(filename='',
     t = TempestClients.vitrage().template.add(full_path, template_type)
     if t and t[0]:
         wait_for_status(
-            10,
+            100,
             get_first_template,
             uuid=t[0]['uuid'], status=TemplateStatus.ACTIVE)
         return t[0]
@@ -79,9 +81,19 @@ def get_first_template(**kwargs):
     return g_utils.first_match(templates, **kwargs)
 
 
-def delete_template(uuid):
+def delete_template(uuid=None, **kwargs):
+    if not uuid:
+        template = get_first_template(**kwargs)
+        if template:
+            uuid = template['uuid']
+        else:
+            return
     TempestClients.vitrage().template.delete(uuid)
     wait_for_status(
-        10,
+        100,
         lambda _id: True if not get_first_template(uuid=_id) else False,
         _id=uuid)
+
+
+def restart_graph():
+    os.system("sudo service devstack@vitrage-graph restart")

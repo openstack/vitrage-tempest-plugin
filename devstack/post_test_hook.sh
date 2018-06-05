@@ -20,6 +20,8 @@ if [ "$1" = "api" ]; then
   TESTS="topology|test_rca|test_alarms|test_resources|test_template|test_webhook"
 elif [ "$1" = "datasources" ]; then
   TESTS="datasources|test_events|notifiers|e2e|database"
+elif [ "$1" = "mock" ]; then
+  TESTS="mock_datasource"
 else
   TESTS="topology"
 fi

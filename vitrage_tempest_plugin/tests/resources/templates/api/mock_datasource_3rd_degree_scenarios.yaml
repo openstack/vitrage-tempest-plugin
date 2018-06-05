@@ -1,0 +1,88 @@
+metadata:
+ name: mock_datasource_3rd_degree_scenarios.yaml
+ description: Raise a deduced alarm per instance on host, then per each deduced raise another deduced, then add causal relationship between the two
+ version: 2
+ type: standard
+definitions:
+ entities:
+  - entity:
+     category: ALARM
+     type: vitrage
+     name: mock_datasource.3rd_degree_scenarios.deduced.alarm1
+     template_id: deduced_alarm
+  - entity:
+     category: ALARM
+     type: vitrage
+     name: mock_datasource.3rd_degree_scenarios.deduced.alarm2
+     template_id: second_iteration_deduced_alarm
+  - entity:
+     category: ALARM
+     type: zabbix
+     template_id: zabbix_alarm
+  - entity:
+     category: RESOURCE
+     type: nova.host
+     name: nova.host-0-nova.zone-0-openstack.cluster-0
+     template_id: host
+  - entity:
+     category: RESOURCE
+     type: nova.instance
+     template_id: instance
+ relationships:
+  - relationship:
+     source: deduced_alarm
+     relationship_type: on
+     target: instance
+     template_id : deduced_alarm_on_instance
+  - relationship:
+     source: second_iteration_deduced_alarm
+     relationship_type: on
+     target: instance
+     template_id : second_iteration_deduced_alarm_on_instance
+  - relationship:
+     source: host
+     target: instance
+     relationship_type: contains
+     template_id: host_contains_instance
+  - relationship:
+     source: zabbix_alarm
+     relationship_type: on
+     target: host
+     template_id : zabbix_alarm_on_host
+scenarios:
+ - scenario:
+    condition: host_contains_instance
+    actions:
+     - action:
+        action_type: raise_alarm
+        action_target:
+         target: instance
+        properties:
+         alarm_name: mock_datasource.3rd_degree_scenarios.deduced.alarm1
+         severity: SEVERE
+ - scenario:
+    condition: host_contains_instance and deduced_alarm_on_instance
+    actions:
+     - action:
+        action_type: raise_alarm
+        action_target:
+         target: instance
+        properties:
+         alarm_name: mock_datasource.3rd_degree_scenarios.deduced.alarm2
+         severity: CRITICAL
+ - scenario:
+    condition: host_contains_instance and deduced_alarm_on_instance and second_iteration_deduced_alarm_on_instance
+    actions:
+     - action:
+        action_type: add_causal_relationship
+        action_target:
+         source: deduced_alarm
+         target: second_iteration_deduced_alarm
+ - scenario:
+    condition: zabbix_alarm_on_host and host_contains_instance and deduced_alarm_on_instance and second_iteration_deduced_alarm_on_instance
+    actions:
+     - action:
+        action_type: add_causal_relationship
+        action_target:
+         source: second_iteration_deduced_alarm
+         target: zabbix_alarm
