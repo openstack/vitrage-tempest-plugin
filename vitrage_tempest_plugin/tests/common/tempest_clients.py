@@ -35,6 +35,7 @@ class TempestClients(object):
         cls._mistral = None
         cls._aodh = None
         cls._keystone = None
+        cls._gnocchi = None
 
     @classmethod
     def vitrage(cls):
@@ -154,6 +155,16 @@ class TempestClients(object):
         if not cls._keystone:
             cls._keystone = keystone_client.get_client(cls._conf)
         return cls._keystone
+
+    @classmethod
+    def gnocchi(cls):
+        """gnocchi client
+
+        :rtype: gnocchiclient.v1.client.Client
+        """
+        if not cls._gnocchi:
+            cls._gnocchi = os_clients.gnocchi_client(cls._conf)
+        return cls._gnocchi
 
     @classmethod
     def _get_session_for_user(cls, username, user_domain_id,
