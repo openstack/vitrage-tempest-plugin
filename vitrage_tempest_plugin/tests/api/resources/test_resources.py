@@ -211,9 +211,12 @@ class TestResource(BaseVitrageTempest):
             self.assertEqual(
                 cli_resource.get("Data Source ID").lower(),
                 api_resource.get(VProps.ID).lower())
-            self.assertEqual(
-                cli_resource.get("State").lower(),
-                api_resource.get(VProps.VITRAGE_OPERATIONAL_STATE).lower())
+
+            # Don't compare the state for Neutron ports. See bug #1776921
+            if 'neutron.port' != cli_resource.get("Type").lower():
+                self.assertEqual(
+                    cli_resource.get("State").lower(),
+                    api_resource.get(VProps.VITRAGE_OPERATIONAL_STATE).lower())
 
     def _compare_resource_show(self, api_resource_show,
                                cli_resource_show):
