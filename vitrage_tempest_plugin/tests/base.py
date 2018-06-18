@@ -61,10 +61,12 @@ class BaseVitrageTempest(base.BaseTestCase):
 
     NUM_VERTICES_PER_TYPE = 'num_vertices'
     NUM_EDGES_PER_TYPE = 'num_edges_per_type'
+    USER_DOMAIN_ID = 'default'
+    PROJECT_DOMAIN_ID = 'default'
     DEMO_USERNAME = 'demo'
-    DEMO_USER_DOMAIN_ID = 'default'
     DEMO_PROJECT_NAME = 'demo'
-    DEMO_PROJECT_DOMAIN_ID = 'default'
+    ADMIN_USERNAME = 'admin'
+    ADMIN_PROJECT_NAME = 'admin'
 
     def assert_list_equal(self, l1, l2):
         if tuple(sys.version_info)[0:2] < (2, 7):
@@ -129,8 +131,8 @@ class BaseVitrageTempest(base.BaseTestCase):
         cls.vitrage_client = TempestClients.vitrage()
         cls.vitrage_client_for_demo_user = \
             TempestClients.vitrage_client_for_user(
-                cls.DEMO_USERNAME, cls.DEMO_USER_DOMAIN_ID,
-                cls.DEMO_PROJECT_NAME, cls.DEMO_PROJECT_DOMAIN_ID)
+                cls.DEMO_USERNAME, cls.USER_DOMAIN_ID,
+                cls.DEMO_PROJECT_NAME, cls.PROJECT_DOMAIN_ID)
 
         cls.num_default_networks = \
             len(TempestClients.neutron().list_networks()['networks'])
@@ -322,9 +324,14 @@ class BaseVitrageTempest(base.BaseTestCase):
 
     @classmethod
     def _calc_num_demo_tenant_networks(cls):
+        return cls._calc_num_tenant_networks(
+            cls.DEMO_USERNAME, cls.DEMO_PROJECT_NAME)
+
+    @classmethod
+    def _calc_num_tenant_networks(cls, username, project_name):
         neutron_client = TempestClients.neutron_client_for_user(
-            cls.DEMO_USERNAME, cls.DEMO_USER_DOMAIN_ID,
-            cls.DEMO_PROJECT_NAME, cls.DEMO_PROJECT_DOMAIN_ID)
+            username, cls.USER_DOMAIN_ID,
+            project_name, cls.PROJECT_DOMAIN_ID)
         tenant_networks = neutron_client.list_networks(
             tenant_id=cls._get_demo_tenant_id())['networks']
         return len(tenant_networks)

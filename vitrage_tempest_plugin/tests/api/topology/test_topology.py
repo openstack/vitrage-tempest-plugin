@@ -73,42 +73,30 @@ class TestTopology(BaseTopologyTest):
         self._compare_graphs(api_graph, cli_graph)
 
     @utils.tempest_logger
+    def test_default_graph_all_tenants(self):
+        """default_graph
+
+        This test validate correctness of default topology graph, using the
+        --all-tenants option.
+        """
+        self._do_test_default_graph(
+            num_default_networks=self.num_default_networks, all_tenants=True)
+
+    @utils.tempest_logger
     def test_default_graph(self):
         """default_graph
 
-        This test validate correctness of default topology graph
+        This test validate correctness of default topology graph, not using the
+        --all-tenants option. Since the tenant of all entities in the graph is
+        either admin or None, this test is expected to be identical to the one
+        with --all-tenants
         """
-        try:
-            # Action
-            self._create_entities(num_instances=self.NUM_INSTANCE,
-                                  num_volumes=self.NUM_VOLUME)
+        num_admin_networks = \
+            self._calc_num_tenant_networks(self.ADMIN_USERNAME,
+                                           self.ADMIN_PROJECT_NAME)
 
-            # Calculate expected results
-            api_graph = self.vitrage_client.topology.get(all_tenants=True)
-            graph = self._create_graph_from_graph_dictionary(api_graph)
-            entities = self._entities_validation_data(
-                host_entities=1,
-                host_edges=self.NUM_INSTANCE + 1,
-                instance_entities=self.NUM_INSTANCE,
-                instance_edges=2 * self.NUM_INSTANCE + self.NUM_VOLUME,
-                volume_entities=self.NUM_VOLUME,
-                volume_edges=self.NUM_VOLUME)
-            num_entities = self.num_default_entities + self.NUM_VOLUME + \
-                2 * self.NUM_INSTANCE + self.num_default_networks + \
-                self.num_default_ports
-            num_edges = self.num_default_edges + 3 * self.NUM_INSTANCE + \
-                self.NUM_VOLUME + self.num_default_ports
-
-            # Test Assertions
-            self._validate_graph_correctness(graph,
-                                             num_entities,
-                                             num_edges,
-                                             entities)
-        except Exception as e:
-            self._handle_exception(e)
-            raise
-        finally:
-            self._rollback_to_default()
+        self._do_test_default_graph(num_default_networks=num_admin_networks,
+                                    all_tenants=False)
 
     @utils.tempest_logger
     def test_default_graph_for_tenant(self):
@@ -477,6 +465,45 @@ class TestTopology(BaseTopologyTest):
 
             # Test Assertions
             self.assertEqual({}, api_graph)
+        except Exception as e:
+            self._handle_exception(e)
+            raise
+        finally:
+            self._rollback_to_default()
+
+    @utils.tempest_logger
+    def _do_test_default_graph(self, num_default_networks, all_tenants):
+        """default_graph
+
+        This test validate correctness of default topology graph
+        """
+        try:
+            # Action
+            self._create_entities(num_instances=self.NUM_INSTANCE,
+                                  num_volumes=self.NUM_VOLUME)
+
+            # Calculate expected results
+            api_graph = \
+                self.vitrage_client.topology.get(all_tenants=all_tenants)
+            graph = self._create_graph_from_graph_dictionary(api_graph)
+            entities = self._entities_validation_data(
+                host_entities=1,
+                host_edges=self.NUM_INSTANCE + 1,
+                instance_entities=self.NUM_INSTANCE,
+                instance_edges=2 * self.NUM_INSTANCE + self.NUM_VOLUME,
+                volume_entities=self.NUM_VOLUME,
+                volume_edges=self.NUM_VOLUME)
+            num_entities = self.num_default_entities + self.NUM_VOLUME + \
+                2 * self.NUM_INSTANCE + num_default_networks + \
+                self.num_default_ports
+            num_edges = self.num_default_edges + 3 * self.NUM_INSTANCE + \
+                self.NUM_VOLUME + self.num_default_ports
+
+            # Test Assertions
+            self._validate_graph_correctness(graph,
+                                             num_entities,
+                                             num_edges,
+                                             entities)
         except Exception as e:
             self._handle_exception(e)
             raise
