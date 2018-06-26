@@ -144,8 +144,10 @@ class BaseVitrageTempest(base.BaseTestCase):
     @classmethod
     def _get_num_default_ports(cls):
         ports = TempestClients.neutron().list_ports()['ports']
-        return len(general_utils.all_matches(
-            ports, device_owner='compute:nova'))
+        nova_ports = general_utils.all_matches(ports,
+                                               device_owner='compute:nova')
+        LOG.debug('ports: %s, nova_ports: %s', ports, nova_ports)
+        return len(nova_ports)
 
     def _create_graph_from_graph_dictionary(self, api_graph):
         self.assertIsNotNone(api_graph)
