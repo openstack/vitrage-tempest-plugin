@@ -12,6 +12,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 from concurrent import futures
+from threading import Thread
 import time
 
 from oslo_log import log as logging
@@ -27,7 +28,9 @@ LOG = logging.getLogger(__name__)
 
 DEDUCED_1 = 'mock_datasource.3rd_degree_scenarios.deduced.alarm1'
 DEDUCED_2 = 'mock_datasource.3rd_degree_scenarios.deduced.alarm2'
+TEMPLATE_NAME = 'mock_datasource_3rd_degree_scenarios.yaml'
 SLEEP = 80
+MAX_FAIL_OVER_TIME = 5
 
 
 class TestLongProcessing(TestActionsBase):
@@ -35,42 +38,93 @@ class TestLongProcessing(TestActionsBase):
     @classmethod
     def setUpClass(cls):
         super(TestLongProcessing, cls).setUpClass()
-        v_utils.delete_template(
-            name="mock_datasource_3rd_degree_scenarios.yaml")
-        time.sleep(SLEEP)
-
-    @utils.tempest_logger
-    def test_3rd_degree_scenarios(self):
-        try:
-            v_utils.add_template("mock_datasource_3rd_degree_scenarios.yaml")
-            time.sleep(SLEEP)
-
-            self._check_template_instance_3rd_degree_scenarios()
-        except Exception as e:
-            self._handle_exception(e)
-            raise
-        finally:
-            v_utils.delete_template(
-                name="mock_datasource_3rd_degree_scenarios.yaml")
+        if v_utils.get_first_template(name=TEMPLATE_NAME):
+            v_utils.delete_template(name=TEMPLATE_NAME)
             time.sleep(SLEEP)
 
     @utils.tempest_logger
-    def test_3rd_degree_scenarios_init_procedure(self):
+    def test_high_availability_events(self):
+        """The purpose of the test is to check that events are stored
 
+        That is, during different stages in vitrage-graph lifetime:
+        before graph read from db (during init)
+        after graph read from db (during init)
+        during get_all
+        after get_all
+        """
         try:
-            v_utils.add_template("mock_datasource_3rd_degree_scenarios.yaml")
+            # adding a template just to create more load (to slow things down)
+            v_utils.add_template(TEMPLATE_NAME)
             time.sleep(SLEEP)
+            self.keep_sending_events = True
+            self.num_of_sent_events = 0
+
+            doctor_events_thread = self._async_doctor_events()
+            time.sleep(10)
+            v_utils.stop_graph()
+            time.sleep(10)
+            v_utils.restart_graph()
+            v_utils.delete_template(name=TEMPLATE_NAME)
+
+            # sleep to allow get_all to start and finish at least once:
+            time.sleep(4 * self.conf.datasources.snapshots_interval)
 
             v_utils.restart_graph()
+            self.keep_sending_events = False
+            time.sleep(MAX_FAIL_OVER_TIME)
+            doctor_events_thread.join(timeout=10)
+
+            alarm_count = TempestClients.vitrage().alarm.count(
+                all_tenants=True)
+            self.assertTrue(self.num_of_sent_events > 0,
+                            'Test did not create events')
+            self.assertEqual(
+                self.num_of_sent_events,
+                alarm_count['CRITICAL'],
+                'CRITICAL doctor events expected')
+
+        except Exception as e:
+            self._handle_exception(e)
+            raise
+        finally:
+            self._remove_doctor_events()
+            if v_utils.get_first_template(name=TEMPLATE_NAME):
+                v_utils.delete_template(name=TEMPLATE_NAME)
             time.sleep(SLEEP)
 
+    @utils.tempest_logger
+    def test_init(self):
+        try:
+            v_utils.add_template(TEMPLATE_NAME)
+            time.sleep(SLEEP)
+
+            # 1. check template works well
             self._check_template_instance_3rd_degree_scenarios()
+
+            # 2. check fresh start with template
+            v_utils.stop_graph()
+            time.sleep(3 * self.conf.datasources.snapshots_interval + 60)
+            v_utils.restart_graph()
+            time.sleep(SLEEP)
+            self._check_template_instance_3rd_degree_scenarios()
+
+            # 3. check fast fail-over - start from database
+            topo1 = TempestClients.vitrage().topology.get(all_tenants=True)
+            v_utils.restart_graph()
+            time.sleep(MAX_FAIL_OVER_TIME)
+            for i in range(5):
+                self._check_template_instance_3rd_degree_scenarios()
+                topo2 = TempestClients.vitrage().topology.get(all_tenants=True)
+                self.assert_graph_equal(
+                    topo1, topo2, 'comparing graph items iteration ' + str(i))
+                time.sleep(self.conf.datasources.snapshots_interval)
+
         except Exception as e:
             self._handle_exception(e)
             raise
         finally:
             v_utils.delete_template(
-                name="mock_datasource_3rd_degree_scenarios.yaml")
+                name=TEMPLATE_NAME)
             time.sleep(SLEEP)
 
     def _check_template_instance_3rd_degree_scenarios(self):
@@ -111,7 +165,73 @@ class TestLongProcessing(TestActionsBase):
             self.assertTrue(all(workers_result))
 
         except Exception as e:
-            v_utils.delete_template(
-                name="mock_datasource_3rd_degree_scenarios.yaml")
+            v_utils.delete_template(name=TEMPLATE_NAME)
             self._handle_exception(e)
             raise
+
+    def assert_graph_equal(self, g1, g2, msg):
+        """Checks that two graphs are equals.
+
+        This relies on assert_dict_equal when comparing the nodes and the
+        edges of each graph.
+        """
+        g1 = v_utils.topology_to_graph(g1)
+        g2 = v_utils.topology_to_graph(g2)
+        g1_nodes = g1._g.node
+        g1_edges = g1._g.adj
+        g2_nodes = g2._g.node
+        g2_edges = g2._g.adj
+        self.assertEqual(g1.num_vertices(), g2.num_vertices(),
+                         msg + " Two graphs have different amount of nodes")
+        self.assertEqual(g1.num_edges(), g2.num_edges(),
+                         msg + "Two graphs have different amount of edges")
+        for n_id in g1_nodes:
+            g1_node = g1_nodes.get(n_id)
+            del g1_node['vitrage_sample_timestamp']
+            del g1_node['update_timestamp']
+            if 'graph_index' in g1_node:
+                del g1_node['graph_index']
+            g2_node = g2_nodes.get(n_id)
+            del g2_node['vitrage_sample_timestamp']
+            del g2_node['update_timestamp']
+            if 'graph_index' in g2_node:
+                del g2_node['graph_index']
+            self.assert_dict_equal(g1_nodes.get(n_id),
+                                   g2_nodes.get(n_id),
+                                   msg + "Nodes of each graph are not equal")
+
+        for e_source_id in g1_edges:
+            self.assert_dict_equal(dict(g1_edges.get(e_source_id)),
+                                   dict(g2_edges.get(e_source_id)),
+                                   "Edges of each graph are not equal")
+
+    def _async_doctor_events(self, spacing=1):
+
+        def do_create():
+            while self.keep_sending_events:
+                try:
+                    v_utils.generate_fake_host_alarm(
+                        'nova.host-0-nova.zone-0-openstack.cluster-0',
+                        'test_high_availability_events'
+                        + str(self.num_of_sent_events))
+                    self.num_of_sent_events += 1
+                    time.sleep(spacing)
+                except Exception:
+                    time.sleep(spacing)
+                    continue
+
+        t = Thread(target=do_create)
+        t.setDaemon(True)
+        t.start()
+        return t
+
+    def _remove_doctor_events(self):
+
+        for i in range(self.num_of_sent_events):
+            try:
+                v_utils.generate_fake_host_alarm(
+                    'nova.host-0-nova.zone-0-openstack.cluster-0',
+                    'test_high_availability_events' + str(i),
+                    enabled=False)
+            except Exception:
+                continue
