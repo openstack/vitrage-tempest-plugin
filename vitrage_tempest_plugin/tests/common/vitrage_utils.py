@@ -20,6 +20,10 @@ from vitrage.common.constants import TemplateStatus
 from vitrage.common.constants import TemplateTypes
 from vitrage.datasources import NOVA_HOST_DATASOURCE
 from vitrage.datasources import NOVA_INSTANCE_DATASOURCE
+from vitrage.graph.driver.networkx_graph import NXGraph
+from vitrage.graph import Edge
+from vitrage.graph import Vertex
+
 from vitrage_tempest_plugin.tests.common import general_utils as g_utils
 from vitrage_tempest_plugin.tests.common.tempest_clients import TempestClients
 from vitrage_tempest_plugin.tests.utils import wait_for_status
@@ -95,5 +99,23 @@ def delete_template(uuid=None, **kwargs):
         _id=uuid)
 
 
+def topology_to_graph(topology):
+    graph = NXGraph()
+    nodes = topology['nodes']
+    for n in nodes:
+        graph.add_vertex(Vertex(n['vitrage_id'], n))
+
+    edges = topology['links']
+    for i in range(len(edges)):
+        s_id = nodes[edges[i]['source']]['vitrage_id']
+        t_id = nodes[edges[i]['target']]['vitrage_id']
+        graph.add_edge(Edge(s_id, t_id, edges[i]['relationship_type']))
+    return graph
+
+
 def restart_graph():
     os.system("sudo service devstack@vitrage-graph restart")
+
+
+def stop_graph():
+    os.system("sudo service devstack@vitrage-graph stop")
