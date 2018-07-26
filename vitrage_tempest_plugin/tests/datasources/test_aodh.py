@@ -42,9 +42,7 @@ class TestAodhAlarm(BaseAlarmsTest):
         try:
             # Action
             nova_utils.create_instances(num_instances=self.NUM_INSTANCE)
-            aodh_utils.create_aodh_alarm(
-                self._find_instance_resource_id())
-
+            aodh_utils.create_aodh_alarm(self._find_instance_resource_id())
             # Calculate expected results
             api_graph = self.vitrage_client.topology.get(all_tenants=True)
             graph = self._create_graph_from_graph_dictionary(api_graph)
@@ -71,6 +69,77 @@ class TestAodhAlarm(BaseAlarmsTest):
             raise
         finally:
             aodh_utils.delete_all_aodh_alarms()
+            nova_utils.delete_all_instances()
+
+    @utils.tempest_logger
+    def test_gnocchi_aggregation_by_metrics_threshold_alarm(self):
+        try:
+            # Action
+            nova_utils.create_instances(num_instances=self.NUM_INSTANCE)
+            aodh_utils.create_aodh_metrics_threshold_alarm()
+
+            api_graph = self.vitrage_client.topology.get(all_tenants=True)
+            graph = self._create_graph_from_graph_dictionary(api_graph)
+            entities = self._entities_validation_data(
+                host_entities=1,
+                host_edges=1 + self.NUM_INSTANCE,
+                instance_entities=self.NUM_INSTANCE,
+                instance_edges=2 * self.NUM_INSTANCE,
+                aodh_entities=self.NUM_ALARM,
+                aodh_edges=0)
+            num_entities = self.num_default_entities + \
+                2 * self.NUM_INSTANCE + self.NUM_ALARM + \
+                self.num_default_networks + self.num_default_ports
+            num_edges = self.num_default_edges + 3 * self.NUM_INSTANCE + \
+                self.num_default_ports
+
+            self._validate_graph_correctness(graph,
+                                             num_entities,
+                                             num_edges,
+                                             entities)
+
+        except Exception as e:
+            self._handle_exception(e)
+            raise
+        finally:
+            aodh_utils.delete_all_aodh_alarms()
+            aodh_utils.delete_all_gnocchi_metrics()
+            nova_utils.delete_all_instances()
+
+    @utils.tempest_logger
+    def test_gnocchi_aggregation_by_resources_threshold(self):
+        try:
+            # Action
+            nova_utils.create_instances(num_instances=self.NUM_INSTANCE)
+            aodh_utils.create_aodh_resources_threshold_alarm(
+                resource_id=self._find_instance_resource_id())
+
+            api_graph = self.vitrage_client.topology.get(all_tenants=True)
+            graph = self._create_graph_from_graph_dictionary(api_graph)
+            entities = self._entities_validation_data(
+                host_entities=1,
+                host_edges=1 + self.NUM_INSTANCE,
+                instance_entities=self.NUM_INSTANCE,
+                instance_edges=2 * self.NUM_INSTANCE + self.NUM_ALARM,
+                aodh_entities=self.NUM_ALARM,
+                aodh_edges=self.NUM_ALARM)
+            num_entities = self.num_default_entities + \
+                2 * self.NUM_INSTANCE + self.NUM_ALARM + \
+                self.num_default_networks + self.num_default_ports
+            num_edges = self.num_default_edges + 3 * self.NUM_INSTANCE + \
+                + self.NUM_ALARM + self.num_default_ports
+
+            self._validate_graph_correctness(graph,
+                                             num_entities,
+                                             num_edges,
+                                             entities)
+
+        except Exception as e:
+            self._handle_exception(e)
+            raise
+        finally:
+            aodh_utils.delete_all_aodh_alarms()
+            aodh_utils.delete_all_gnocchi_metrics()
             nova_utils.delete_all_instances()
 
     @utils.tempest_logger
