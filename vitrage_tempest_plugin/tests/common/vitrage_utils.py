@@ -68,14 +68,15 @@ def get_first_instance(**kwargs):
 
 def add_template(filename='',
                  folder='templates/api',
-                 template_type=TemplateTypes.STANDARD):
+                 template_type=TemplateTypes.STANDARD,
+                 status=TemplateStatus.ACTIVE):
     full_path = g_utils.tempest_resources_dir() + '/' + folder + '/' + filename
     t = TempestClients.vitrage().template.add(full_path, template_type)
     if t and t[0]:
         wait_for_status(
             100,
             get_first_template,
-            uuid=t[0]['uuid'], status=TemplateStatus.ACTIVE)
+            uuid=t[0]['uuid'], status=status)
         return t[0]
     return None
 

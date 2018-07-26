@@ -180,8 +180,6 @@ class TemplatesDBTest(BaseTemplateTest):
             # TODO(ikinory): add folder of templates
             # Add standard ,equivalence and definition templates
             templates_names = self._add_templates()
-            v_utils.add_template(STANDARD_TEMPLATE,
-                                 template_type=TTypes.STANDARD)
             # assert standard template
             db_row = v_utils.get_first_template(
                 name='host_high_memory_usage_scenarios', type=TTypes.STANDARD)
@@ -306,7 +304,8 @@ class TemplatesDBTest(BaseTemplateTest):
         v_utils.add_template(DEFINITION_TEMPLATE,
                              template_type=TTypes.DEFINITION)
         v_utils.add_template(STANDARD_ERROR,
-                             template_type=TTypes.STANDARD)
+                             template_type=TTypes.STANDARD,
+                             status=TemplateStatus.ERROR)
         return ['host_high_memory_usage_scenarios',
                 'entity equivalence example',
                 'basic_def_template',
