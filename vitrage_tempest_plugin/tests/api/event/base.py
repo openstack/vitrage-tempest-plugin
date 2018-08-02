@@ -12,7 +12,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from datetime import datetime
 from oslo_log import log as logging
 
 from vitrage_tempest_plugin.tests.e2e.test_basic_actions import TestActionsBase
@@ -35,20 +34,6 @@ class BaseTestEvents(TestActionsBase):
             return True, api_alarms
         return False, api_alarms
 
-    def _post_event(self, details):
-        event_time = datetime.now()
+    def _post_event(self, event_time, event_type, details):
         event_time_iso = event_time.isoformat()
-        event_type = 'compute.host.down'
         self.vitrage_client.event.post(event_time_iso, event_type, details)
-
-    @staticmethod
-    def _create_doctor_event_details(hostname, status):
-        return {
-            'hostname': hostname,
-            'source': 'sample_monitor',
-            'cause': 'another alarm',
-            'severity': 'critical',
-            'status': status,
-            'monitor_id': 'sample monitor',
-            'monitor_event_id': '456',
-        }
