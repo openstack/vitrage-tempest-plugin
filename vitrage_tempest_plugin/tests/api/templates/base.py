@@ -21,7 +21,6 @@ from vitrage_tempest_plugin.tests.base import BaseVitrageTempest
 from vitrage_tempest_plugin.tests.base import IsNotEmpty
 from vitrage_tempest_plugin.tests.common import general_utils as g_utils
 from vitrage_tempest_plugin.tests.common import vitrage_utils
-from vitrage_tempest_plugin.tests import utils
 
 
 LOG = logging.getLogger(__name__)
@@ -30,7 +29,6 @@ LOG = logging.getLogger(__name__)
 class BaseTemplateTest(BaseVitrageTempest):
     """Template test class for Vitrage API tests."""
 
-    DEFAULT_PATH = '/etc/vitrage/templates/'
     TEST_PATH = '/opt/stack/vitrage/vitrage_tempest_plugin/' \
                 + 'tests/resources/templates/api/'
 
@@ -66,7 +64,6 @@ class BaseTemplateTest(BaseVitrageTempest):
         self._validate_templates_list_length(api_templates, cli_templates)
         self._validate_passed_templates_length(api_templates, cli_templates)
         self._compare_each_template_in_list(api_templates, cli_templates)
-        self._validate_templates_existence_in_default_folder(api_templates)
 
     def _compare_template_validations(self, api_templates, cli_templates):
         self.assertThat(api_templates, IsNotEmpty(),
@@ -107,15 +104,6 @@ class BaseTemplateTest(BaseVitrageTempest):
                     break
         self.assertThat(api_templates, matchers.HasLength(counter))
 
-    def _validate_templates_existence_in_default_folder(self, templates_list):
-        counter = 0
-        text_out = utils.get_from_terminal('ls ' + self.DEFAULT_PATH)
-        for item in templates_list:
-            name_start = text_out.count(' ' + item['name'] + ' ')
-            if name_start > -1:
-                counter += 1
-        self.assertThat(templates_list, matchers.HasLength(counter))
-
     def _run_default_template_validation(
             self, template, validation, path):
         self.assertThat(validation, IsNotEmpty(),
@@ -155,24 +143,6 @@ class BaseTemplateTest(BaseVitrageTempest):
         sorted_cli_templates = sorted(parsed_topology.items())
         sorted_api_templates = sorted(api_templates.items())
         self.assertEqual(sorted_api_templates, sorted_cli_templates)
-
-    def _validate_template_structure(self, template_item, template_show):
-        self.assertEqual(
-            template_item['name'], template_show['metadata']['name'])
-        template_content = utils.get_from_terminal(
-            'cat ' + self.DEFAULT_PATH + template_item['name'] + '*')
-
-        entities = template_content.count('entity:')
-        relationships = template_content.count('relationship:')
-        scenarios = template_content.count('scenario:')
-
-        self.assertIn(template_show['metadata']['name'], template_content)
-        self.assertThat(template_show['definitions']['entities'],
-                        matchers.HasLength(entities))
-        self.assertThat(template_show['definitions']['relationships'],
-                        matchers.HasLength(relationships))
-        self.assertThat(template_show['scenarios'],
-                        matchers.HasLength(scenarios))
 
     def _rollback_to_default(self, templates):
         try:

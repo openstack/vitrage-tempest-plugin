@@ -12,7 +12,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import unittest
 
 from oslo_log import log as logging
 from testtools import matchers
@@ -70,35 +69,6 @@ class TestValidate(BaseTemplateTest):
 
         self._compare_template_lists(api_template_list, cli_template_list)
 
-    def test_compare_templates_validation(self):
-        """template_validate test
-
-        There test validate correctness of template validation,
-        equals templates files validation between cli via api
-        """
-        path = self.DEFAULT_PATH
-        api_template_validation = \
-            self.vitrage_client.template.validate(path=path)
-        cli_template_validation = utils.run_vitrage_command(
-            'vitrage template validate --path ' + path, self.conf)
-
-        self._compare_template_validations(
-            api_template_validation, cli_template_validation)
-
-    @unittest.skip("skipping test")
-    # TODO(nivo): fix test - passes on machine but not at gate
-    def test_templates_validate_default_templates(self):
-        """templates_validate test
-
-        There test validate correctness of list of uploaded template files
-        (in /etc/vitrage/templates folder)
-        """
-        path = self.DEFAULT_PATH
-        validation = self.vitrage_client.template.validate(path=path)
-        self.assertThat(validation, IsNotEmpty())
-        for item in validation['results']:
-            self._run_template_validation(item, path)
-
     def test_templates_validate_non_exist_template(self):
         """templates_validate test
 
@@ -141,25 +111,6 @@ class TestValidate(BaseTemplateTest):
                 validation['results'][0], path)
         except Exception:
             LOG.error('Failed to get validation of template file')
-
-    @unittest.skip("CLI tests are ineffective and not maintained")
-    def test_compare_template_show(self):
-        """templates_show test
-
-        There test validate correctness of uploaded template files
-        one by one with full details
-        (in /etc/vitrage/templates folder)
-        """
-        template_list = self.vitrage_client.template.list()
-        self.assertThat(template_list, IsNotEmpty())
-        for item in template_list:
-            api_template_show = self.vitrage_client.template.show(item['uuid'])
-            cli_template_show = utils.run_vitrage_command(
-                'vitrage template show ' + item['uuid'], self.conf)
-
-            self._compare_template_show(
-                api_template_show, cli_template_show)
-            self._validate_template_structure(item, api_template_show)
 
 
 class TemplatesDBTest(BaseTemplateTest):
