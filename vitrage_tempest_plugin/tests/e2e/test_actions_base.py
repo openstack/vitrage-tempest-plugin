@@ -68,10 +68,11 @@ class TestActionsBase(BaseVitrageTempest):
                         (str(deduced_count), str(alarms), str(deduces)))
 
     def _check_rca(self, rca, expected_alarms, inspected):
-        self.assertEqual(len(expected_alarms), len(rca['nodes']))
+        rca_nodes = [n for n in rca['nodes'] if not n.get('end_timestamp')]
+        self.assertEqual(len(expected_alarms), len(rca_nodes))
         for expected_alarm in expected_alarms:
             self.assertIsNotNone(
-                g_utils.first_match(rca['nodes'], **expected_alarm),
+                g_utils.first_match(rca_nodes, **expected_alarm),
                 'expected_alarm is not in the rca %s' % str(expected_alarm))
         rca_inspected = rca['nodes'][rca['inspected_index']]
         self.assertTrue(g_utils.is_subset(inspected, rca_inspected),
