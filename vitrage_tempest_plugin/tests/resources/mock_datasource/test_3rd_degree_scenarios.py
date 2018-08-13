@@ -93,7 +93,7 @@ class TestLongProcessing(TestActionsBase):
             time.sleep(SLEEP)
 
     @utils.tempest_logger
-    def test_init(self):
+    def test_db_init(self):
         try:
             v_utils.add_template(TEMPLATE_NAME)
             time.sleep(SLEEP)
@@ -101,14 +101,7 @@ class TestLongProcessing(TestActionsBase):
             # 1. check template works well
             self._check_template_instance_3rd_degree_scenarios()
 
-            # 2. check fresh start with template
-            v_utils.stop_graph()
-            time.sleep(3 * self.conf.datasources.snapshots_interval + 60)
-            v_utils.restart_graph()
-            time.sleep(SLEEP)
-            self._check_template_instance_3rd_degree_scenarios()
-
-            # 3. check fast fail-over - start from database
+            # 2. check fast fail-over - start from database
             topo1 = TempestClients.vitrage().topology.get(all_tenants=True)
             v_utils.restart_graph()
             time.sleep(MAX_FAIL_OVER_TIME)
@@ -119,13 +112,16 @@ class TestLongProcessing(TestActionsBase):
                     topo1, topo2, 'comparing graph items iteration ' + str(i))
                 time.sleep(self.conf.datasources.snapshots_interval)
 
+            v_utils.delete_template(name=TEMPLATE_NAME)
+            time.sleep(SLEEP)
+            self._check_template_instance_3rd_degree_scenarios_deleted()
+
         except Exception as e:
             self._handle_exception(e)
+            if v_utils.get_first_template(name=TEMPLATE_NAME):
+                v_utils.delete_template(name=TEMPLATE_NAME)
+                time.sleep(SLEEP)
             raise
-        finally:
-            v_utils.delete_template(
-                name=TEMPLATE_NAME)
-            time.sleep(SLEEP)
 
     def _check_template_instance_3rd_degree_scenarios(self):
 
@@ -169,6 +165,18 @@ class TestLongProcessing(TestActionsBase):
             v_utils.delete_template(name=TEMPLATE_NAME)
             self._handle_exception(e)
             raise
+
+    def _check_template_instance_3rd_degree_scenarios_deleted(self):
+        alarm_count = TempestClients.vitrage().alarm.count(
+            all_tenants=True)
+        self.assertEqual(
+            0,
+            alarm_count['SEVERE'],
+            'found SEVERE deduced alarms after template delete')
+        self.assertEqual(
+            0,
+            alarm_count['CRITICAL'],
+            'found CRITICAL deduced alarms after template delete')
 
     def assert_graph_equal(self, g1, g2, msg):
         """Checks that two graphs are equals.
