@@ -29,7 +29,7 @@ LOG = logging.getLogger(__name__)
 DEDUCED_1 = 'mock_datasource.3rd_degree_scenarios.deduced.alarm1'
 DEDUCED_2 = 'mock_datasource.3rd_degree_scenarios.deduced.alarm2'
 TEMPLATE_NAME = 'mock_datasource_3rd_degree_scenarios.yaml'
-SLEEP = 80
+SLEEP = 100
 MAX_FAIL_OVER_TIME = 5
 
 
@@ -146,7 +146,8 @@ class TestLongProcessing(TestActionsBase):
             expected_rca.extend([{'name': DEDUCED_1}, {'name': DEDUCED_2}])
 
             def check_rca(alarm):
-                rca = TempestClients.vitrage().rca.get(alarm['vitrage_id'])
+                rca = TempestClients.vitrage().rca.get(alarm['vitrage_id'],
+                                                       all_tenants=True)
                 try:
                     self._check_rca(rca, expected_rca, alarm)
                     return True
