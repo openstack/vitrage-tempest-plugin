@@ -2,6 +2,6 @@
     templates:
       - check-requirements
       - tempest-plugin-jobs
-      - publish-openstack-sphinx-docs
+      - publish-openstack-docs-pti
     gate:
       queue: vitrage
