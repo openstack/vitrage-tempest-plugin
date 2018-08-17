@@ -1,0 +1,7 @@
+- project:
+    templates:
+      - check-requirements
+      - tempest-plugin-jobs
+      - publish-openstack-sphinx-docs
+    gate:
+      queue: vitrage
