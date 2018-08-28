@@ -10,4 +10,4 @@ It contains the tempest plugin for the functional testing of Vitrage Project.
 * Documentation: https://docs.openstack.org/vitrage/latest/
 * Release notes: https://docs.openstack.org/releasenotes/vitrage/
 * Source: https://git.openstack.org/cgit/openstack/vitrage-tempest-plugin
-* Bugs: https://bugs.launchpad.net/vitrage
+* Stories and Bugs: https://storyboard.openstack.org/#!/project/openstack/vitrage-tempest-plugin
