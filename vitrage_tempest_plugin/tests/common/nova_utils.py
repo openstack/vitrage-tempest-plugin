@@ -66,7 +66,7 @@ def delete_all_instances(**kwargs):
         try:
             TempestClients.nova().servers.force_delete(item)
         except Exception:
-            pass
+            LOG.exception('Failed to force delete instance %s', item.id)
     wait_for_status(
         30,
         check_deleted_instances,
