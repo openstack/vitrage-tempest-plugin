@@ -18,11 +18,13 @@ from datetime import datetime
 from oslo_log import log as logging
 from testtools import matchers
 
-from vitrage.common.constants import EntityCategory
-from vitrage.common.constants import EventProperties as EventProps
-from vitrage.common.constants import VertexProperties as VProps
 from vitrage_tempest_plugin.tests.api.event.base import BaseTestEvents
 from vitrage_tempest_plugin.tests.base import IsEmpty
+from vitrage_tempest_plugin.tests.common.constants import EntityCategory
+from vitrage_tempest_plugin.tests.common.constants import EventProperties \
+    as EventProps
+from vitrage_tempest_plugin.tests.common.constants import VertexProperties \
+    as VProps
 from vitrage_tempest_plugin.tests.common.vitrage_utils import DOWN
 from vitrage_tempest_plugin.tests.utils import wait_for_answer
 

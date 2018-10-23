@@ -16,8 +16,9 @@ import time
 from oslo_log import log as logging
 from testtools import matchers
 
-from vitrage.common.constants import VertexProperties as VProps
 from vitrage_tempest_plugin.tests.base import BaseVitrageTempest
+from vitrage_tempest_plugin.tests.common.constants import VertexProperties as \
+    VProps
 from vitrage_tempest_plugin.tests.common import general_utils as g_utils
 from vitrage_tempest_plugin.tests.common.tempest_clients import TempestClients
 from vitrage_tempest_plugin.tests.common import vitrage_utils

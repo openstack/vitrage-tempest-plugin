@@ -17,9 +17,6 @@ import json
 from oslo_log import log as logging
 from testtools import matchers
 
-from vitrage.common.constants import EdgeLabel
-from vitrage.common.constants import EdgeProperties
-from vitrage.common.constants import VertexProperties as VProps
 from vitrage.datasources.aodh import AODH_DATASOURCE
 from vitrage.datasources import NOVA_HOST_DATASOURCE
 from vitrage.datasources import NOVA_INSTANCE_DATASOURCE
@@ -32,6 +29,10 @@ from vitrage.evaluator.actions.evaluator_event_transformer \
 from vitrage_tempest_plugin.tests.api.alarms.base import BaseAlarmsTest
 from vitrage_tempest_plugin.tests.base import IsNotEmpty
 from vitrage_tempest_plugin.tests.common import aodh_utils
+from vitrage_tempest_plugin.tests.common.constants import EdgeLabel
+from vitrage_tempest_plugin.tests.common.constants import EdgeProperties
+from vitrage_tempest_plugin.tests.common.constants import VertexProperties \
+    as VProps
 from vitrage_tempest_plugin.tests.common import general_utils as g_utils
 from vitrage_tempest_plugin.tests.common import nova_utils
 from vitrage_tempest_plugin.tests.common.tempest_clients import TempestClients
