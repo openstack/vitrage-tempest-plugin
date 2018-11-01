@@ -11,6 +11,7 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+import time
 
 from oslo_log import log as logging
 from vitrage_tempest_plugin.tests import utils
@@ -111,6 +112,7 @@ class TestAodhAlarm(BaseAlarmsTest):
         try:
             # Action
             nova_utils.create_instances(num_instances=self.NUM_INSTANCE)
+            time.sleep(20)
             aodh_utils.create_aodh_resources_threshold_alarm(
                 resource_id=self._find_instance_resource_id())
 
