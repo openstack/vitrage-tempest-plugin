@@ -14,8 +14,9 @@
 
 from oslo_log import log as logging
 
-from vitrage.common.constants import VertexProperties as VProps
 from vitrage_tempest_plugin.tests.api.topology.base import BaseTopologyTest
+from vitrage_tempest_plugin.tests.common.constants import VertexProperties as \
+    VProps
 from vitrage_tempest_plugin.tests.common import general_utils as g_utils
 from vitrage_tempest_plugin.tests.common import nova_utils
 from vitrage_tempest_plugin.tests import utils

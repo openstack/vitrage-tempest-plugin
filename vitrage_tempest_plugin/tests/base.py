@@ -24,9 +24,6 @@ from oslotest import base
 from testtools.matchers import HasLength
 from testtools.matchers import Not
 
-from vitrage.common.constants import EdgeProperties
-from vitrage.common.constants import EntityCategory
-from vitrage.common.constants import VertexProperties as VProps
 from vitrage.datasources.aodh import AODH_DATASOURCE
 from vitrage.datasources.cinder.volume import CINDER_VOLUME_DATASOURCE
 from vitrage.datasources.heat.stack import HEAT_STACK_DATASOURCE
@@ -42,6 +39,10 @@ from vitrage.graph import Edge
 from vitrage.graph import Vertex
 from vitrage import service
 
+from vitrage_tempest_plugin.tests.common.constants import EdgeProperties
+from vitrage_tempest_plugin.tests.common.constants import EntityCategory
+from vitrage_tempest_plugin.tests.common.constants import VertexProperties \
+    as VProps
 from vitrage_tempest_plugin.tests.common import general_utils
 from vitrage_tempest_plugin.tests.common.tempest_clients import TempestClients
 from vitrage_tempest_plugin.tests import utils

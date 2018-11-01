@@ -16,14 +16,14 @@ import os
 
 from oslo_log import log as logging
 
-from vitrage.common.constants import TemplateStatus
-from vitrage.common.constants import TemplateTypes
 from vitrage.datasources import NOVA_HOST_DATASOURCE
 from vitrage.datasources import NOVA_INSTANCE_DATASOURCE
 from vitrage.graph.driver.networkx_graph import NXGraph
 from vitrage.graph import Edge
 from vitrage.graph import Vertex
 
+from vitrage_tempest_plugin.tests.common.constants import TemplateStatus
+from vitrage_tempest_plugin.tests.common.constants import TemplateTypes
 from vitrage_tempest_plugin.tests.common import general_utils as g_utils
 from vitrage_tempest_plugin.tests.common.tempest_clients import TempestClients
 from vitrage_tempest_plugin.tests.utils import wait_for_status

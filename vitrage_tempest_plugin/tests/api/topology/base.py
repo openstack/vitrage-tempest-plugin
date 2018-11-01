@@ -16,11 +16,12 @@ import json
 import time
 
 
-from vitrage.common.constants import VertexProperties as VProps
 from vitrage_tempest_plugin.tests.base import BaseVitrageTempest
 from vitrage_tempest_plugin.tests.base import IsNotEmpty
 from vitrage_tempest_plugin.tests.base import LOG
 from vitrage_tempest_plugin.tests.common import cinder_utils
+from vitrage_tempest_plugin.tests.common.constants import VertexProperties as \
+    VProps
 from vitrage_tempest_plugin.tests.common import nova_utils
 
 

@@ -18,12 +18,14 @@ from oslo_log import log as logging
 from testtools import matchers
 import unittest
 
-from vitrage.common.constants import VertexProperties as VProps
 from vitrage.datasources import CINDER_VOLUME_DATASOURCE
 from vitrage.datasources import NOVA_INSTANCE_DATASOURCE
+
 from vitrage_tempest_plugin.tests.base import BaseVitrageTempest
 from vitrage_tempest_plugin.tests.base import IsEmpty
 from vitrage_tempest_plugin.tests.base import IsNotEmpty
+from vitrage_tempest_plugin.tests.common.constants import VertexProperties as \
+    VProps
 from vitrage_tempest_plugin.tests.common import nova_utils
 from vitrage_tempest_plugin.tests import utils
 from vitrageclient.exceptions import ClientException

@@ -15,11 +15,13 @@ import time
 
 from oslo_log import log as logging
 
-from vitrage.common.constants import EntityCategory
-from vitrage.common.constants import VertexProperties as VProps
 from vitrage.datasources.doctor import DOCTOR_DATASOURCE
 from vitrage.evaluator.actions.evaluator_event_transformer import \
     VITRAGE_DATASOURCE
+
+from vitrage_tempest_plugin.tests.common.constants import EntityCategory
+from vitrage_tempest_plugin.tests.common.constants import VertexProperties \
+    as VProps
 from vitrage_tempest_plugin.tests.common import general_utils as g_utils
 from vitrage_tempest_plugin.tests.common import nova_utils
 from vitrage_tempest_plugin.tests.common.tempest_clients import TempestClients
