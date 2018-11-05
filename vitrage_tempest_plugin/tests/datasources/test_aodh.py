@@ -21,6 +21,8 @@ from vitrage_tempest_plugin.tests.common import aodh_utils
 from vitrage_tempest_plugin.tests.common import nova_utils
 from vitrage_tempest_plugin.tests.common.tempest_clients import TempestClients
 
+import unittest
+
 LOG = logging.getLogger(__name__)
 
 
@@ -107,6 +109,7 @@ class TestAodhAlarm(BaseAlarmsTest):
             aodh_utils.delete_all_gnocchi_metrics()
             nova_utils.delete_all_instances()
 
+    @unittest.skip('temporary skip until oslo.cache is fixed')
     @utils.tempest_logger
     def test_gnocchi_aggregation_by_resources_threshold(self):
         try:
