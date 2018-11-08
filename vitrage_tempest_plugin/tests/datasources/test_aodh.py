@@ -11,7 +11,6 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-import time
 
 from oslo_log import log as logging
 from vitrage_tempest_plugin.tests import utils
@@ -20,8 +19,6 @@ from vitrage_tempest_plugin.tests.api.alarms.base import BaseAlarmsTest
 from vitrage_tempest_plugin.tests.common import aodh_utils
 from vitrage_tempest_plugin.tests.common import nova_utils
 from vitrage_tempest_plugin.tests.common.tempest_clients import TempestClients
-
-import unittest
 
 LOG = logging.getLogger(__name__)
 
@@ -109,13 +106,11 @@ class TestAodhAlarm(BaseAlarmsTest):
             aodh_utils.delete_all_gnocchi_metrics()
             nova_utils.delete_all_instances()
 
-    @unittest.skip('temporary skip until oslo.cache is fixed')
     @utils.tempest_logger
     def test_gnocchi_aggregation_by_resources_threshold(self):
         try:
             # Action
             nova_utils.create_instances(num_instances=self.NUM_INSTANCE)
-            time.sleep(20)
             aodh_utils.create_aodh_resources_threshold_alarm(
                 resource_id=self._find_instance_resource_id())
 
