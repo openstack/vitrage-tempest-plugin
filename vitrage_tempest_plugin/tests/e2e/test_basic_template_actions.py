@@ -85,6 +85,7 @@ class TestTemplateActions(TestActionsBase):
             self._trigger_do_action(TRIGGER_ALARM_1)
             self.added_template = v_util.add_template(TEST_TEMPLATE,
                                                       folder=FOLDER_PATH)
+            time.sleep(2)
             self._check_deduced(1, DEDUCED_PROPS, host_id)
 
         except Exception as e:
@@ -129,9 +130,11 @@ class TestTemplateActions(TestActionsBase):
             self._trigger_do_action(TRIGGER_ALARM_1)
             self.added_template = v_util.add_template(TEST_TEMPLATE,
                                                       folder=FOLDER_PATH)
+            time.sleep(2)
             self._check_deduced(1, DEDUCED_PROPS, host_id)
             v_util.delete_template(self.added_template['uuid'])
             self.added_template = None
+            time.sleep(2)
             self._check_deduced(0, DEDUCED_PROPS, host_id)
 
         except Exception as e:
