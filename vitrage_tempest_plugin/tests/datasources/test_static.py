@@ -25,18 +25,19 @@ from vitrage_tempest_plugin.tests import utils
 LOG = logging.getLogger(__name__)
 
 
-class TestStaticPhysical(BaseVitrageTempest):
-    NUM_SWITCH = 2
+class TestStatic(BaseVitrageTempest):
+    NUM_SWITCH = 1
+    NUM_NIC = 1
 
     def setUp(self):
-        super(TestStaticPhysical, self).setUp()
+        super(TestStatic, self).setUp()
 
     def tearDown(self):
-        super(TestStaticPhysical, self).tearDown()
+        super(TestStatic, self).tearDown()
 
     @classmethod
     def setUpClass(cls):
-        super(TestStaticPhysical, cls).setUpClass()
+        super(TestStatic, cls).setUpClass()
 
     @utils.tempest_logger
     def test_switches(self):
@@ -49,11 +50,14 @@ class TestStaticPhysical(BaseVitrageTempest):
             graph = self._create_graph_from_graph_dictionary(api_graph)
             entities = self._entities_validation_data(
                 host_entities=1,
-                host_edges=1 + self.NUM_SWITCH,
+                host_edges=1,
                 switch_entities=self.NUM_SWITCH,
-                switch_edges=self.NUM_SWITCH)
+                switch_edges=1,
+                nic_entities=self.NUM_NIC,
+                nic_edges=1)
             num_entities = self.num_default_entities + self.NUM_SWITCH + \
-                self.num_default_networks + self.num_default_ports
+                self.NUM_NIC + self.num_default_networks + \
+                self.num_default_ports
             num_edges = self.num_default_edges + self.NUM_SWITCH + \
                 self.num_default_ports
 
@@ -73,26 +77,24 @@ class TestStaticPhysical(BaseVitrageTempest):
         hostname = socket.gethostname()
 
         # template file
-        resources_path = tempest_resources_dir() + '/static_physical/'
-        file_path = resources_path + '/static_physical_configuration.yaml'
+        file_path = \
+            tempest_resources_dir() + '/static/static_configuration.yaml'
         with open(file_path, 'r') as f:
             template_data = f.read()
         template_data = template_data.replace('tmp-devstack', hostname)
 
         # new file
         new_file = open(
-            '/etc/vitrage/static_datasources/'
-            'static_physical_configuration.yaml', 'w')
+            '/etc/vitrage/static_datasources/static_configuration.yaml', 'w')
         new_file.write(template_data)
         new_file.close()
 
-        time.sleep(25)
+        time.sleep(35)
 
     @staticmethod
     def _delete_switches():
-        path = '/etc/vitrage/static_datasources/' \
-               'static_physical_configuration.yaml'
+        path = '/etc/vitrage/static_datasources/static_configuration.yaml'
         if os.path.exists(path):
             os.remove(path)
 
-        time.sleep(25)
+        time.sleep(35)

@@ -33,7 +33,6 @@ from vitrage.datasources import NOVA_HOST_DATASOURCE
 from vitrage.datasources import NOVA_INSTANCE_DATASOURCE
 from vitrage.datasources import NOVA_ZONE_DATASOURCE
 from vitrage.datasources import OPENSTACK_CLUSTER
-from vitrage.datasources.static_physical import SWITCH
 from vitrage.graph.driver.networkx_graph import NXGraph
 from vitrage.graph import Edge
 from vitrage.graph import Vertex
@@ -235,7 +234,7 @@ class BaseVitrageTempest(base.BaseTestCase):
 
         # switch
         props = {VProps.VITRAGE_CATEGORY: EntityCategory.RESOURCE,
-                 VProps.VITRAGE_TYPE: SWITCH,
+                 VProps.VITRAGE_TYPE: 'switch',
                  self.NUM_VERTICES_PER_TYPE: kwargs.get(
                      'switch_entities', 0),
                  self.NUM_EDGES_PER_TYPE: kwargs.get(
@@ -303,6 +302,8 @@ class BaseVitrageTempest(base.BaseTestCase):
                              '%s%s' % ('Num vertices is incorrect for: ',
                                        entity[VProps.VITRAGE_TYPE]))
 
+            # TODO(iafek): bug - edges between entities of the same type are
+            # counted twice
             entity_num_edges = sum([len(graph.get_edges(vertex.vertex_id))
                                     for vertex in vertices])
             self.assertEqual(entity[self.NUM_EDGES_PER_TYPE],
