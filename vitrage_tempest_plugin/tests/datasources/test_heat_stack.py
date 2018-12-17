@@ -13,11 +13,13 @@
 # under the License.
 
 from oslo_log import log as logging
+
 from vitrage_tempest_plugin.tests import utils
 
 from vitrage_tempest_plugin.tests.api.topology.base import BaseTopologyTest
 from vitrage_tempest_plugin.tests.common.general_utils\
     import tempest_resources_dir
+from vitrage_tempest_plugin.tests.common import glance_utils
 from vitrage_tempest_plugin.tests.common import heat_utils
 
 LOG = logging.getLogger(__name__)
@@ -51,9 +53,11 @@ class TestHeatStack(BaseTopologyTest):
         This test validate correctness topology graph with heat stack module
         """
         template_file = tempest_resources_dir() + '/heat/' + tmpl_file
+        image = glance_utils.get_first_image()
         try:
             # Action
-            heat_utils.create_stacks(self.NUM_STACKS, nested, template_file)
+            heat_utils.create_stacks(self.NUM_STACKS, nested, template_file,
+                                     image['name'])
 
             # Calculate expected results
             api_graph = self.vitrage_client.topology.get(all_tenants=True)

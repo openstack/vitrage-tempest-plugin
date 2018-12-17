@@ -3,6 +3,11 @@ heat_template_version: 2013-05-23
 description: |
   The heat template is used to demo
 
+parameters:
+  image:
+    type: string
+    default: cirros-0.3.6-x86_64-disk
+
 resources:
   rg:
     type: OS::Heat::ResourceGroup
@@ -10,3 +15,5 @@ resources:
       count: 1
       resource_def:
         type: server.yaml
+        properties:
+          image: {get_param: image}

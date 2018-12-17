@@ -20,7 +20,7 @@ from vitrage_tempest_plugin.tests.common.tempest_clients import TempestClients
 from vitrage_tempest_plugin.tests.utils import wait_for_status
 
 
-def create_stacks(num_stacks, nested, template_file):
+def create_stacks(num_stacks, nested, template_file, image):
     tpl_files, template = template_utils.process_template_path(
         template_file,
         object_request=http.authenticated_fetcher(TempestClients.heat()))
@@ -30,7 +30,7 @@ def create_stacks(num_stacks, nested, template_file):
         TempestClients.heat().stacks.create(stack_name=stack_name,
                                             template=template,
                                             files=tpl_files,
-                                            parameters={})
+                                            parameters={'image': image})
         wait_for_status(45,
                         _check_num_stacks,
                         num_stacks=num_stacks,
