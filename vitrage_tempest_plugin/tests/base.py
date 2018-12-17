@@ -12,6 +12,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from datetime import datetime
 import json
 from networkx.readwrite import json_graph
 import six
@@ -313,6 +314,23 @@ class BaseVitrageTempest(base.BaseTestCase):
 
         self.assertEqual(num_entities, graph.num_vertices())
         self.assertEqual(num_edges, graph.num_edges())
+
+        self._validate_timestamps(graph)
+
+    def _validate_timestamps(self, graph):
+        self._validate_timestamp(graph, VProps.UPDATE_TIMESTAMP)
+        self._validate_timestamp(graph, VProps.VITRAGE_SAMPLE_TIMESTAMP)
+
+    def _validate_timestamp(self, graph, timestamp_name):
+        for vertex in graph.get_vertices():
+            timestamp = vertex.get(timestamp_name)
+            if timestamp:
+                try:
+                    datetime.strptime(timestamp, utils.TIMESTAMP_FORMAT)
+                except ValueError:
+                    self.fail('Unexpected timestamp format of \'%s\' in: %s\n'
+                              'The format should be: %s' %
+                              (timestamp_name, vertex, utils.TIMESTAMP_FORMAT))
 
     @staticmethod
     def _get_value(item, key):
