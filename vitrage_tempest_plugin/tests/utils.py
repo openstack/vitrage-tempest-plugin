@@ -26,6 +26,8 @@ import subprocess
 
 LOG = logging.getLogger(__name__)
 
+TIMESTAMP_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
+
 
 def get_from_terminal(command):
     proc = os.popen(command)
