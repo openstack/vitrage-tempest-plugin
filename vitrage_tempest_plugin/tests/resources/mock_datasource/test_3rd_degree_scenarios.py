@@ -30,7 +30,7 @@ DEDUCED_1 = 'mock_datasource.3rd_degree_scenarios.deduced.alarm1'
 DEDUCED_2 = 'mock_datasource.3rd_degree_scenarios.deduced.alarm2'
 TEMPLATE_NAME = 'mock_datasource_3rd_degree_scenarios.yaml'
 SLEEP = 100
-MAX_FAIL_OVER_TIME = 5
+MAX_FAIL_OVER_TIME = 20
 
 
 class TestLongProcessing(TestActionsBase):
