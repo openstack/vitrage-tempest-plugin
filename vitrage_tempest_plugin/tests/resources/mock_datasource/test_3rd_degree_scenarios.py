@@ -64,6 +64,7 @@ class TestLongProcessing(TestActionsBase):
             v_utils.stop_graph()
             time.sleep(10)
             v_utils.restart_graph()
+            time.sleep(MAX_FAIL_OVER_TIME)
             v_utils.delete_template(name=TEMPLATE_NAME)
 
             # sleep to allow get_all to start and finish at least once:
