@@ -12,27 +12,17 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from vitrage.datasources.aodh.properties import AodhProperties as AodhProps
 from vitrage_tempest_plugin.tests.base import BaseVitrageTempest
+from vitrage_tempest_plugin.tests.common.constants import AodhProperties
 from vitrage_tempest_plugin.tests.common.tempest_clients import TempestClients
 
 
 class BaseAlarmsTest(BaseVitrageTempest):
     """Topology test class for Vitrage API tests."""
 
-    def setUp(self):
-        super(BaseAlarmsTest, self).setUp()
-
-    def tearDown(self):
-        super(BaseAlarmsTest, self).tearDown()
-
-    @classmethod
-    def setUpClass(cls):
-        super(BaseAlarmsTest, cls).setUpClass()
-
     def _check_num_alarms(self, num_alarms=0, state=''):
         if len(TempestClients.aodh().alarm.list()) != num_alarms:
             return False
 
-        return all(alarm[AodhProps.STATE].upper() == state.upper()
+        return all(alarm[AodhProperties.STATE].upper() == state.upper()
                    for alarm in TempestClients.aodh().alarm.list())

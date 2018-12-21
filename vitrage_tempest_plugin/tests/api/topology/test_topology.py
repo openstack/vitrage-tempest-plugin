@@ -14,10 +14,10 @@
 
 from oslo_log import log as logging
 
-from vitrage.datasources import OPENSTACK_CLUSTER
 
 from vitrage_tempest_plugin.tests.api.topology.base import BaseTopologyTest
 from vitrage_tempest_plugin.tests.base import IsEmpty
+from vitrage_tempest_plugin.tests.common.constants import OPENSTACK_CLUSTER
 from vitrage_tempest_plugin.tests.common.constants import VertexProperties as \
     VProps
 import vitrage_tempest_plugin.tests.utils as utils

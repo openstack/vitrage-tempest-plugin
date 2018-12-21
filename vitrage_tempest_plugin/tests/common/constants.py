@@ -13,6 +13,19 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+AODH_DATASOURCE = 'aodh'
+CINDER_VOLUME_DATASOURCE = 'cinder.volume'
+HEAT_STACK_DATASOURCE = 'heat.stack'
+NEUTRON_NETWORK_DATASOURCE = 'neutron.network'
+NEUTRON_PORT_DATASOURCE = 'neutron.port'
+NOVA_HOST_DATASOURCE = 'nova.host'
+NOVA_INSTANCE_DATASOURCE = 'nova.instance'
+NOVA_ZONE_DATASOURCE = 'nova.zone'
+OPENSTACK_CLUSTER = 'openstack.cluster'
+VITRAGE_DATASOURCE = 'vitrage'
+
+DOCTOR_DATASOURCE = 'doctor'
+
 
 class VertexProperties(object):
     VITRAGE_CATEGORY = 'vitrage_category'

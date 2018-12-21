@@ -17,10 +17,10 @@ import json
 from oslo_log import log as logging
 from testtools import matchers
 
-from vitrage.datasources.aodh import AODH_DATASOURCE
 from vitrage_tempest_plugin.tests.api.alarms.base import BaseAlarmsTest
 from vitrage_tempest_plugin.tests.base import IsNotEmpty
 from vitrage_tempest_plugin.tests.common import aodh_utils
+from vitrage_tempest_plugin.tests.common.constants import AODH_DATASOURCE
 from vitrage_tempest_plugin.tests.common import general_utils as g_utils
 from vitrage_tempest_plugin.tests.common import nova_utils
 from vitrage_tempest_plugin.tests.common.tempest_clients import TempestClients

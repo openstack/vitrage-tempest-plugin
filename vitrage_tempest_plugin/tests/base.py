@@ -25,22 +25,26 @@ from oslotest import base
 from testtools.matchers import HasLength
 from testtools.matchers import Not
 
-from vitrage.datasources.aodh import AODH_DATASOURCE
-from vitrage.datasources.cinder.volume import CINDER_VOLUME_DATASOURCE
-from vitrage.datasources.heat.stack import HEAT_STACK_DATASOURCE
-from vitrage.datasources.neutron.network import NEUTRON_NETWORK_DATASOURCE
-from vitrage.datasources.neutron.port import NEUTRON_PORT_DATASOURCE
-from vitrage.datasources import NOVA_HOST_DATASOURCE
-from vitrage.datasources import NOVA_INSTANCE_DATASOURCE
-from vitrage.datasources import NOVA_ZONE_DATASOURCE
-from vitrage.datasources import OPENSTACK_CLUSTER
 from vitrage.graph.driver.networkx_graph import NXGraph
 from vitrage.graph import Edge
 from vitrage.graph import Vertex
 from vitrage import service
 
+from vitrage_tempest_plugin.tests.common.constants import AODH_DATASOURCE
+from vitrage_tempest_plugin.tests.common.constants import \
+    CINDER_VOLUME_DATASOURCE
 from vitrage_tempest_plugin.tests.common.constants import EdgeProperties
 from vitrage_tempest_plugin.tests.common.constants import EntityCategory
+from vitrage_tempest_plugin.tests.common.constants import HEAT_STACK_DATASOURCE
+from vitrage_tempest_plugin.tests.common.constants import \
+    NEUTRON_NETWORK_DATASOURCE
+from vitrage_tempest_plugin.tests.common.constants import \
+    NEUTRON_PORT_DATASOURCE
+from vitrage_tempest_plugin.tests.common.constants import NOVA_HOST_DATASOURCE
+from vitrage_tempest_plugin.tests.common.constants import \
+    NOVA_INSTANCE_DATASOURCE
+from vitrage_tempest_plugin.tests.common.constants import NOVA_ZONE_DATASOURCE
+from vitrage_tempest_plugin.tests.common.constants import OPENSTACK_CLUSTER
 from vitrage_tempest_plugin.tests.common.constants import VertexProperties \
     as VProps
 from vitrage_tempest_plugin.tests.common import general_utils
