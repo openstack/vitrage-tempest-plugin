@@ -15,25 +15,24 @@
 
 from oslo_config import cfg
 
-service_option = cfg.BoolOpt("vitrage",
-                             default=True,
-                             help="Whether or not vitrage is expected to be "
-                                  "available")
+service_available_group = cfg.OptGroup(name="service_available",
+                                       title="Available OpenStack Services")
+
+ServiceAvailableGroup = [cfg.BoolOpt("vitrage",
+                                     default=True,
+                                     help="Whether or not vitrage is expected "
+                                     "to be available")]
 
 rca_service_group = cfg.OptGroup(name="root_cause_analysis_service",
                                  title="Root Cause Analysis Service Options")
 
 RcaServiceGroup = [
     # RCA Service tempest configuration
-    cfg.StrOpt("region",
-               default="",
-               help="The application_catalog region name to use. If empty, "
-                    "the value of identity.region is used instead. "
-                    "If no such region is found in the service catalog, "
-                    "the first found one is used."),
-
-    cfg.StrOpt("identity_version",
-               default="v2",
-               help="Default identity version for "
-                    "REST client authentication.")
+    cfg.IntOpt('instances_per_host',
+               default=2,
+               help="Number of instances per host in mock graph datasource"),
+    cfg.IntOpt('snapshots_interval',
+               default=120,
+               min=10,
+               help='Time to wait between subsequent datasource snapshots'),
 ]

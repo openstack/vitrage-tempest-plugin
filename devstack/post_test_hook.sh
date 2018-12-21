@@ -13,7 +13,22 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+source $BASE/new/devstack/functions
+sudo chown -R $USER:stack $BASE/new/tempest
+
 DEVSTACK_PATH="$BASE/new"
+TEMPEST_CONFIG=$BASE/new/tempest/etc/tempest.conf
+
+iniset $TEMPEST_CONFIG service_available vitrage true
+
+if [ "$1" = "mock" ]; then
+  iniset $TEMPEST_CONFIG root_cause_analysis_service instances_per_host 50
+  iniset $TEMPEST_CONFIG root_cause_analysis_service snapshots_interval 60
+else
+  iniset $TEMPEST_CONFIG root_cause_analysis_service instances_per_host 2
+  iniset $TEMPEST_CONFIG root_cause_analysis_service snapshots_interval 120
+fi
+
 
 #Argument is received from Zuul
 if [ "$1" = "api" ]; then

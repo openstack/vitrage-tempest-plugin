@@ -16,6 +16,8 @@ from threading import Thread
 import time
 
 from oslo_log import log as logging
+from tempest import config
+
 
 from vitrage_tempest_plugin.tests.common.constants import VertexProperties
 from vitrage_tempest_plugin.tests.common import general_utils as g_utils
@@ -24,6 +26,7 @@ from vitrage_tempest_plugin.tests.common import vitrage_utils as v_utils
 from vitrage_tempest_plugin.tests.e2e.test_actions_base import TestActionsBase
 from vitrage_tempest_plugin.tests import utils
 
+CONF = config.CONF
 LOG = logging.getLogger(__name__)
 
 DEDUCED_1 = 'mock_datasource.3rd_degree_scenarios.deduced.alarm1'
@@ -68,7 +71,7 @@ class TestLongProcessing(TestActionsBase):
             v_utils.delete_template(name=TEMPLATE_NAME)
 
             # sleep to allow get_all to start and finish at least once:
-            time.sleep(4 * self.conf.datasources.snapshots_interval)
+            time.sleep(4 * CONF.root_cause_analysis_service.snapshots_interval)
 
             v_utils.restart_graph()
             self.keep_sending_events = False
@@ -111,7 +114,7 @@ class TestLongProcessing(TestActionsBase):
                 topo2 = TempestClients.vitrage().topology.get(all_tenants=True)
                 self.assert_graph_equal(
                     topo1, topo2, 'comparing graph items iteration ' + str(i))
-                time.sleep(self.conf.datasources.snapshots_interval)
+                time.sleep(CONF.root_cause_analysis_service.snapshots_interval)
 
             v_utils.delete_template(name=TEMPLATE_NAME)
             time.sleep(SLEEP)
@@ -130,11 +133,11 @@ class TestLongProcessing(TestActionsBase):
             alarm_count = TempestClients.vitrage().alarm.count(
                 all_tenants=True)
             self.assertEqual(
-                self.conf.mock_graph_datasource.instances_per_host,
+                CONF.root_cause_analysis_service.instances_per_host,
                 alarm_count['SEVERE'],
                 'Each instance should have one SEVERE deduced alarm')
             self.assertEqual(
-                self.conf.mock_graph_datasource.instances_per_host,
+                CONF.root_cause_analysis_service.instances_per_host,
                 alarm_count['CRITICAL'],
                 'Each instance should have one CRITICAL deduced alarm')
 
