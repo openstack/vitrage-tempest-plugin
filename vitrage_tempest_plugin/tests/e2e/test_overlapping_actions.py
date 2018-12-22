@@ -62,12 +62,6 @@ class TestOverlappingActions(TestActionsBase):
         cls._template = v_utils.add_template(
             'e2e_test_overlapping_actions.yaml')
 
-    def setUp(self):
-        super(TestOverlappingActions, self).setUp()
-
-    def tearDown(self):
-        super(TestOverlappingActions, self).tearDown()
-
     @classmethod
     def tearDownClass(cls):
         if cls._template is not None:

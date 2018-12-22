@@ -27,16 +27,6 @@ class TestAodhAlarm(BaseAlarmsTest):
     NUM_INSTANCE = 1
     NUM_ALARM = 1
 
-    def setUp(self):
-        super(TestAodhAlarm, self).setUp()
-
-    def tearDown(self):
-        super(TestAodhAlarm, self).tearDown()
-
-    @classmethod
-    def setUpClass(cls):
-        super(TestAodhAlarm, cls).setUpClass()
-
     @utils.tempest_logger
     def test_alarm_with_resource_id(self):
         try:

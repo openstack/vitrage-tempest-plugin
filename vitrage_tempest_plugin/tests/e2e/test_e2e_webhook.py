@@ -88,9 +88,6 @@ class TestWebhook(TestActionsBase):
         if cls._template is not None:
             v_utils.delete_template(cls._template['uuid'])
 
-    def setUp(self):
-        super(TestWebhook, self).setUp()
-
     def tearDown(self):
         super(TestWebhook, self).tearDown()
         del messages[:]

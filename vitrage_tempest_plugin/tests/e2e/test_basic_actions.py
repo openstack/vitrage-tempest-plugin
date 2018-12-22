@@ -55,12 +55,6 @@ class TestBasicActions(TestActionsBase):
         super(TestBasicActions, cls).setUpClass()
         cls._template = v_utils.add_template("e2e_test_basic_actions.yaml")
 
-    def setUp(self):
-        super(TestBasicActions, self).setUp()
-
-    def tearDown(self):
-        super(TestBasicActions, self).tearDown()
-
     @classmethod
     def tearDownClass(cls):
         if cls._template is not None:

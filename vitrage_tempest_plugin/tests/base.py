@@ -14,11 +14,9 @@
 
 from datetime import datetime
 import json
-from networkx.readwrite import json_graph
 import six
-import sys
-import traceback
 
+from networkx.readwrite import json_graph
 from oslo_log import log as logging
 from oslo_utils import timeutils
 from oslotest import base
@@ -76,18 +74,10 @@ class BaseVitrageTempest(base.BaseTestCase):
     ADMIN_PROJECT_NAME = 'admin'
 
     def assert_list_equal(self, l1, l2):
-        if tuple(sys.version_info)[0:2] < (2, 7):
-            # for python 2.6 compatibility
-            self.assertEqual(l1, l2)
-        else:
-            super(BaseVitrageTempest, self).assertListEqual(l1, l2)
+        self.assertListEqual(l1, l2)
 
     def assert_dict_equal(self, d1, d2, message):
-        if tuple(sys.version_info)[0:2] < (2, 7):
-            # for python 2.6 compatibility
-            self.assertEqual(d1, d2)
-        else:
-            super(BaseVitrageTempest, self).assertDictEqual(d1, d2, message)
+        self.assertDictEqual(d1, d2, message)
 
     def assert_timestamp_equal(self, first, second, msg=None):
         """Checks that two timestamps are equals.
@@ -353,7 +343,6 @@ class BaseVitrageTempest(base.BaseTestCase):
         LOG.info('Entity Graph: \n%s', json.dumps(node_link_data))
 
     def _handle_exception(self, exception):
-        traceback.print_exc()
         LOG.exception(exception)
         self._print_entity_graph()
 

@@ -28,16 +28,6 @@ LOG = logging.getLogger(__name__)
 class TestHeatStack(BaseTopologyTest):
     NUM_STACKS = 1
 
-    def setUp(self):
-        super(TestHeatStack, self).setUp()
-
-    def tearDown(self):
-        super(TestHeatStack, self).tearDown()
-
-    @classmethod
-    def setUpClass(cls):
-        super(TestHeatStack, cls).setUpClass()
-
     @utils.tempest_logger
     def test_nested_heat_stack(self):
         self._test_heat_stack(nested=True,

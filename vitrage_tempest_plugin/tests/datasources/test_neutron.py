@@ -27,16 +27,6 @@ LOG = logging.getLogger(__name__)
 class TestNeutron(BaseTopologyTest):
     NUM_INSTANCE = 3
 
-    def setUp(self):
-        super(TestNeutron, self).setUp()
-
-    def tearDown(self):
-        super(TestNeutron, self).tearDown()
-
-    @classmethod
-    def setUpClass(cls):
-        super(TestNeutron, cls).setUpClass()
-
     @utils.tempest_logger
     def test_neutron(self):
         """neutron test

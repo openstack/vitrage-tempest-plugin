@@ -22,11 +22,6 @@ LOG = logging.getLogger(__name__)
 class BaseTestEvents(TestActionsBase):
     """Test class for Vitrage event API"""
 
-    # noinspection PyPep8Naming
-    @classmethod
-    def setUpClass(cls):
-        super(BaseTestEvents, cls).setUpClass()
-
     def _check_alarms(self):
         api_alarms = self.vitrage_client.alarm.list(vitrage_id='all',
                                                     all_tenants=True)

@@ -29,16 +29,6 @@ class TestStatic(BaseVitrageTempest):
     NUM_SWITCH = 1
     NUM_NIC = 1
 
-    def setUp(self):
-        super(TestStatic, self).setUp()
-
-    def tearDown(self):
-        super(TestStatic, self).tearDown()
-
-    @classmethod
-    def setUpClass(cls):
-        super(TestStatic, cls).setUpClass()
-
     @utils.tempest_logger
     def test_switches(self):
         try:

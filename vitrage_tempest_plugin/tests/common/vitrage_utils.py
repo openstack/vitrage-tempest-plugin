@@ -51,13 +51,8 @@ def generate_fake_host_alarm(hostname, event_type, enabled=True):
 
 
 def get_first_host(**kwargs):
-    try:
-        hosts = TempestClients.vitrage().resource.list(
-            NOVA_HOST_DATASOURCE, all_tenants=True)
-    except Exception as e:
-        LOG.exception("get_first_host failed with %s", e)
-        hosts = TempestClients.vitrage().resource.list(
-            NOVA_HOST_DATASOURCE, all_tenants=True)
+    hosts = TempestClients.vitrage().resource.list(
+        NOVA_HOST_DATASOURCE, all_tenants=True)
     return g_utils.first_match(hosts, **kwargs)
 
 

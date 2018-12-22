@@ -22,16 +22,6 @@ LOG = logging.getLogger(__name__)
 class TestNova(BaseTopologyTest):
     NUM_INSTANCE = 3
 
-    def setUp(self):
-        super(TestNova, self).setUp()
-
-    def tearDown(self):
-        super(TestNova, self).tearDown()
-
-    @classmethod
-    def setUpClass(cls):
-        super(TestNova, cls).setUpClass()
-
     @utils.tempest_logger
     def test_nova_entities(self):
         try:

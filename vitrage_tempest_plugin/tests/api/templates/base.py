@@ -40,16 +40,6 @@ class BaseTemplateTest(BaseVitrageTempest):
     OK_STATUS = 'validation OK'
     OK_MSG = 'Template validation is OK'
 
-    def setUp(self):
-        super(BaseTemplateTest, self).setUp()
-
-    def tearDown(self):
-        super(BaseTemplateTest, self).tearDown()
-
-    @classmethod
-    def setUpClass(cls):
-        super(BaseTemplateTest, cls).setUpClass()
-
     def _compare_template_lists(self, api_templates, cli_templates):
         self.assertThat(api_templates, IsNotEmpty(),
                         'The template list taken from api is empty')

@@ -27,12 +27,6 @@ LOG = logging.getLogger(__name__)
 
 
 class TestActionsBase(BaseVitrageTempest):
-    def setUp(self):
-        super(TestActionsBase, self).setUp()
-
-    def tearDown(self):
-        super(TestActionsBase, self).tearDown()
-
     @classmethod
     def setUpClass(cls):
         super(TestActionsBase, cls).setUpClass()

@@ -13,6 +13,7 @@
 # under the License.
 import random
 import time
+
 from vitrage_tempest_plugin.tests.common.tempest_clients import TempestClients
 
 

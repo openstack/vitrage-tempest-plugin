@@ -49,12 +49,6 @@ class TestMistralNotifier(BaseTestEvents):
     TRIGGER_ALARM_2 = "notifiers.mistral.trigger.alarm.2"
     TRIGGER_ALARM_FOR_FUNCTION = "notifiers.mistral.trigger.alarm.for.function"
 
-    def setUp(self):
-        super(TestMistralNotifier, self).setUp()
-
-    def tearDown(self):
-        super(TestMistralNotifier, self).tearDown()
-
     @classmethod
     def setUpClass(cls):
         super(TestMistralNotifier, cls).setUpClass()

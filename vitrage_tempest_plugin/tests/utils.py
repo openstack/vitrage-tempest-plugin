@@ -21,19 +21,11 @@ from oslo_config.cfg import NoSuchOptError
 from oslo_log import log as logging
 
 import os
-import re
 import subprocess
 
 LOG = logging.getLogger(__name__)
 
 TIMESTAMP_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
-
-
-def get_from_terminal(command):
-    proc = os.popen(command)
-    text_out = proc.read()
-    proc.close()
-    return text_out
 
 
 def run_vitrage_command(command, conf):
@@ -116,25 +108,6 @@ def get_property_value(environment_name, conf_name, default_value, conf):
                   conf_name)
 
     return default_value
-
-
-def run_from_terminal(command):
-    proc = os.popen(command)
-    proc.close()
-
-
-def change_terminal_dir(path):
-    os.chdir(path)
-    LOG.debug("The path is : " + path)
-
-
-def get_regex_result(pattern, text):
-    p = re.compile(pattern)
-    m = p.search(text)
-    if m:
-        LOG.debug("The regex value is " + m.group(1))
-        return m.group(1)
-    return None
 
 
 def uni2str(text):

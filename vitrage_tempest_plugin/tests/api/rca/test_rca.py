@@ -32,12 +32,6 @@ LOG = logging.getLogger(__name__)
 class TestRca(BaseRcaTest):
     """RCA test class for Vitrage API tests."""
 
-    def setUp(self):
-        super(TestRca, self).setUp()
-
-    def tearDown(self):
-        super(TestRca, self).tearDown()
-
     @classmethod
     def setUpClass(cls):
         super(TestRca, cls).setUpClass()

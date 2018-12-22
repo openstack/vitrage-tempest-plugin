@@ -30,10 +30,6 @@ FAKE_UUID = 'ade68276-0fe9-42cd-9ec2-e7f20470a771'
 class TestValidateV2(BaseTemplateTest):
     """Template test class for Vitrage API tests."""
 
-    @classmethod
-    def setUpClass(cls):
-        super(TestValidateV2, cls).setUpClass()
-
     def test_templates_validate_no_type_templates(self):
         try:
             path = self.TEST_PATH + NO_TYPE_TEMPLATE

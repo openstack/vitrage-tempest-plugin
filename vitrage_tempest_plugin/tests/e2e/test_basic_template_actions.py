@@ -58,9 +58,6 @@ class TestTemplateActions(TestActionsBase):
         super(TestTemplateActions, self).__init__(*args, **kwds)
         self.added_template = None
 
-    def setUp(self):
-        super(TestTemplateActions, self).setUp()
-
     def tearDown(self):
         super(TestTemplateActions, self).tearDown()
         time.sleep(10)

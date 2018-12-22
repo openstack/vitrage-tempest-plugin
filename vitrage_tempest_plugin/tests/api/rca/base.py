@@ -45,16 +45,6 @@ VITRAGE_ALARM_NAME = 'instance_deduce'
 
 class BaseRcaTest(BaseAlarmsTest):
 
-    def setUp(self):
-        super(BaseRcaTest, self).setUp()
-
-    def tearDown(self):
-        super(BaseRcaTest, self).tearDown()
-
-    @classmethod
-    def setUpClass(cls):
-        super(BaseRcaTest, cls).setUpClass()
-
     def _clean_all(self):
         nova_utils.delete_all_instances()
         aodh_utils.delete_all_aodh_alarms()
