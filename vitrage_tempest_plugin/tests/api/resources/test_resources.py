@@ -43,14 +43,21 @@ class TestResource(BaseVitrageTempest):
                   VProps.STATE,
                   VProps.VITRAGE_AGGREGATED_STATE)
 
+    @classmethod
+    def setUpClass(cls):
+        super(TestResource, cls).setUpClass()
+        cls.instances = nova_utils.create_instances(num_instances=1,
+                                                    set_public_network=True)
+
+    @classmethod
+    def tearDownClass(cls):
+        super(TestResource, cls).tearDownClass()
+        nova_utils.delete_created_instances(cls.instances)
+
     @utils.tempest_logger
     def test_compare_cli_vs_api_resource_list(self):
         """resource list """
         try:
-            instances = nova_utils.create_instances(num_instances=1,
-                                                    set_public_network=True)
-            self.assertThat(instances, IsNotEmpty(),
-                            'The instances list is empty')
             api_resources = self.vitrage_client.resource.list(
                 all_tenants=True)
 
@@ -63,8 +70,6 @@ class TestResource(BaseVitrageTempest):
         except Exception as e:
             self._handle_exception(e)
             raise
-        finally:
-            nova_utils.delete_all_instances()
 
     @utils.tempest_logger
     def test_default_resource_list(self):
@@ -73,17 +78,11 @@ class TestResource(BaseVitrageTempest):
         get the resources: network, instance, port
         """
         try:
-            instances = nova_utils.create_instances(num_instances=1,
-                                                    set_public_network=True)
-            self.assertThat(instances, IsNotEmpty(),
-                            'The instances list is empty')
             resources = self.vitrage_client.resource.list(all_tenants=False)
             self.assertThat(resources, matchers.HasLength(3))
         except Exception as e:
             self._handle_exception(e)
             raise
-        finally:
-            nova_utils.delete_all_instances()
 
     @utils.tempest_logger
     def test_resource_list_with_all_tenants(self):
@@ -92,13 +91,12 @@ class TestResource(BaseVitrageTempest):
         get the resources:
 
         """
+        instances = None
         try:
             resources_before = self.vitrage_client.resource.list(
                 all_tenants=True)
             instances = nova_utils.create_instances(num_instances=1,
                                                     set_public_network=True)
-            self.assertThat(instances, IsNotEmpty(),
-                            'The instances list is empty')
             resources = self.vitrage_client.resource.list(all_tenants=True)
 
             self.assertEqual(len(resources_before) + 2, len(resources))
@@ -106,7 +104,8 @@ class TestResource(BaseVitrageTempest):
             self._handle_exception(e)
             raise
         finally:
-            nova_utils.delete_all_instances()
+            if instances:
+                nova_utils.delete_created_instances(instances)
 
     @utils.tempest_logger
     def test_resource_list_with_existing_type(self):
@@ -115,10 +114,6 @@ class TestResource(BaseVitrageTempest):
         get the resource: one instance
         """
         try:
-            instances = nova_utils.create_instances(num_instances=1,
-                                                    set_public_network=True)
-            self.assertThat(instances, IsNotEmpty(),
-                            'The instances list is empty')
             resources = self.vitrage_client.resource.list(
                 resource_type=NOVA_INSTANCE_DATASOURCE,
                 all_tenants=True)
@@ -126,17 +121,11 @@ class TestResource(BaseVitrageTempest):
         except Exception as e:
             self._handle_exception(e)
             raise
-        finally:
-            nova_utils.delete_all_instances()
 
     @utils.tempest_logger
     def test_resource_list_with_no_existing_type(self):
         """resource list with no existing type"""
         try:
-            instances = nova_utils.create_instances(num_instances=1,
-                                                    set_public_network=True)
-            self.assertThat(instances, IsNotEmpty(),
-                            'The instances list is empty')
             resources = self.vitrage_client.resource.list(
                 resource_type=CINDER_VOLUME_DATASOURCE,
                 all_tenants=True)
@@ -144,8 +133,59 @@ class TestResource(BaseVitrageTempest):
         except Exception as e:
             self._handle_exception(e)
             raise
-        finally:
-            nova_utils.delete_all_instances()
+
+    @utils.tempest_logger
+    def test_resource_list_with_query_existing(self):
+        try:
+            resources = self.vitrage_client.resource.list(
+                resource_type=NOVA_INSTANCE_DATASOURCE,
+                all_tenants=True,
+                query='{"==": {"name": "vm-0"}}'
+            )
+            self.assertThat(resources, matchers.HasLength(1))
+        except Exception as e:
+            self._handle_exception(e)
+            raise
+
+    @utils.tempest_logger
+    def test_resource_list_with_query_none_existing(self):
+        try:
+            resources = self.vitrage_client.resource.list(
+                resource_type=NOVA_INSTANCE_DATASOURCE,
+                all_tenants=True,
+                query='{"==": {"name": "kuku-does-not-exist"}}'
+            )
+            self.assertThat(resources, matchers.HasLength(0))
+        except Exception as e:
+            self._handle_exception(e)
+            raise
+
+    @utils.tempest_logger
+    def test_resource_count(self):
+        try:
+            resources = self.vitrage_client.resource.count(
+                resource_type=NOVA_INSTANCE_DATASOURCE,
+                all_tenants=True,
+                query='{"==": {"name": "vm-0"}}'
+            )
+            self.assertThat(resources, matchers.HasLength(1))
+            self.assertEqual(1, resources[NOVA_INSTANCE_DATASOURCE])
+        except Exception as e:
+            self._handle_exception(e)
+            raise
+
+    @utils.tempest_logger
+    def test_resource_count_empty(self):
+        try:
+            resources = self.vitrage_client.resource.count(
+                resource_type=NOVA_INSTANCE_DATASOURCE,
+                all_tenants=True,
+                query='{"==": {"name": "kuku-does-not-exist"}}'
+            )
+            self.assertThat(resources, matchers.HasLength(0))
+        except Exception as e:
+            self._handle_exception(e)
+            raise
 
     @unittest.skip("CLI tests are ineffective and not maintained")
     def test_compare_resource_show(self):

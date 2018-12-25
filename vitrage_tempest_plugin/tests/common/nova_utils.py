@@ -42,8 +42,7 @@ def create_instances(num_instances=1, set_public_network=False, name='vm'):
         if not success:
             LOG.warning("create instance failed, delete and retry %s",
                         str(resources))
-            for r in resources:
-                delete_all_instances(id=r.id)
+            delete_created_instances(resources)
             time.sleep(10)
     raise AssertionError("Unable to create vms, retries failed")
 
@@ -57,6 +56,13 @@ def _create_instances(flavor, image, name, nics, num_instances):
     success = wait_for_status(
         30, check_new_instances, ids=[instance.id for instance in resources])
     return success, resources
+
+
+def delete_created_instances(instances):
+    if not instances:
+        return
+    for instance in instances:
+        delete_all_instances(id=instance.id)
 
 
 def delete_all_instances(**kwargs):
