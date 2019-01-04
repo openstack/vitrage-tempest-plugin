@@ -140,10 +140,11 @@ class BaseRcaTest(BaseAlarmsTest):
         for item in links:
             source_alarm_name = alarms[item['source']].get(VProps.NAME)
             target_alarm_name = alarms[item['target']].get(VProps.NAME)
-            if item.get('key') != EdgeLabel.CAUSES \
-                    or item.get(EdgeProperties.RELATIONSHIP_TYPE) != EdgeLabel.CAUSES \
-                    or source_alarm_name != RCA_ALARM_NAME \
-                    or target_alarm_name != VITRAGE_ALARM_NAME:
+            relationship_type = item.get(EdgeProperties.RELATIONSHIP_TYPE)
+            if (item.get('key') != EdgeLabel.CAUSES or
+               relationship_type != EdgeLabel.CAUSES or
+               source_alarm_name != RCA_ALARM_NAME or
+               target_alarm_name != VITRAGE_ALARM_NAME):
                 flag = False
 
         self.assertThat(alarms, matchers.HasLength(3))
