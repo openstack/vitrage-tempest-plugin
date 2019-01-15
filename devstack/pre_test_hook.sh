@@ -15,4 +15,8 @@
 
 DEVSTACK_PATH="$BASE/new"
 
+# Copy prometheus_conf.yaml to /etc/vitrage directory
+ETC_VITRAGE=/etc/vitrage/
+PROMETHES_CONF_PATH=vitrage-tempest-plugin/vitrage_tempest_plugin/tests/resources/prometheus/prometheus_conf.yaml
+sudo mkdir -p $ETC_VITRAGE && sudo cp $DEVSTACK_PATH/$PROMETHES_CONF_PATH $ETC_VITRAGE
 

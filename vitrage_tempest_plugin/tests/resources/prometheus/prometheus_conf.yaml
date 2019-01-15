@@ -1,0 +1,12 @@
+alerts:
+  - key:
+      alertname: HighCpuOnVmAlert
+      job: libvirt
+    resource:
+      instance_name: domain
+      host_id: instance
+  - key:
+      alertname: HighInodeUsage
+      job: node
+    resource:
+      id: instance
