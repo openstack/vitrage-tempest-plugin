@@ -1,0 +1,25 @@
+metadata:
+ version: 3
+ name: v3_execute_mistral
+ description: execute mistral
+ type: standard
+entities:
+ alarm_3:
+  name: notifiers.mistral.trigger.alarm.3
+ alarm_for_func:
+  name: notifiers.mistral.trigger.alarm.for.function.v3
+ host:
+  type: nova.host
+scenarios:
+ - condition: alarm_3 [on] host
+   actions:
+     - execute_mistral:
+        workflow: wf_for_tempest_test_1234
+        input:
+         farewell: Hello and Goodbye
+ - condition: alarm_for_func [on] host
+   actions:
+     - execute_mistral:
+        workflow: wf_for_tempest_test_1234
+        input:
+         farewell: get_attr(alarm_for_func,name)

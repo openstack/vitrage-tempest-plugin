@@ -1,0 +1,54 @@
+metadata:
+ version: 3
+ name: e2e_test_basic_actions v3
+ description: this template includes vitrage basic actions
+ type: standard
+entities:
+ trigger_alarm_1:
+  name: e2e.test_basic_actions.trigger.alarm1.v3
+ trigger_alarm_2:
+  name: e2e.test_basic_actions.trigger.alarm2.v3
+ trigger_alarm_3:
+  name: e2e.test_basic_actions.trigger.alarm3.v3
+ trigger_alarm_4:
+  name: e2e.test_basic_actions.trigger.alarm4.v3
+ trigger_alarm_5:
+  name: e2e.test_basic_actions.trigger.alarm5.v3
+ deduced_alarm:
+  name: e2e.test_basic_actions.deduced.alarm.v3
+  type: vitrage
+ host:
+  type: nova.host
+ instance:
+  type: nova.instance
+scenarios:
+ - condition: trigger_alarm_1 [ on ] host
+   actions:
+     - set_state:
+        state: ERROR
+        target: host
+ - condition: trigger_alarm_4 [ on ] host
+   actions:
+     - mark_down:
+        target: host
+ - condition: trigger_alarm_2 [ on ] host
+   actions:
+    - raise_alarm:
+       target: host
+       alarm_name: e2e.test_basic_actions.deduced.alarm.v3
+       severity: WARNING
+#       causing_alarm: trigger_alarm_2
+ - condition: trigger_alarm_2 [ on ] host AND deduced_alarm [on] host
+   actions:
+     - add_causal_relationship:
+        source: trigger_alarm_2
+        target: deduced_alarm
+ - condition: trigger_alarm_3 [ on ] host AND host [ contains ] instance
+   actions:
+     - set_state:
+        state: ERROR
+        target: instance
+ - condition: trigger_alarm_5 [ on ] host AND host [ contains ] instance
+   actions:
+     - mark_down:
+        target: instance

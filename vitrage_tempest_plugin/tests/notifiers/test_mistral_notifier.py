@@ -47,7 +47,10 @@ class TestMistralNotifier(BaseTestEvents):
 
     TRIGGER_ALARM_1 = "notifiers.mistral.trigger.alarm.1"
     TRIGGER_ALARM_2 = "notifiers.mistral.trigger.alarm.2"
+    TRIGGER_ALARM_3 = "notifiers.mistral.trigger.alarm.3"
     TRIGGER_ALARM_FOR_FUNCTION = "notifiers.mistral.trigger.alarm.for.function"
+    TRIGGER_ALARM_FOR_FUNCTION_v3 = \
+        "notifiers.mistral.trigger.alarm.for.function.v3"
 
     @classmethod
     def setUpClass(cls):
@@ -56,12 +59,14 @@ class TestMistralNotifier(BaseTestEvents):
         cls._templates = []
         cls._templates.append(v_utils.add_template('v1_execute_mistral.yaml'))
         cls._templates.append(v_utils.add_template('v2_execute_mistral.yaml'))
+        cls._templates.append(v_utils.add_template('v3_execute_mistral.yaml'))
 
     @classmethod
     def tearDownClass(cls):
         if cls._templates is not None:
             v_utils.delete_template(cls._templates[0]['uuid'])
             v_utils.delete_template(cls._templates[1]['uuid'])
+            v_utils.delete_template(cls._templates[2]['uuid'])
 
     @utils.tempest_logger
     def test_execute_mistral_v1(self):
@@ -72,32 +77,39 @@ class TestMistralNotifier(BaseTestEvents):
         self._do_test_execute_mistral(self.TRIGGER_ALARM_2)
 
     @utils.tempest_logger
-    def test_execute_mistral_with_function(self):
+    def test_execute_mistral_v3(self):
+        self._do_test_execute_mistral(self.TRIGGER_ALARM_3)
+
+    @utils.tempest_logger
+    def test_execute_mistral_with_function_v2(self):
         # Execute the basic test
         self._do_test_execute_mistral(self.TRIGGER_ALARM_FOR_FUNCTION)
+        self._do_test_function(self.TRIGGER_ALARM_FOR_FUNCTION)
 
+    @utils.tempest_logger
+    def test_execute_mistral_with_function_v3(self):
+        # Execute the basic test
+        self._do_test_execute_mistral(self.TRIGGER_ALARM_FOR_FUNCTION_v3)
+        self._do_test_function(self.TRIGGER_ALARM_FOR_FUNCTION_v3)
+
+    def _do_test_function(self, trigger):
         # Make sure that the workflow execution was done with the correct input
         # (can be checked even if the Vitrage alarm is already down)
         executions = self.mistral_client.executions.list()
-
         last_execution = executions[0]
         for execution in executions:
             if execution.updated_at > last_execution.updated_at:
                 last_execution = execution
-
         execution_input_str = last_execution.input
         self.assertIsNotNone(execution_input_str,
                              'The last execution had no input')
         self.assertIn('farewell', execution_input_str,
                       'No \'farewell\' key in the last execution input')
-
         execution_input = json.loads(execution_input_str)
-
         farewell_value = execution_input['farewell']
         self.assertIsNotNone(farewell_value, '\'farewell\' input parameter is '
                                              'None in last workflow execution')
-
-        self.assertEqual(self.TRIGGER_ALARM_FOR_FUNCTION, farewell_value,
+        self.assertEqual(trigger, farewell_value,
                          '\'farewell\' input parameter does not match the'
                          'alarm name')
 
