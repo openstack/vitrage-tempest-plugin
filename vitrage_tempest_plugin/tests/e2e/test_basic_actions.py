@@ -91,11 +91,11 @@ class TestBasicActions(TestActionsBase):
     def test_action_set_state_host_v3(self):
         self._do_test_action_set_state_host(TRIGGER_ALARM_1_V3)
 
-    def _do_test_action_set_state_host(self, trigger):
+    def _do_test_action_set_state_host(self, trigger_name):
         try:
 
             # Do
-            self._trigger_do_action(trigger)
+            self._trigger_do_action(trigger_name)
             curr_host = v_utils.get_first_host()
             self.assertEqual(
                 'ERROR',
@@ -103,7 +103,7 @@ class TestBasicActions(TestActionsBase):
                 'state should change after set_state action')
 
             # Undo
-            self._trigger_undo_action(trigger)
+            self._trigger_undo_action(trigger_name)
             curr_host = v_utils.get_first_host()
             self.assertEqual(
                 self.orig_host.get(VProps.VITRAGE_AGGREGATED_STATE),
@@ -113,7 +113,7 @@ class TestBasicActions(TestActionsBase):
             self._handle_exception(e)
             raise
         finally:
-            self._trigger_undo_action(trigger)
+            self._trigger_undo_action(trigger_name)
 
     @utils.tempest_logger
     def test_action_set_state_instance(self):
@@ -123,7 +123,7 @@ class TestBasicActions(TestActionsBase):
     def test_action_set_state_instance_v3(self):
         self._do_test_action_set_state_instance(TRIGGER_ALARM_3_V3)
 
-    def _do_test_action_set_state_instance(self, trigger):
+    def _do_test_action_set_state_instance(self, trigger_name):
 
         vm_id = ""
         try:
@@ -131,7 +131,7 @@ class TestBasicActions(TestActionsBase):
 
             # Do
             orig_instance = v_utils.get_first_instance(id=vm_id)
-            self._trigger_do_action(trigger)
+            self._trigger_do_action(trigger_name)
             curr_instance = v_utils.get_first_instance(id=vm_id)
             self.assertEqual(
                 'ERROR',
@@ -139,7 +139,7 @@ class TestBasicActions(TestActionsBase):
                 'state should change after set_state action')
 
             # Undo
-            self._trigger_undo_action(trigger)
+            self._trigger_undo_action(trigger_name)
             curr_instance = v_utils.get_first_instance(id=vm_id)
             self.assertEqual(
                 orig_instance.get(VProps.VITRAGE_AGGREGATED_STATE),
@@ -149,7 +149,7 @@ class TestBasicActions(TestActionsBase):
             self._handle_exception(e)
             raise
         finally:
-            self._trigger_undo_action(trigger)
+            self._trigger_undo_action(trigger_name)
             nova_utils.delete_all_instances(id=vm_id)
 
     @utils.tempest_logger
@@ -160,18 +160,18 @@ class TestBasicActions(TestActionsBase):
     def test_action_mark_down_host_v3(self):
         self._do_test_action_mark_down_host(TRIGGER_ALARM_4_V3)
 
-    def _do_test_action_mark_down_host(self, trigger):
+    def _do_test_action_mark_down_host(self, trigger_name):
         try:
             host_name = self.orig_host.get(VProps.NAME)
 
             # Do
-            self._trigger_do_action(trigger)
+            self._trigger_do_action(trigger_name)
             nova_service = TempestClients.nova().services.list(
                 host=host_name, binary='nova-compute')[0]
             self.assertEqual("down", str(nova_service.state))
 
             # Undo
-            self._trigger_undo_action(trigger)
+            self._trigger_undo_action(trigger_name)
             nova_service = TempestClients.nova().services.list(
                 host=host_name, binary='nova-compute')[0]
             self.assertEqual("up", str(nova_service.state))
@@ -179,7 +179,7 @@ class TestBasicActions(TestActionsBase):
             self._handle_exception(e)
             raise
         finally:
-            self._trigger_undo_action(trigger)
+            self._trigger_undo_action(trigger_name)
             # nova.host datasource may take up to snapshot_intreval to update
             time.sleep(130)
 
@@ -191,17 +191,17 @@ class TestBasicActions(TestActionsBase):
     def test_action_mark_down_instance_v3(self):
         self._do_test_action_mark_down_instance(TRIGGER_ALARM_5_V3)
 
-    def _do_test_action_mark_down_instance(self, trigger):
+    def _do_test_action_mark_down_instance(self, trigger_name):
         vm_id = ""
         try:
             vm_id = nova_utils.create_instances(set_public_network=True)[0].id
             # Do
-            self._trigger_do_action(trigger)
+            self._trigger_do_action(trigger_name)
             nova_instance = TempestClients.nova().servers.get(vm_id)
             self.assertEqual("ERROR", str(nova_instance.status))
 
             # Undo
-            self._trigger_undo_action(trigger)
+            self._trigger_undo_action(trigger_name)
             nova_instance = TempestClients.nova().servers.get(vm_id)
             self.assertEqual("ACTIVE", str(nova_instance.status))
         except Exception as e:
@@ -209,7 +209,7 @@ class TestBasicActions(TestActionsBase):
             raise
         finally:
             pass
-            self._trigger_undo_action(trigger)
+            self._trigger_undo_action(trigger_name)
             nova_utils.delete_all_instances(id=vm_id)
 
     @utils.tempest_logger
@@ -220,22 +220,22 @@ class TestBasicActions(TestActionsBase):
     def test_action_deduce_alarm_v3(self):
         self._do_test_action_deduce_alarm(TRIGGER_ALARM_2_V3, DEDUCED_PROPS_V3)
 
-    def _do_test_action_deduce_alarm(self, trigger, deduced_props):
+    def _do_test_action_deduce_alarm(self, trigger_name, deduced_props):
         try:
             host_id = self.orig_host.get(VProps.VITRAGE_ID)
 
             # Do
-            self._trigger_do_action(trigger)
+            self._trigger_do_action(trigger_name)
             self._check_deduced(1, deduced_props, host_id)
 
             # Undo
-            self._trigger_undo_action(trigger)
+            self._trigger_undo_action(trigger_name)
             self._check_deduced(0, deduced_props, host_id)
         except Exception as e:
             self._handle_exception(e)
             raise
         finally:
-            self._trigger_undo_action(trigger)
+            self._trigger_undo_action(trigger_name)
 
     @utils.tempest_logger
     def test_action_add_causal_relationship(self):
@@ -250,12 +250,12 @@ class TestBasicActions(TestActionsBase):
                                                      TRIGGER_ALARM_2_PROPS_V3)
 
     def _do_test_action_add_causal_relationship(self,
-                                                trigger,
+                                                trigger_name,
                                                 deduced_props,
                                                 trigger_alarm_props):
         try:
             # Do
-            self._trigger_do_action(trigger)
+            self._trigger_do_action(trigger_name)
             alarms = TempestClients.vitrage().alarm.list(
                 vitrage_id=self.orig_host.get(VProps.VITRAGE_ID),
                 all_tenants=True)
@@ -277,4 +277,4 @@ class TestBasicActions(TestActionsBase):
             self._handle_exception(e)
             raise
         finally:
-            self._trigger_undo_action(trigger)
+            self._trigger_undo_action(trigger_name)
