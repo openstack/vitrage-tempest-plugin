@@ -73,11 +73,14 @@ class BaseVitrageTempest(base.BaseTestCase):
     ADMIN_USERNAME = 'admin'
     ADMIN_PROJECT_NAME = 'admin'
 
-    def assert_list_equal(self, l1, l2):
-        self.assertListEqual(l1, l2)
+    def assert_list_equal(self, l1, l2, message=None):
+        self.assertListEqual(l1, l2, message)
 
-    def assert_dict_equal(self, d1, d2, message):
+    def assert_dict_equal(self, d1, d2, message=None):
         self.assertDictEqual(d1, d2, message)
+
+    def assert_set_equal(self, s1, s2, message=None):
+        self.assertSetEqual(s1, s2, message)
 
     def assert_timestamp_equal(self, first, second, msg=None):
         """Checks that two timestamps are equals.
