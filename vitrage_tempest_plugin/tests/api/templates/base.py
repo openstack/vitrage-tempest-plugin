@@ -20,8 +20,9 @@ from vitrage.common.exception import VitrageError
 from vitrage_tempest_plugin.tests.base import BaseVitrageTempest
 from vitrage_tempest_plugin.tests.base import IsNotEmpty
 from vitrage_tempest_plugin.tests.common import general_utils as g_utils
+from vitrage_tempest_plugin.tests.common.general_utils\
+    import tempest_resources_dir
 from vitrage_tempest_plugin.tests.common import vitrage_utils
-
 
 LOG = logging.getLogger(__name__)
 
@@ -29,15 +30,14 @@ LOG = logging.getLogger(__name__)
 class BaseTemplateTest(BaseVitrageTempest):
     """Template test class for Vitrage API tests."""
 
-    TEST_PATH = '/opt/stack/vitrage/vitrage_tempest_plugin/' \
-                + 'tests/resources/templates/api/'
+    TEST_PATH = tempest_resources_dir() + '/templates/api/'
 
     NON_EXIST_FILE = 'non_exist_file.yaml'
     ERROR_FILE = 'corrupted_template.yaml'
     OK_FILE = 'nagios_alarm_for_alarms.yaml'
 
-    ERROR_STATUS = 'validation failed'
-    OK_STATUS = 'validation OK'
+    VALIDATION_FAILED = 'validation failed'
+    VALIDATION_OK = 'validation OK'
     OK_MSG = 'Template validation is OK'
 
     def _compare_template_lists(self, api_templates, cli_templates):
@@ -100,23 +100,30 @@ class BaseTemplateTest(BaseVitrageTempest):
                         'The template validation is empty')
         self.assertEqual(path, validation['file path'])
         self.assertEqual(0, validation['status code'])
-        self.assertEqual(self.OK_STATUS, validation['status'])
+        self.assertEqual(self.VALIDATION_OK, validation['status'])
         self.assertEqual(self.OK_MSG, validation['message'])
         self.assertEqual(validation['message'], template['status details'])
 
-    def _run_template_validation(
-            self, validation, path, negative=False):
-        self.assertIn(path, validation['file path'])
+    def _assert_validate_result(self, validation, path, negative=False,
+                                status_code=0):
+        self.assertThat(validation['results'], matchers.HasLength(1))
+        result = validation['results'][0]
+        self.assertIn(path, result['file path'])
 
         if negative:
-            self.assertEqual(3, validation['status code'])
-            self.assertEqual(self.ERROR_STATUS, validation['status'])
-            self.assertNotEqual(validation['message'], self.OK_MSG)
+            self.assertEqual(status_code, result['status code'])
+            self.assertEqual(self.VALIDATION_FAILED, result['status'])
+            self.assertNotEqual(result['message'], self.OK_MSG)
             return
 
-        self.assertEqual(0, validation['status code'])
-        self.assertEqual(self.OK_STATUS, validation['status'])
-        self.assertEqual(self.OK_MSG, validation['message'])
+        self.assertEqual(0, result['status code'])
+        self.assertEqual(self.VALIDATION_OK, result['status'])
+        self.assertEqual(self.OK_MSG, result['message'])
+
+    def _assert_add_result(self, result, status, message):
+        self.assertThat(result, matchers.HasLength(1))
+        self.assertEqual(status, result[0]['status'])
+        self.assertEqual(message, result[0]['status details'])
 
     def _compare_template_show(self, api_templates, cli_templates):
         self.assertThat(api_templates, IsNotEmpty(),
@@ -134,7 +141,8 @@ class BaseTemplateTest(BaseVitrageTempest):
         sorted_api_templates = sorted(api_templates.items())
         self.assertEqual(sorted_api_templates, sorted_cli_templates)
 
-    def _rollback_to_default(self, templates):
+    @staticmethod
+    def _rollback_to_default(templates):
         try:
             for t in templates:
                 db_row = vitrage_utils.get_first_template(name=t)

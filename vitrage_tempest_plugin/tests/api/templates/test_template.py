@@ -89,8 +89,8 @@ class TestValidate(BaseTemplateTest):
             path = self.TEST_PATH + self.ERROR_FILE
             validation = self.vitrage_client.template.validate(path=path)
             self.assertThat(validation['results'], matchers.HasLength(1))
-            self._run_template_validation(
-                validation['results'][0], path, negative=True)
+            self._assert_validate_result(
+                validation, path, negative=True, status_code=3)
         except Exception:
             LOG.error('Failed to get validation of corrupted template file')
 
@@ -103,8 +103,7 @@ class TestValidate(BaseTemplateTest):
             path = self.TEST_PATH + self.OK_FILE
             validation = self.vitrage_client.template.validate(path=path)
             self.assertThat(validation['results'], matchers.HasLength(1))
-            self._run_template_validation(
-                validation['results'][0], path)
+            self._assert_validate_result(validation, path)
         except Exception:
             LOG.error('Failed to get validation of template file')
 
