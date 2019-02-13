@@ -236,8 +236,8 @@ class TemplatesDBTest(BaseTemplateTest):
                 status=TemplateStatus.ACTIVE)
             payload_from_db = self.client.template.show(db_row['uuid'])
             payload_from_file = file.load_yaml_file(template_path)
-            self.assertEqual(payload_from_file, payload_from_db,
-                             "Template content doesn't match")
+            self.assert_dict_equal(payload_from_file, payload_from_db,
+                                   "Template content doesn't match")
             v_utils.delete_template(db_row['uuid'])
         except Exception as e:
             self._handle_exception(e)

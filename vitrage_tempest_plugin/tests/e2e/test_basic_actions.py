@@ -168,13 +168,13 @@ class TestBasicActions(TestActionsBase):
             self._trigger_do_action(trigger_name)
             nova_service = TempestClients.nova().services.list(
                 host=host_name, binary='nova-compute')[0]
-            self.assertEqual("down", str(nova_service.state))
+            self.assertEqual("down", nova_service.state)
 
             # Undo
             self._trigger_undo_action(trigger_name)
             nova_service = TempestClients.nova().services.list(
                 host=host_name, binary='nova-compute')[0]
-            self.assertEqual("up", str(nova_service.state))
+            self.assertEqual("up", nova_service.state)
         except Exception as e:
             self._handle_exception(e)
             raise
@@ -198,12 +198,12 @@ class TestBasicActions(TestActionsBase):
             # Do
             self._trigger_do_action(trigger_name)
             nova_instance = TempestClients.nova().servers.get(vm_id)
-            self.assertEqual("ERROR", str(nova_instance.status))
+            self.assertEqual("ERROR", nova_instance.status)
 
             # Undo
             self._trigger_undo_action(trigger_name)
             nova_instance = TempestClients.nova().servers.get(vm_id)
-            self.assertEqual("ACTIVE", str(nova_instance.status))
+            self.assertEqual("ACTIVE", nova_instance.status)
         except Exception as e:
             self._handle_exception(e)
             raise

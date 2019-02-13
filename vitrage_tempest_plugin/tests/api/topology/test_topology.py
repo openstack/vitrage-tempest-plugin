@@ -456,7 +456,7 @@ class TestTopology(BaseTopologyTest):
                 all_tenants=True)
 
             # Test Assertions
-            self.assertEqual({}, api_graph)
+            self.assert_is_empty(api_graph)
         except Exception as e:
             self._handle_exception(e)
             raise

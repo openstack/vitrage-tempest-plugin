@@ -299,8 +299,8 @@ class TestWebhook(TestActionsBase):
 
                 sent_fields = utils.filter_data(payload, DOCTOR_ALARM_FILTER)
 
-                self.assertEqual(DOCTOR_ALARM_FILTER, sent_fields,
-                                 "Some alarm fields not sent")
+                self.assert_set_equal(DOCTOR_ALARM_FILTER, sent_fields,
+                                      "Some alarm fields not sent")
 
                 resource = payload.get(VProps.RESOURCE)
                 if resource:
@@ -314,8 +314,8 @@ class TestWebhook(TestActionsBase):
 
                     sent_fields = utils.filter_data(resource, RESOURCE_FILTER)
 
-                    self.assertEqual(RESOURCE_FILTER, sent_fields,
-                                     "Some resource fields not sent")
+                    self.assert_set_equal(RESOURCE_FILTER, sent_fields,
+                                          "Some resource fields not sent")
         finally:
             self._trigger_undo_action(TRIGGER_ALARM_1)
 

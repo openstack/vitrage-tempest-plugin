@@ -93,7 +93,7 @@ class BaseTopologyTest(BaseVitrageTempest):
         for item in sorted_api_graph[4][1]:
             item.pop(VProps.VITRAGE_SAMPLE_TIMESTAMP, None)
 
-        self.assertEqual(sorted_cli_graph, sorted_api_graph)
+        self.assert_list_equal(sorted_cli_graph, sorted_api_graph)
 
     @staticmethod
     def _graph_query():

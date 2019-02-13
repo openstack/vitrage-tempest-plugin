@@ -118,19 +118,19 @@ class TestOverlappingActions(TestActionsBase):
             self._trigger_do_action(TRIGGER_ALARM_3)
             nova_service = TempestClients.nova().services.list(
                 host=host_name, binary='nova-compute')[0]
-            self.assertEqual("down", str(nova_service.state))
+            self.assertEqual("down", nova_service.state)
 
             # Do - second
             self._trigger_do_action(TRIGGER_ALARM_4)
             nova_service = TempestClients.nova().services.list(
                 host=host_name, binary='nova-compute')[0]
-            self.assertEqual("down", str(nova_service.state))
+            self.assertEqual("down", nova_service.state)
 
             # Undo - first
             self._trigger_undo_action(TRIGGER_ALARM_3)
             nova_service = TempestClients.nova().services.list(
                 host=host_name, binary='nova-compute')[0]
-            self.assertEqual("down", str(nova_service.state))
+            self.assertEqual("down", nova_service.state)
 
             # Undo - second
             self._trigger_undo_action(TRIGGER_ALARM_4)

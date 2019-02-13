@@ -69,7 +69,7 @@ class BaseTemplateTest(BaseVitrageTempest):
         parsed_topology = json.loads(cli_templates)
         sorted_cli_templates = sorted(parsed_topology.items())
         sorted_api_templates = sorted(api_templates.items())
-        self.assertEqual(sorted_api_templates, sorted_cli_templates)
+        self.assert_list_equal(sorted_api_templates, sorted_cli_templates)
 
     def _validate_templates_list_length(self, api_templates, cli_templates):
         self.assertEqual(len(cli_templates.splitlines()),
@@ -132,7 +132,7 @@ class BaseTemplateTest(BaseVitrageTempest):
         parsed_topology = json.loads(cli_templates)
         sorted_cli_templates = sorted(parsed_topology.items())
         sorted_api_templates = sorted(api_templates.items())
-        self.assertEqual(sorted_api_templates, sorted_cli_templates)
+        self.assert_list_equal(sorted_api_templates, sorted_cli_templates)
 
     def _rollback_to_default(self, templates):
         try:

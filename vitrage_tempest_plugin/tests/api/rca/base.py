@@ -75,7 +75,7 @@ class BaseRcaTest(BaseAlarmsTest):
         parsed_rca = json.loads(cli_rca)
         sorted_cli_graph = self._clean_timestamps(sorted(parsed_rca.items()))
         sorted_api_graph = self._clean_timestamps(sorted(api_rca.items()))
-        self.assertEqual(sorted_cli_graph, sorted_api_graph)
+        self.assert_list_equal(sorted_cli_graph, sorted_api_graph)
 
     def _validate_rca(self, rca):
         self.assertThat(rca, IsNotEmpty, 'The rca is empty')
