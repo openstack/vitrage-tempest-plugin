@@ -222,8 +222,8 @@ class TestLongProcessing(TestActionsBase):
                 try:
                     v_utils.generate_fake_host_alarm(
                         'nova.host-0-nova.zone-0-openstack.cluster-0',
-                        'test_high_availability_events'
-                        + str(self.num_of_sent_events))
+                        'test_high_availability_events' +
+                        str(self.num_of_sent_events))
                     self.num_of_sent_events += 1
                     time.sleep(spacing)
                 except Exception:
