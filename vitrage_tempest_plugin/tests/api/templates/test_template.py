@@ -15,8 +15,7 @@
 
 from oslo_log import log as logging
 from testtools import matchers
-
-from vitrage.utils import file
+import yaml
 
 from vitrage_tempest_plugin.tests.api.templates.base import BaseTemplateTest
 from vitrage_tempest_plugin.tests.base import IsNotEmpty
@@ -234,7 +233,8 @@ class TemplatesDBTest(BaseTemplateTest):
                 type=TTypes.STANDARD,
                 status=TemplateStatus.ACTIVE)
             payload_from_db = self.client.template.show(db_row['uuid'])
-            payload_from_file = file.load_yaml_file(template_path)
+            with open(template_path, 'r') as stream:
+                payload_from_file = yaml.load(stream, Loader=yaml.BaseLoader)
             self.assert_dict_equal(payload_from_file, payload_from_db,
                                    "Template content doesn't match")
             v_utils.delete_template(db_row['uuid'])
