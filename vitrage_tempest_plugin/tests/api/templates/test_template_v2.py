@@ -13,7 +13,6 @@
 # under the License.
 
 from oslo_log import log as logging
-from testtools import matchers
 
 from vitrage_tempest_plugin.tests.api.templates.base import BaseTemplateTest
 
@@ -23,39 +22,87 @@ EXECUTE_MISTRAL_TEMPLATE = 'v2_execute_mistral.yaml'
 EQUIVALENCE_TEMPLATE = 'v2_equivalence_templates.yaml'
 DEFINITION_TEMPLATE = 'v2_definition_template.yaml'
 NO_TYPE_TEMPLATE = 'v2_no_type_template.yaml'
+WITH_PARAMS_TEMPLATE = 'v2_with_params.yaml'
 
-FAKE_UUID = 'ade68276-0fe9-42cd-9ec2-e7f20470a771'
 
+class TestTemplatesV2(BaseTemplateTest):
 
-class TestValidateV2(BaseTemplateTest):
     """Template test class for Vitrage API tests."""
+    FAILED_TO_RESOLVE_PARAM = 'Failed to resolve parameter'
+    ERROR_STATUS = 'ERROR'
+    LOADING_STATUS = 'LOADING'
+    TEMPLATE_VALIDATION_OK = 'Template validation is OK'
+
+    def tearDown(self):
+        super(TestTemplatesV2, self).tearDown()
+        self._delete_templates()
 
     def test_templates_validate_no_type_templates(self):
-        try:
-            path = self.TEST_PATH + NO_TYPE_TEMPLATE
-            validation = self.vitrage_client.template.validate(path=path)
-            self.assertThat(validation['results'], matchers.HasLength(1))
-            self._run_template_validation(
-                validation['results'][0], path, negative=True)
-        except Exception:
-            LOG.error('Failed to get validation of corrupted template file')
+        path = self.TEST_PATH + NO_TYPE_TEMPLATE
+        validation = self.vitrage_client.template.validate(path=path)
+        self._assert_validate_result(
+            validation, path, negative=True, status_code='')
 
     def test_templates_validate_standard_template(self):
-        try:
-            path = self.TEST_PATH + EXECUTE_MISTRAL_TEMPLATE
-            validation = self.vitrage_client.template.validate(path=path)
-            self.assertThat(validation['results'], matchers.HasLength(1))
-            self._run_template_validation(
-                validation['results'][0], path)
-        except Exception:
-            LOG.error('Failed to get validation of standard template file')
+        path = self.TEST_PATH + EXECUTE_MISTRAL_TEMPLATE
+        validation = self.vitrage_client.template.validate(path=path)
+        self._assert_validate_result(validation, path)
 
     def test_templates_validate_definition_template(self):
-        try:
-            path = self.TEST_PATH + DEFINITION_TEMPLATE
-            validation = self.vitrage_client.template.validate(path=path)
-            self.assertThat(validation['results'], matchers.HasLength(1))
-            self._run_template_validation(
-                validation['results'][0], path)
-        except Exception:
-            LOG.error('Failed to get validation of definition template file')
+        path = self.TEST_PATH + DEFINITION_TEMPLATE
+        validation = self.vitrage_client.template.validate(path=path)
+        self._assert_validate_result(validation, path)
+
+    def test_template_validate_with_missing_parameters(self):
+        path = self.TEST_PATH + WITH_PARAMS_TEMPLATE
+        validation = self.vitrage_client.template.validate(path=path)
+        self._assert_validate_result(
+            validation, path, negative=True, status_code=163)
+
+    def test_template_validate_with_missing_parameter(self):
+        path = self.TEST_PATH + WITH_PARAMS_TEMPLATE
+        params = {'template_name': 'My template 1',
+                  'new_state': 'SUBOPTIMAL'}
+        validation = \
+            self.vitrage_client.template.validate(path=path, params=params)
+        self._assert_validate_result(
+            validation, path, negative=True, status_code=163)
+
+    def test_template_validate_with_parameters(self):
+        path = self.TEST_PATH + WITH_PARAMS_TEMPLATE
+        params = {'template_name': 'My template 1',
+                  'alarm_type': 'Monitor1',
+                  'alarm_name': 'My alarm',
+                  'new_state': 'SUBOPTIMAL'}
+        validation = \
+            self.vitrage_client.template.validate(path=path, params=params)
+        self._assert_validate_result(validation, path)
+
+    def test_template_add_with_missing_parameters(self):
+        path = self.TEST_PATH + WITH_PARAMS_TEMPLATE
+        result = self.vitrage_client.template.add(path=path)
+        self._assert_add_result(result, self.ERROR_STATUS,
+                                self.FAILED_TO_RESOLVE_PARAM)
+
+    def test_template_add_with_missing_parameter(self):
+        path = self.TEST_PATH + WITH_PARAMS_TEMPLATE
+        params = {'template_name': 'My template 1',
+                  'new_state': 'SUBOPTIMAL'}
+        result = self.vitrage_client.template.add(path=path, params=params)
+        self._assert_add_result(result, self.ERROR_STATUS,
+                                self.FAILED_TO_RESOLVE_PARAM)
+
+    def test_template_add_with_parameters(self):
+        path = self.TEST_PATH + WITH_PARAMS_TEMPLATE
+        params = {'template_name': 'My template 1',
+                  'alarm_type': 'Monitor1',
+                  'alarm_name': 'My alarm',
+                  'new_state': 'SUBOPTIMAL'}
+        result = self.vitrage_client.template.add(path=path, params=params)
+        self._assert_add_result(result, self.LOADING_STATUS,
+                                self.TEMPLATE_VALIDATION_OK)
+
+    def _delete_templates(self):
+        templates = self.vitrage_client.template.list()
+        template_ids = [template['uuid'] for template in templates]
+        self.vitrage_client.template.delete(template_ids)
