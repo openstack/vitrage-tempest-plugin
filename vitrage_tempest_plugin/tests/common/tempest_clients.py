@@ -15,16 +15,19 @@
 from keystoneauth1 import loading as ka_loading
 from keystoneauth1 import session as ka_session
 from neutronclient.v2_0 import client as neutron_client
+from tempest import config
 from vitrage import keystone_client
 from vitrage import os_clients
-from vitrage_tempest_plugin.tests.utils import get_property_value
 from vitrageclient import client as vc
+
+CONF = config.CONF
 
 
 class TempestClients(object):
     @classmethod
-    def class_init(cls, conf):
+    def class_init(cls, conf, creds=None):
         cls._conf = conf
+        cls.creds = creds
         cls._vitrage = None
         cls._ceilometer = None
         cls._nova = None
@@ -49,21 +52,17 @@ class TempestClients(object):
         return cls._vitrage
 
     @classmethod
-    def vitrage_client_for_user(cls, username, user_domain_id,
-                                project_name, project_domain_id):
+    def vitrage_client_for_user(cls):
         """vitrage client for a specific user and tenant
 
         :rtype: vitrageclient.v1.client.Client
         """
-        session = cls._get_session_for_user(
-            username, user_domain_id, project_name, project_domain_id)
+        session = cls._get_session_for_user()
         return vc.Client('1', session=session)
 
     @classmethod
-    def neutron_client_for_user(cls, username, user_domain_id,
-                                project_name, project_domain_id):
-        session = cls._get_session_for_user(
-            username, user_domain_id, project_name, project_domain_id)
+    def neutron_client_for_user(cls):
+        session = cls._get_session_for_user()
         return neutron_client.Client(session=session)
 
     @classmethod
@@ -167,13 +166,17 @@ class TempestClients(object):
         return cls._gnocchi
 
     @classmethod
-    def _get_session_for_user(cls, username, user_domain_id,
-                              project_name, project_domain_id):
-        password = get_property_value(
-            'OS_PASSWORD', 'password', 'password', cls._conf)
+    def _get_session_for_user(cls):
+        password = cls.creds.password
+        username = cls.creds.username
+        user_domain_id = cls.creds.user_domain_id
+        project_name = cls.creds.project_name
+        project_domain_id = cls.creds.project_domain_id
+
         loader = ka_loading.get_plugin_loader('password')
+        auth_url = CONF.identity.uri_v3
         auth_plugin = loader.load_from_options(
-            auth_url=cls._conf.service_credentials.auth_url,
+            auth_url=auth_url,
             username=username, password=password, project_name=project_name,
             project_domain_id=project_domain_id,
             user_domain_id=user_domain_id)

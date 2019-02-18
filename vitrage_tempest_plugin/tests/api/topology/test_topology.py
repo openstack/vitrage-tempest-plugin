@@ -80,9 +80,7 @@ class TestTopology(BaseTopologyTest):
         either admin or None, this test is expected to be identical to the one
         with --all-tenants
         """
-        num_admin_networks = \
-            self._calc_num_tenant_networks(self.ADMIN_USERNAME,
-                                           self.ADMIN_PROJECT_NAME)
+        num_admin_networks = self._calc_num_admin_tenant_networks()
 
         self._do_test_default_graph(num_default_networks=num_admin_networks,
                                     all_tenants=False)
@@ -111,7 +109,7 @@ class TestTopology(BaseTopologyTest):
                 zone_edges=0, host_entities=0, host_edges=0,
                 instance_entities=0, instance_edges=0, volume_entities=0,
                 volume_edges=0)
-            num_entities = self.num_demo_tenant_networks
+            num_entities = self._calc_num_tenant_networks()
 
             # Test Assertions
             self._validate_graph_correctness(graph, num_entities, 0, entities)

@@ -19,7 +19,8 @@ import six
 from networkx.readwrite import json_graph
 from oslo_log import log as logging
 from oslo_utils import timeutils
-from oslotest import base
+from tempest.common import credentials_factory as common_creds
+from tempest import test
 from testtools.matchers import HasLength
 from testtools.matchers import Not
 
@@ -61,17 +62,15 @@ if six.PY2:
         pass
 
 
-class BaseVitrageTempest(base.BaseTestCase):
+class BaseVitrageTempest(test.BaseTestCase):
     """Base test class for All Vitrage tests."""
+
+    credentials = ['primary']
 
     NUM_VERTICES_PER_TYPE = 'num_vertices'
     NUM_EDGES_PER_TYPE = 'num_edges_per_type'
-    USER_DOMAIN_ID = 'default'
-    PROJECT_DOMAIN_ID = 'default'
-    DEMO_USERNAME = 'demo'
+    # TODO(e0ne): use credentials from the config
     DEMO_PROJECT_NAME = 'demo'
-    ADMIN_USERNAME = 'admin'
-    ADMIN_PROJECT_NAME = 'admin'
 
     def assert_list_equal(self, l1, l2, message=None):
         self.assertListEqual(l1, l2, message)
@@ -133,19 +132,17 @@ class BaseVitrageTempest(base.BaseTestCase):
                                 message="unclosed",
                                 category=ResourceWarning)
         cls.conf = service.prepare_service([])
-        TempestClients.class_init(cls.conf)
+        TempestClients.class_init(cls.conf, cls.os_primary.credentials)
         cls.vitrage_client = TempestClients.vitrage()
         cls.vitrage_client_for_demo_user = \
-            TempestClients.vitrage_client_for_user(
-                cls.DEMO_USERNAME, cls.USER_DOMAIN_ID,
-                cls.DEMO_PROJECT_NAME, cls.PROJECT_DOMAIN_ID)
+            TempestClients.vitrage_client_for_user()
 
         cls.num_default_networks = \
             len(TempestClients.neutron().list_networks()['networks'])
         cls.num_default_ports = cls._get_num_default_ports()
         cls.num_default_entities = 3
         cls.num_default_edges = 2
-        cls.num_demo_tenant_networks = cls._calc_num_demo_tenant_networks()
+        cls.num_demo_tenant_networks = cls._calc_num_tenant_networks()
 
     @classmethod
     def _get_num_default_ports(cls):
@@ -356,17 +353,18 @@ class BaseVitrageTempest(base.BaseTestCase):
         self._print_entity_graph()
 
     @classmethod
-    def _calc_num_demo_tenant_networks(cls):
-        return cls._calc_num_tenant_networks(
-            cls.DEMO_USERNAME, cls.DEMO_PROJECT_NAME)
+    def _calc_num_admin_tenant_networks(cls):
+        neutron_client = TempestClients.neutron()
+        admin_creds = common_creds.get_configured_admin_credentials()
+        tenant_networks = neutron_client.list_networks(
+            tenant_id=admin_creds.project_id)['networks']
+        return len(tenant_networks)
 
     @classmethod
-    def _calc_num_tenant_networks(cls, username, project_name):
-        neutron_client = TempestClients.neutron_client_for_user(
-            username, cls.USER_DOMAIN_ID,
-            project_name, cls.PROJECT_DOMAIN_ID)
+    def _calc_num_tenant_networks(cls):
+        neutron_client = TempestClients.neutron_client_for_user()
         tenant_networks = neutron_client.list_networks(
-            tenant_id=cls._get_demo_tenant_id())['networks']
+            tenant_id=cls.os_primary.credentials.project_id)['networks']
         return len(tenant_networks)
 
     @classmethod
