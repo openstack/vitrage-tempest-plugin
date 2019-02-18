@@ -16,7 +16,6 @@ import json
 from oslo_log import log as logging
 from testtools import matchers
 
-from vitrage.common.exception import VitrageError
 from vitrage_tempest_plugin.tests.base import BaseVitrageTempest
 from vitrage_tempest_plugin.tests.base import IsNotEmpty
 from vitrage_tempest_plugin.tests.common import general_utils as g_utils
@@ -143,9 +142,6 @@ class BaseTemplateTest(BaseVitrageTempest):
 
     @staticmethod
     def _rollback_to_default(templates):
-        try:
-            for t in templates:
-                db_row = vitrage_utils.get_first_template(name=t)
-                vitrage_utils.delete_template(db_row['uuid'])
-        except Exception as e:
-            raise VitrageError('Rollback to default failed %s', e)
+        for t in templates:
+            db_row = vitrage_utils.get_first_template(name=t)
+            vitrage_utils.delete_template(db_row['uuid'])
