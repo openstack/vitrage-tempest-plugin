@@ -41,6 +41,7 @@ TRIGGER_ALARM_2_V3 = 'e2e.test_basic_actions.trigger.alarm2.v3'
 TRIGGER_ALARM_3_V3 = 'e2e.test_basic_actions.trigger.alarm3.v3'
 TRIGGER_ALARM_4_V3 = 'e2e.test_basic_actions.trigger.alarm4.v3'
 TRIGGER_ALARM_5_V3 = 'e2e.test_basic_actions.trigger.alarm5.v3'
+TRIGGER_ALARM_6_V3 = 'e2e.test_basic_actions.trigger.alarm6.v3'
 DEDUCED_V3 = 'e2e.test_basic_actions.deduced.alarm.v3'
 
 TRIGGER_ALARM_2_PROPS = {
@@ -51,6 +52,12 @@ TRIGGER_ALARM_2_PROPS = {
 
 TRIGGER_ALARM_2_PROPS_V3 = {
     VProps.NAME: TRIGGER_ALARM_2_V3,
+    VProps.VITRAGE_CATEGORY: EntityCategory.ALARM,
+    VProps.VITRAGE_TYPE: DOCTOR_DATASOURCE,
+}
+
+TRIGGER_ALARM_6_PROPS_V3 = {
+    VProps.NAME: TRIGGER_ALARM_6_V3,
     VProps.VITRAGE_CATEGORY: EntityCategory.ALARM,
     VProps.VITRAGE_TYPE: DOCTOR_DATASOURCE,
 }
@@ -248,6 +255,12 @@ class TestBasicActions(TestActionsBase):
         self._do_test_action_add_causal_relationship(TRIGGER_ALARM_2_V3,
                                                      DEDUCED_PROPS_V3,
                                                      TRIGGER_ALARM_2_PROPS_V3)
+
+    @utils.tempest_logger
+    def test_action_add_raise_alarm_with_causing_alarm(self):
+        self._do_test_action_add_causal_relationship(TRIGGER_ALARM_6_V3,
+                                                     DEDUCED_PROPS_V3,
+                                                     TRIGGER_ALARM_6_PROPS_V3)
 
     def _do_test_action_add_causal_relationship(self,
                                                 trigger_name,

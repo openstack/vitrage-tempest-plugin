@@ -14,6 +14,8 @@ entities:
   name: e2e.test_basic_actions.trigger.alarm4.v3
  trigger_alarm_5:
   name: e2e.test_basic_actions.trigger.alarm5.v3
+ trigger_alarm_6:
+  name: e2e.test_basic_actions.trigger.alarm6.v3
  deduced_alarm:
   name: e2e.test_basic_actions.deduced.alarm.v3
   type: vitrage
@@ -37,7 +39,6 @@ scenarios:
        target: host
        alarm_name: e2e.test_basic_actions.deduced.alarm.v3
        severity: WARNING
-#       causing_alarm: trigger_alarm_2
  - condition: trigger_alarm_2 [ on ] host AND deduced_alarm [on] host
    actions:
      - add_causal_relationship:
@@ -52,3 +53,10 @@ scenarios:
    actions:
      - mark_down:
         target: instance
+ - condition: trigger_alarm_6 [ on ] host
+   actions:
+    - raise_alarm:
+       target: host
+       alarm_name: e2e.test_basic_actions.deduced.alarm.v3
+       severity: WARNING
+       causing_alarm: trigger_alarm_6
