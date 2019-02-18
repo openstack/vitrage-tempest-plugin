@@ -14,10 +14,10 @@
 
 from keystoneauth1 import loading as ka_loading
 from keystoneauth1 import session as ka_session
+from keystoneclient.v3 import client as ks_client_v3
 from neutronclient.v2_0 import client as neutron_client
 from tempest.common import credentials_factory as common_creds
 from tempest import config
-from vitrage import keystone_client
 from vitrage import os_clients
 from vitrageclient import client as vc
 
@@ -153,7 +153,8 @@ class TempestClients(object):
         :rtype: keystoneclient.v3.client.Client
         """
         if not cls._keystone:
-            cls._keystone = keystone_client.get_client(cls._conf)
+            sess = cls._get_session_for_admin()
+            cls._keystone = ks_client_v3.Client(session=sess)
         return cls._keystone
 
     @classmethod
