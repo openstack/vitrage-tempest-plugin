@@ -15,6 +15,7 @@
 from keystoneauth1 import loading as ka_loading
 from keystoneauth1 import session as ka_session
 from neutronclient.v2_0 import client as neutron_client
+from tempest.common import credentials_factory as common_creds
 from tempest import config
 from vitrage import keystone_client
 from vitrage import os_clients
@@ -48,7 +49,7 @@ class TempestClients(object):
         """
         if not cls._vitrage:
             cls._vitrage = vc.Client(
-                '1', session=keystone_client.get_session(cls._conf))
+                '1', session=cls._get_session_for_admin())
         return cls._vitrage
 
     @classmethod
@@ -166,13 +167,31 @@ class TempestClients(object):
         return cls._gnocchi
 
     @classmethod
+    def _get_session_for_admin(cls):
+        admin_creds = common_creds.get_configured_admin_credentials()
+        password = admin_creds.password
+        username = admin_creds.username
+        user_domain_id = admin_creds.user_domain_id
+        project_name = admin_creds.project_name
+        project_domain_id = admin_creds.project_domain_id
+
+        return cls._get_session(username, password, user_domain_id,
+                                project_name, project_domain_id)
+
+    @classmethod
     def _get_session_for_user(cls):
-        password = cls.creds.password
         username = cls.creds.username
+        password = cls.creds.password
         user_domain_id = cls.creds.user_domain_id
         project_name = cls.creds.project_name
         project_domain_id = cls.creds.project_domain_id
 
+        return cls._get_session(username, password, user_domain_id,
+                                project_name, project_domain_id)
+
+    @classmethod
+    def _get_session(cls, username, password, user_domain_id, project_name,
+                     project_domain_id):
         loader = ka_loading.get_plugin_loader('password')
         auth_url = CONF.identity.uri_v3
         auth_plugin = loader.load_from_options(

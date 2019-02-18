@@ -75,11 +75,13 @@ class TestResource(BaseVitrageTempest):
     def test_default_resource_list(self):
         """resource list with default query
 
-        get the resources: network, instance, port
+        get the resources: network, instance, port, zone, host, cluster
         """
+        # TODO(e0ne): split this test to verify that only network,
+        # instance and port are returned to non-admin user.
         try:
             resources = self.vitrage_client.resource.list(all_tenants=False)
-            self.assertThat(resources, matchers.HasLength(3))
+            self.assertThat(resources, matchers.HasLength(6))
         except Exception as e:
             self._handle_exception(e)
             raise
