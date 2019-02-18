@@ -64,7 +64,7 @@ class TestResource(BaseVitrageTempest):
             LOG.info("api_resources = %s", api_resources)
 
             cli_resources = utils.run_vitrage_command(
-                'vitrage resource list --all -f json', self.conf)
+                'vitrage resource list --all -f json')
 
             self._compare_resources(api_resources, cli_resources)
         except Exception as e:

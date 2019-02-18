@@ -1,0 +1,9 @@
+---
+features:
+  - |
+    vitrage-tempest-plugin uses tempest.conf for any kind of configuration.
+upgrade:
+  - |
+    Configuration via environment variables is not supported. If you need
+    configuration via environment variables, please use previous release of
+    vitrage-tempest-plugin.

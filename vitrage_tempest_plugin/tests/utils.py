@@ -14,57 +14,44 @@
 
 from functools import wraps
 
-import socket
 import time
 
-from oslo_config.cfg import NoSuchOptError
 from oslo_log import log as logging
+from tempest.common import credentials_factory as common_creds
+from tempest import config
 
-import os
 import subprocess
 
+CONF = config.CONF
 LOG = logging.getLogger(__name__)
 
 TIMESTAMP_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
 
 
-def run_vitrage_command(command, conf):
-    # AUTH_URL
-    local_ip = '127.0.0.1'
-    try:
-        local_ip = socket.gethostbyname(socket.gethostname())
-    except socket.error:
-        LOG.info("didn't get local ip using default hostname=%s",
-                 socket.gethostname())
-    auth_url = get_property_value('OS_AUTH_URL', 'auth_url',
-                                  'http://%s:5000/v2.0' % local_ip, conf)
+def run_vitrage_command(command):
+    admin_creds = common_creds.get_configured_admin_credentials()
+
+    auth_url = CONF.identity.uri_v3
     auth_url_param = '--os-auth-url ' + auth_url
 
     # USERNAME
-    user = get_property_value('OS_USERNAME', 'username',
-                              'admin', conf)
+    user = admin_creds.username
     user_param = '--os-user-name ' + user
 
     # PASSWORD
-    password = get_property_value('OS_PASSWORD', 'password',
-                                  'secretadmin', conf)
+    password = admin_creds.password
     password_param = '--os-password ' + password
 
     # PROJECT_NAME
-    project_name = get_property_value('OS_TENANT_NAME', 'project_name',
-                                      'admin', conf)
+    project_name = admin_creds.project_name
     project_name_param = '--os-project-name ' + project_name
 
     # USER_DOMAIN_ID
-    user_domain_id = get_property_value('OS_USER_DOMAIN_ID',
-                                        'user_domain_id',
-                                        'default', conf)
+    user_domain_id = admin_creds.user_domain_id
     user_domain_id_param = '--os-user-domain-id ' + user_domain_id
 
     # PROJECT_DOMAIN_ID
-    project_domain_id = get_property_value('OS_PROJECT_DOMAIN_ID',
-                                           'project_domain_id',
-                                           'default', conf)
+    project_domain_id = admin_creds.project_domain_id
     project_domain_id_par = '--os-project-domain-id ' + project_domain_id
 
     full_command = '%s %s %s %s %s %s %s' % (command, user_param,
@@ -95,19 +82,6 @@ def run_vitrage_command(command, conf):
         LOG.error('process return code is not 0 : return code = %d',
                   child.returncode)
     return output
-
-
-def get_property_value(environment_name, conf_name, default_value, conf):
-    if os.environ.get(environment_name):
-        return os.environ[environment_name]
-
-    try:
-        return conf.service_credentials[conf_name]
-    except NoSuchOptError:
-        LOG.debug("Configuration doesn't exist: service_credentials.%s",
-                  conf_name)
-
-    return default_value
 
 
 def uni2str(text):

@@ -60,7 +60,7 @@ class TestValidate(BaseTemplateTest):
         """
         api_template_list = self.vitrage_client.template.list()
         cli_template_list = utils.run_vitrage_command(
-            'vitrage template list', self.conf)
+            'vitrage template list')
 
         self._compare_template_lists(api_template_list, cli_template_list)
 
@@ -200,7 +200,7 @@ class TemplatesDBTest(BaseTemplateTest):
             # Add standard ,equivalence and definition templates
             templates_names = self._add_templates()
             cli_templates_list = utils.run_vitrage_command(
-                "vitrage template list", self.conf)
+                "vitrage template list")
             api_templates_list = self.client.template.list()
 
             self.assertThat(api_templates_list, IsNotEmpty(),

@@ -16,7 +16,6 @@ import json
 from oslo_log import log as logging
 from testtools.matchers import HasLength
 
-from vitrage import os_clients
 from vitrage_tempest_plugin.tests.api.event.base import BaseTestEvents
 from vitrage_tempest_plugin.tests.common.tempest_clients import TempestClients
 from vitrage_tempest_plugin.tests.common import vitrage_utils as v_utils
@@ -55,7 +54,7 @@ class TestMistralNotifier(BaseTestEvents):
     @classmethod
     def setUpClass(cls):
         super(TestMistralNotifier, cls).setUpClass()
-        cls.mistral_client = os_clients.mistral_client(cls.conf)
+        cls.mistral_client = TempestClients.mistral()
         cls._templates = []
         cls._templates.append(v_utils.add_template('v1_execute_mistral.yaml'))
         cls._templates.append(v_utils.add_template('v2_execute_mistral.yaml'))

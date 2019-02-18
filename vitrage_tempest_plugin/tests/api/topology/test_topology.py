@@ -53,8 +53,7 @@ class TestTopology(BaseTopologyTest):
         """
         api_graph = self.vitrage_client.topology.get(all_tenants=True)
         cli_graph = utils.run_vitrage_command(
-            'vitrage topology show --all-tenants',
-            self.conf)
+            'vitrage topology show --all-tenants')
 
         LOG.info('api-graph=%(api)s cli-graph=%(cli)s', {'api': api_graph,
                                                          'cli': cli_graph})
