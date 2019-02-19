@@ -27,7 +27,6 @@ from testtools.matchers import Not
 from vitrage.graph.driver.networkx_graph import NXGraph
 from vitrage.graph import Edge
 from vitrage.graph import Vertex
-from vitrage import service
 
 from vitrage_tempest_plugin.tests.common.constants import AODH_DATASOURCE
 from vitrage_tempest_plugin.tests.common.constants import \
@@ -131,8 +130,7 @@ class BaseVitrageTempest(test.BaseTestCase):
         warnings.filterwarnings(action="ignore",
                                 message="unclosed",
                                 category=ResourceWarning)
-        cls.conf = service.prepare_service([])
-        TempestClients.class_init(cls.conf, cls.os_primary.credentials)
+        TempestClients.class_init(cls.os_primary.credentials)
         cls.vitrage_client = TempestClients.vitrage()
         cls.vitrage_client_for_demo_user = \
             TempestClients.vitrage_client_for_user()

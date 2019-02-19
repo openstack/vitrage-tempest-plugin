@@ -45,8 +45,7 @@ def driver_module(driver):
 
 class TempestClients(object):
     @classmethod
-    def class_init(cls, conf, creds=None):
-        cls._conf = conf
+    def class_init(cls, creds):
         cls.creds = creds
         cls._vitrage = None
         cls._ceilometer = None
