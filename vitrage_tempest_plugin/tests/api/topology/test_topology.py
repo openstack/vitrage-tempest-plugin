@@ -23,9 +23,6 @@ from vitrage_tempest_plugin.tests.common.constants import VertexProperties as \
 import vitrage_tempest_plugin.tests.utils as utils
 from vitrageclient.exceptions import ClientException
 
-import unittest
-
-
 LOG = logging.getLogger(__name__)
 NOVA_QUERY = '{"and": [{"==": {"vitrage_category": "RESOURCE"}},' \
              '{"==": {"vitrage_is_deleted": false}},' \
@@ -299,75 +296,6 @@ class TestTopology(BaseTopologyTest):
             api_graph = self.vitrage_client.topology.get(
                 limit=3, graph_type='tree', query=NOVA_QUERY, all_tenants=True)
             graph = self._create_graph_from_tree_dictionary(api_graph)
-            entities = self._entities_validation_data(
-                host_entities=1,
-                host_edges=self.NUM_INSTANCE + 1,
-                instance_entities=self.NUM_INSTANCE,
-                instance_edges=self.NUM_INSTANCE)
-            num_entities = self.num_default_entities + self.NUM_INSTANCE
-            num_edges = self.num_default_edges + self.NUM_INSTANCE
-
-            # Test Assertions
-            self._validate_graph_correctness(graph,
-                                             num_entities,
-                                             num_edges,
-                                             entities)
-        except Exception as e:
-            self._handle_exception(e)
-            raise
-        finally:
-            self._rollback_to_default()
-
-    @unittest.skip("skipping test - not working")
-    @utils.tempest_logger
-    def test_graph_with_root_and_depth_exclude_instance(self):
-        """tree_with_query
-
-        This test validate correctness of topology graph
-        with root and depth exclude instance
-       """
-        try:
-            # Action
-            self._create_entities(num_instances=self.NUM_INSTANCE)
-
-            # Calculate expected results
-            api_graph = self.vitrage_client.topology.get(
-                limit=2,
-                root=self._get_root_vertex_id(),
-                all_tenants=True)
-            graph = self._create_graph_from_graph_dictionary(api_graph)
-            entities = self._entities_validation_data(
-                host_entities=1, host_edges=1)
-
-            # Test Assertions
-            self._validate_graph_correctness(graph,
-                                             self.num_default_entities,
-                                             self.num_default_edges,
-                                             entities)
-        except Exception as e:
-            self._handle_exception(e)
-            raise
-        finally:
-            self._rollback_to_default()
-
-    @unittest.skip("skipping test - not working")
-    @utils.tempest_logger
-    def test_graph_with_root_and_depth_include_instance(self):
-        """graph_with_root_and_depth_include_instance
-
-        This test validate correctness of topology graph
-        with root and depth include instance
-        """
-        try:
-            # Action
-            self._create_entities(num_instances=self.NUM_INSTANCE)
-
-            # Calculate expected results
-            api_graph = self.vitrage_client.topology.get(
-                limit=3,
-                root=self._get_root_vertex_id(),
-                all_tenants=True)
-            graph = self._create_graph_from_graph_dictionary(api_graph)
             entities = self._entities_validation_data(
                 host_entities=1,
                 host_edges=self.NUM_INSTANCE + 1,
