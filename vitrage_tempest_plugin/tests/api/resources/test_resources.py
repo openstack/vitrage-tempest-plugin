@@ -16,7 +16,6 @@ import json
 
 from oslo_log import log as logging
 from testtools import matchers
-import unittest
 
 from vitrage_tempest_plugin.tests.base import BaseVitrageTempest
 from vitrage_tempest_plugin.tests.base import IsEmpty
@@ -49,6 +48,7 @@ class TestResource(BaseVitrageTempest):
         cls.instances = nova_utils.create_instances(num_instances=1,
                                                     set_public_network=True)
 
+    # noinspection PyPep8Naming
     @classmethod
     def tearDownClass(cls):
         super(TestResource, cls).tearDownClass()
@@ -186,21 +186,6 @@ class TestResource(BaseVitrageTempest):
         except Exception as e:
             self._handle_exception(e)
             raise
-
-    @unittest.skip("CLI tests are ineffective and not maintained")
-    def test_compare_resource_show(self):
-        """resource_show test"""
-        resource_list = self.vitrage_client.resource.list(all_tenants=False)
-        self.self.assertThat(resource_list, IsNotEmpty())
-        for resource in resource_list:
-            api_resource_show = \
-                self.vitrage_client.resource.get(resource[VProps.VITRAGE_ID])
-            cli_resource_show = utils.run_vitrage_command(
-                'vitrage resource show ' + resource[VProps.VITRAGE_ID],
-                self.conf)
-
-            self._compare_resource_show(
-                api_resource_show, cli_resource_show)
 
     def test_resource_show_with_no_existing_resource(self):
         """resource_show test no existing resource"""
