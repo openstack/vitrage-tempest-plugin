@@ -226,3 +226,20 @@ class AodhProperties(object):
     USER_ID = 'user_id'
     STATE_REASON = 'state_reason'
     ID = 'id'
+
+
+class OperationalAlarmSeverity(object):
+    CRITICAL = 'CRITICAL'
+    SEVERE = 'SEVERE'
+    WARNING = 'WARNING'
+    NA = 'N/A'
+    OK = 'OK'
+
+
+class OperationalResourceState(object):
+    NA = 'N/A'
+    OK = 'OK'
+    TRANSIENT = 'TRANSIENT'
+    SUBOPTIMAL = 'SUBOPTIMAL'
+    ERROR = 'ERROR'
+    DELETED = 'DELETED'
