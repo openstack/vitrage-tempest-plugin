@@ -22,9 +22,11 @@ TEMPEST_CONFIG=$BASE/new/tempest/etc/tempest.conf
 iniset $TEMPEST_CONFIG service_available vitrage true
 
 if [ "$1" = "mock" ]; then
+  iniset $TEMPEST_CONFIG root_cause_analysis_service zabbix_alarms_per_host 8
   iniset $TEMPEST_CONFIG root_cause_analysis_service instances_per_host 50
   iniset $TEMPEST_CONFIG root_cause_analysis_service snapshots_interval 60
 else
+  iniset $TEMPEST_CONFIG root_cause_analysis_service zabbix_alarms_per_host 2
   iniset $TEMPEST_CONFIG root_cause_analysis_service instances_per_host 2
   iniset $TEMPEST_CONFIG root_cause_analysis_service snapshots_interval 120
 fi
@@ -53,4 +55,4 @@ sudo -E stestr init
 echo "Listing existing Tempest tests"
 sudo -E stestr list vitrage_tempest_plugin | grep -E "$TESTS" | sort | tee /tmp/vitrage_tempest_tests.list
 echo "Testing $1: $TESTS..."
-sudo -E stestr run --serial --subunit --load-list=/tmp/vitrage_tempest_tests.list | subunit-trace --fails
+sudo -E stestr run --serial --subunit --load-list=/tmp/vitrage_tempest_tests.list | subunit-trace --fails --no-failure-debug

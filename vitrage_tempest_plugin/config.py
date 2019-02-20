@@ -35,6 +35,7 @@ RcaServiceGroup = [
                default=120,
                min=10,
                help='Time to wait between subsequent datasource snapshots'),
+    cfg.IntOpt('zabbix_alarms_per_host', default=2),
     cfg.StrOpt('aodh_version', default='2', help='Aodh version'),
     cfg.StrOpt('ceilometer_version', default='2', help='Ceilometer version'),
     cfg.StrOpt('nova_version', default='2.11', help='Nova version'),
