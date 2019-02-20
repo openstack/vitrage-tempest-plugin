@@ -81,10 +81,13 @@ class BaseVitrageTempest(test.BaseTestCase):
         self.assertSetEqual(s1, s2, message)
 
     def assert_sequence_equal(self, s1, s2, message=None):
-        self.assertSequenceEqual(self, s1, s2, message)
+        self.assertSequenceEqual(s1, s2, message)
 
-    def assert_tuple_equal(self, s1, s2, message=None):
-        self.assertTupleEqual(self, s1, s2, message)
+    def assert_tuple_equal(self, t1, t2, message=None):
+        self.assertTupleEqual(t1, t2, message)
+
+    def assert_items_equal(self, s1, s2, message=None):
+        self.assertItemsEqual(s1, s2, message)
 
     def assert_timestamp_equal(self, first, second, msg=None):
         """Checks that two timestamps are equals.
