@@ -122,7 +122,8 @@ class BaseTemplateTest(BaseVitrageTempest):
     def _assert_add_result(self, result, status, message):
         self.assertThat(result, matchers.HasLength(1))
         self.assertEqual(status, result[0]['status'])
-        self.assertEqual(message, result[0]['status details'])
+        self.assertThat(result[0]['status details'],
+                        matchers.StartsWith(message))
 
     def _compare_template_show(self, api_templates, cli_templates):
         self.assertThat(api_templates, IsNotEmpty(),
