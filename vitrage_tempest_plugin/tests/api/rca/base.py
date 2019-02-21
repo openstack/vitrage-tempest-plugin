@@ -17,10 +17,6 @@ import json
 from oslo_log import log as logging
 from testtools import matchers
 
-from vitrage.entity_graph.mappings.operational_alarm_severity \
-    import OperationalAlarmSeverity
-from vitrage.entity_graph.mappings.operational_resource_state \
-    import OperationalResourceState
 from vitrage_tempest_plugin.tests.api.alarms.base import BaseAlarmsTest
 from vitrage_tempest_plugin.tests.base import IsNotEmpty
 from vitrage_tempest_plugin.tests.common import aodh_utils
@@ -30,6 +26,10 @@ from vitrage_tempest_plugin.tests.common.constants import EdgeProperties
 from vitrage_tempest_plugin.tests.common.constants import NOVA_HOST_DATASOURCE
 from vitrage_tempest_plugin.tests.common.constants import \
     NOVA_INSTANCE_DATASOURCE
+from vitrage_tempest_plugin.tests.common.constants \
+    import OperationalAlarmSeverity
+from vitrage_tempest_plugin.tests.common.constants \
+    import OperationalResourceState
 from vitrage_tempest_plugin.tests.common.constants import VertexProperties \
     as VProps
 from vitrage_tempest_plugin.tests.common.constants import VITRAGE_DATASOURCE
