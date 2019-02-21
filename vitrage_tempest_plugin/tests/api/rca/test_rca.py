@@ -56,9 +56,6 @@ class TestRca(BaseRcaTest):
 
             self._validate_deduce_alarms(alarms=api_alarms,
                                          instances=instances)
-        except Exception as e:
-            self._handle_exception(e)
-            raise
         finally:
             self._clean_all()
 

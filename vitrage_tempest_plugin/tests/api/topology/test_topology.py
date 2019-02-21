@@ -112,9 +112,7 @@ class TestTopology(BaseTopologyTest):
 
             # Test Assertions
             self._validate_graph_correctness(graph, num_entities, 0, entities)
-        except Exception as e:
-            self._handle_exception(e)
-            raise
+
         finally:
             self._rollback_to_default()
 
@@ -148,9 +146,6 @@ class TestTopology(BaseTopologyTest):
                                              num_entities,
                                              num_edges,
                                              entities)
-        except Exception as e:
-            self._handle_exception(e)
-            raise
         finally:
             self._rollback_to_default()
 
@@ -180,9 +175,6 @@ class TestTopology(BaseTopologyTest):
 
             # Test Assertions
             self._validate_graph_correctness(graph, 0, 0, entities)
-        except Exception as e:
-            self._handle_exception(e)
-            raise
         finally:
             self._rollback_to_default()
 
@@ -214,9 +206,6 @@ class TestTopology(BaseTopologyTest):
                                              num_entities,
                                              num_edges,
                                              entities)
-        except Exception as e:
-            self._handle_exception(e)
-            raise
         finally:
             self._rollback_to_default()
 
@@ -243,9 +232,6 @@ class TestTopology(BaseTopologyTest):
                                              self.num_default_entities,
                                              self.num_default_edges,
                                              entities)
-        except Exception as e:
-            self._handle_exception(e)
-            raise
         finally:
             self._rollback_to_default()
 
@@ -272,9 +258,6 @@ class TestTopology(BaseTopologyTest):
                                              self.num_default_entities,
                                              self.num_default_edges,
                                              entities)
-        except Exception as e:
-            self._handle_exception(e)
-            raise
         finally:
             self._rollback_to_default()
 
@@ -306,9 +289,6 @@ class TestTopology(BaseTopologyTest):
                                              num_entities,
                                              num_edges,
                                              entities)
-        except Exception as e:
-            self._handle_exception(e)
-            raise
         finally:
             self._rollback_to_default()
 
@@ -357,9 +337,6 @@ class TestTopology(BaseTopologyTest):
             self.assertThat(api_graph['nodes'],
                             IsEmpty(), 'num of vertex node')
             self.assertThat(api_graph['links'], IsEmpty(), 'num of edges')
-        except Exception as e:
-            self._handle_exception(e)
-            raise
         finally:
             self._rollback_to_default()
 
@@ -382,9 +359,6 @@ class TestTopology(BaseTopologyTest):
 
             # Test Assertions
             self.assert_is_empty(api_graph)
-        except Exception as e:
-            self._handle_exception(e)
-            raise
         finally:
             self._rollback_to_default()
 
@@ -421,8 +395,5 @@ class TestTopology(BaseTopologyTest):
                                              num_entities,
                                              num_edges,
                                              entities)
-        except Exception as e:
-            self._handle_exception(e)
-            raise
         finally:
             self._rollback_to_default()

@@ -54,9 +54,6 @@ class TestAodhAlarm(BaseAlarmsTest):
                                              num_entities,
                                              num_edges,
                                              entities)
-        except Exception as e:
-            self._handle_exception(e)
-            raise
         finally:
             aodh_utils.delete_all_aodh_alarms()
             nova_utils.delete_all_instances()
@@ -87,10 +84,6 @@ class TestAodhAlarm(BaseAlarmsTest):
                                              num_entities,
                                              num_edges,
                                              entities)
-
-        except Exception as e:
-            self._handle_exception(e)
-            raise
         finally:
             aodh_utils.delete_all_aodh_alarms()
             aodh_utils.delete_all_gnocchi_metrics()
@@ -123,10 +116,6 @@ class TestAodhAlarm(BaseAlarmsTest):
                                              num_entities,
                                              num_edges,
                                              entities)
-
-        except Exception as e:
-            self._handle_exception(e)
-            raise
         finally:
             aodh_utils.delete_all_aodh_alarms()
             aodh_utils.delete_all_gnocchi_metrics()
@@ -155,9 +144,6 @@ class TestAodhAlarm(BaseAlarmsTest):
                                              num_entities,
                                              num_edges,
                                              entities)
-        except Exception as e:
-            self._handle_exception(e)
-            raise
         finally:
             aodh_utils.delete_all_aodh_alarms()
 

@@ -86,10 +86,6 @@ class TestLongProcessing(TestActionsBase):
                 self.num_of_sent_events,
                 alarm_count['CRITICAL'],
                 'CRITICAL doctor events expected')
-
-        except Exception as e:
-            self._handle_exception(e)
-            raise
         finally:
             self._remove_doctor_events()
             if v_utils.get_first_template(name=TEMPLATE_NAME):
@@ -120,12 +116,10 @@ class TestLongProcessing(TestActionsBase):
             time.sleep(SLEEP)
             self._check_template_instance_3rd_degree_scenarios_deleted()
 
-        except Exception as e:
-            self._handle_exception(e)
+        finally:
             if v_utils.get_first_template(name=TEMPLATE_NAME):
                 v_utils.delete_template(name=TEMPLATE_NAME)
                 time.sleep(SLEEP)
-            raise
 
     def _check_template_instance_3rd_degree_scenarios(self):
 
@@ -151,8 +145,8 @@ class TestLongProcessing(TestActionsBase):
                 try:
                     self._check_rca(rca, expected_rca, alarm)
                     return True
-                except Exception as e:
-                    LOG.exception('check_rca failed', e)
+                except Exception:
+                    LOG.exception('check_rca failed')
                     return False
 
             # 10 threads calling rca api
@@ -165,10 +159,8 @@ class TestLongProcessing(TestActionsBase):
                                                      deduced_alarms)]
             self.assertTrue(all(workers_result))
 
-        except Exception as e:
+        finally:
             v_utils.delete_template(name=TEMPLATE_NAME)
-            self._handle_exception(e)
-            raise
 
     def _check_template_instance_3rd_degree_scenarios_deleted(self):
         alarm_count = TempestClients.vitrage().alarm.count(
@@ -200,8 +192,8 @@ class TestLongProcessing(TestActionsBase):
 
         self._remove_keys_from_dicts(g1_nodes, g2_nodes, to_remove)
 
-        self.assertItemsEqual(g1_nodes, g2_nodes,
-                              msg + "Nodes of each graph are not equal")
+        self.assert_items_equal(g1_nodes, g2_nodes,
+                                msg + "Nodes of each graph are not equal")
         self.assert_items_equal(g1_links, g2_links,
                                 "Edges of each graph are not equal")
 

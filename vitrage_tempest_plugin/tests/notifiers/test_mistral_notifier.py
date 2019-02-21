@@ -155,13 +155,9 @@ class TestMistralNotifier(BaseTestEvents):
                 num_executions=num_executions + 1),
                 'Mistral workflow was not executed')
 
-        except Exception as e:
-            self._handle_exception(e)
-            raise
         finally:
             self._rollback_to_default(WF_NAME, num_workflows,
                                       trigger_alarm, num_alarms)
-            pass
 
     def _rollback_to_default(self, workflow_name, num_workflows,
                              trigger_alarm, num_alarms):

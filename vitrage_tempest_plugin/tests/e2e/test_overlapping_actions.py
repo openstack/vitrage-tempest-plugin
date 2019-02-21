@@ -101,10 +101,6 @@ class TestOverlappingActions(TestActionsBase):
                 self.orig_host.get(VProps.VITRAGE_AGGREGATED_STATE),
                 curr_host.get(VProps.VITRAGE_AGGREGATED_STATE),
                 'state should change after undo set_state action')
-
-        except Exception as e:
-            self._handle_exception(e)
-            raise
         finally:
             self._trigger_undo_action(TRIGGER_ALARM_1)
             self._trigger_undo_action(TRIGGER_ALARM_2)
@@ -137,9 +133,6 @@ class TestOverlappingActions(TestActionsBase):
             nova_service = TempestClients.nova().services.list(
                 host=host_name, binary='nova-compute')[0]
             self.assertEqual("up", str(nova_service.state))
-        except Exception as e:
-            self._handle_exception(e)
-            raise
         finally:
             self._trigger_undo_action(TRIGGER_ALARM_3)
             self._trigger_undo_action(TRIGGER_ALARM_4)
@@ -166,9 +159,6 @@ class TestOverlappingActions(TestActionsBase):
             # Undo - second
             self._trigger_undo_action(TRIGGER_ALARM_2)
             self._check_deduced(0, DEDUCED_PROPS, host_id)
-        except Exception as e:
-            self._handle_exception(e)
-            raise
         finally:
             self._trigger_undo_action(TRIGGER_ALARM_1)
             self._trigger_undo_action(TRIGGER_ALARM_2)
@@ -238,10 +228,6 @@ class TestOverlappingActions(TestActionsBase):
                 g_utils.all_matches(alarms, **DEDUCED_PROPS),
                 IsEmpty(),
                 'deduced alarm should have been removed')
-
-        except Exception as e:
-            self._handle_exception(e)
-            raise
         finally:
             self._trigger_undo_action(TRIGGER_ALARM_1)
             self._trigger_undo_action(TRIGGER_ALARM_2)
