@@ -188,35 +188,34 @@ class TestLongProcessing(TestActionsBase):
         This relies on assert_dict_equal when comparing the nodes and the
         edges of each graph.
         """
-        g1 = v_utils.topology_to_graph(g1)
-        g2 = v_utils.topology_to_graph(g2)
-        g1_nodes = g1._g.node
-        g1_edges = g1._g.adj
-        g2_nodes = g2._g.node
-        g2_edges = g2._g.adj
-        self.assertEqual(g1.num_vertices(), g2.num_vertices(),
-                         msg + " Two graphs have different amount of nodes")
-        self.assertEqual(g1.num_edges(), g2.num_edges(),
-                         msg + "Two graphs have different amount of edges")
-        for n_id in g1_nodes:
-            g1_node = g1_nodes.get(n_id)
-            del g1_node['vitrage_sample_timestamp']
-            del g1_node['update_timestamp']
-            if 'graph_index' in g1_node:
-                del g1_node['graph_index']
-            g2_node = g2_nodes.get(n_id)
-            del g2_node['vitrage_sample_timestamp']
-            del g2_node['update_timestamp']
-            if 'graph_index' in g2_node:
-                del g2_node['graph_index']
-            self.assert_dict_equal(g1_nodes.get(n_id),
-                                   g2_nodes.get(n_id),
-                                   msg + "Nodes of each graph are not equal")
+        g1_nodes = g1['nodes']
+        g1_links = g1['links']
 
-        for e_source_id in g1_edges:
-            self.assert_dict_equal(dict(g1_edges.get(e_source_id)),
-                                   dict(g2_edges.get(e_source_id)),
-                                   "Edges of each graph are not equal")
+        g2_nodes = g2['nodes']
+        g2_links = g1['links']
+
+        to_remove = {'vitrage_sample_timestamp',
+                     'update_timestamp',
+                     'graph_index'}
+
+        self._remove_keys_from_dicts(g1_nodes, g2_nodes, to_remove)
+
+        self.assertItemsEqual(g1_nodes, g2_nodes,
+                              msg + "Nodes of each graph are not equal")
+        self.assert_items_equal(g1_links, g2_links,
+                                "Edges of each graph are not equal")
+
+    def _remove_keys_from_dicts(self, dictionaries1,
+                                dictionaries2, keys_to_remove):
+        self._delete_keys_from_dict(dictionaries1, keys_to_remove)
+        self._delete_keys_from_dict(dictionaries2, keys_to_remove)
+
+    @staticmethod
+    def _delete_keys_from_dict(dictionaries, keys_to_remove):
+        for dictionary in dictionaries:
+            for key in keys_to_remove:
+                if key in dictionary:
+                    del dictionary[key]
 
     def _async_doctor_events(self, spacing=1):
 
