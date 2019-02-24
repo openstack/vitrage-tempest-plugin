@@ -28,6 +28,10 @@ from vitrage_tempest_plugin.tests.common import nova_utils
 class BaseTopologyTest(BaseVitrageTempest):
     """Topology test class for Vitrage API tests."""
 
+    def tearDown(self):
+        super(BaseTopologyTest, self).tearDown()
+        self._rollback_to_default()
+
     def _rollback_to_default(self):
         self._delete_entities()
         api_graph = self.vitrage_client.topology.get(

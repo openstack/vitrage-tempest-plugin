@@ -24,28 +24,25 @@ class TestNova(BaseTopologyTest):
 
     @utils.tempest_logger
     def test_nova_entities(self):
-        try:
-            # Action
-            self._create_entities(num_instances=self.NUM_INSTANCE)
+        # Action
+        self._create_entities(num_instances=self.NUM_INSTANCE)
 
-            # Calculate expected results
-            api_graph = self.vitrage_client.topology.get(all_tenants=True)
-            graph = self._create_graph_from_graph_dictionary(api_graph)
-            entities = self._entities_validation_data(
-                host_entities=1,
-                host_edges=1 + self.NUM_INSTANCE,
-                instance_entities=self.NUM_INSTANCE,
-                instance_edges=2 * self.NUM_INSTANCE)
-            num_entities = self.num_default_entities + \
-                2 * self.NUM_INSTANCE + \
-                self.num_default_networks + self.num_default_ports
-            num_edges = self.num_default_edges + 3 * self.NUM_INSTANCE + \
-                self.num_default_ports
+        # Calculate expected results
+        api_graph = self.vitrage_client.topology.get(all_tenants=True)
+        graph = self._create_graph_from_graph_dictionary(api_graph)
+        entities = self._entities_validation_data(
+            host_entities=1,
+            host_edges=1 + self.NUM_INSTANCE,
+            instance_entities=self.NUM_INSTANCE,
+            instance_edges=2 * self.NUM_INSTANCE)
+        num_entities = self.num_default_entities + \
+            2 * self.NUM_INSTANCE + \
+            self.num_default_networks + self.num_default_ports
+        num_edges = self.num_default_edges + 3 * self.NUM_INSTANCE + \
+            self.num_default_ports
 
-            # Test Assertions
-            self._validate_graph_correctness(graph,
-                                             num_entities,
-                                             num_edges,
-                                             entities)
-        finally:
-            self._rollback_to_default()
+        # Test Assertions
+        self._validate_graph_correctness(graph,
+                                         num_entities,
+                                         num_edges,
+                                         entities)
