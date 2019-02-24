@@ -159,35 +159,27 @@ class TemplatesDBTest(BaseTemplateTest):
                 db_row,
                 'corrupted template template presented in list')
 
-        except Exception as e:
-            self._handle_exception(e)
-            raise
         finally:
             self._rollback_to_default(templates_names)
 
     def test_template_delete(self):
-        try:
 
-            # add standard template
-            v_utils.add_template(STANDARD_TEMPLATE,
-                                 template_type=TTypes.STANDARD)
-            db_row = v_utils.get_first_template(
-                name='host_high_memory_usage_scenarios',
-                type=TTypes.STANDARD,
-                status=TemplateStatus.ACTIVE)
-            self.assertIsNotNone(db_row,
-                                 'Template should appear in templates list')
+        # add standard template
+        v_utils.add_template(STANDARD_TEMPLATE,
+                             template_type=TTypes.STANDARD)
+        db_row = v_utils.get_first_template(
+            name='host_high_memory_usage_scenarios',
+            type=TTypes.STANDARD,
+            status=TemplateStatus.ACTIVE)
+        self.assertIsNotNone(db_row,
+                             'Template should appear in templates list')
 
-            # delete template
-            uuid = db_row['uuid']
-            v_utils.delete_template(uuid)
-            db_row = v_utils.get_first_template(
-                name='host_high_memory_usage_scenarios', type=TTypes.STANDARD)
-            self.assertIsNone(db_row, 'Template should not appear in list')
-
-        except Exception as e:
-            self._handle_exception(e)
-            raise
+        # delete template
+        uuid = db_row['uuid']
+        v_utils.delete_template(uuid)
+        db_row = v_utils.get_first_template(
+            name='host_high_memory_usage_scenarios', type=TTypes.STANDARD)
+        self.assertIsNone(db_row, 'Template should not appear in list')
 
     def test_compare_cli_to_api(self):
         """Compare between api template list
@@ -213,34 +205,27 @@ class TemplatesDBTest(BaseTemplateTest):
                                                    cli_templates_list)
             self._compare_each_template_in_list(api_templates_list,
                                                 cli_templates_list)
-        except Exception as e:
-            self._handle_exception(e)
-            raise
         finally:
             self._rollback_to_default(templates_names)
 
     def test_template_show(self):
         """Compare template content from file to DB"""
-        try:
-            # add standard template
-            template_path = \
-                g_utils.tempest_resources_dir() + '/templates/api/'\
-                + STANDARD_TEMPLATE
-            v_utils.add_template(STANDARD_TEMPLATE,
-                                 template_type=TTypes.STANDARD)
-            db_row = v_utils.get_first_template(
-                name='host_high_memory_usage_scenarios',
-                type=TTypes.STANDARD,
-                status=TemplateStatus.ACTIVE)
-            payload_from_db = self.client.template.show(db_row['uuid'])
-            with open(template_path, 'r') as stream:
-                payload_from_file = yaml.load(stream, Loader=yaml.BaseLoader)
-            self.assert_dict_equal(payload_from_file, payload_from_db,
-                                   "Template content doesn't match")
-            v_utils.delete_template(db_row['uuid'])
-        except Exception as e:
-            self._handle_exception(e)
-            raise
+        # add standard template
+        template_path = \
+            g_utils.tempest_resources_dir() + '/templates/api/'\
+            + STANDARD_TEMPLATE
+        v_utils.add_template(STANDARD_TEMPLATE,
+                             template_type=TTypes.STANDARD)
+        db_row = v_utils.get_first_template(
+            name='host_high_memory_usage_scenarios',
+            type=TTypes.STANDARD,
+            status=TemplateStatus.ACTIVE)
+        payload_from_db = self.client.template.show(db_row['uuid'])
+        with open(template_path, 'r') as stream:
+            payload_from_file = yaml.load(stream, Loader=yaml.BaseLoader)
+        self.assert_dict_equal(payload_from_file, payload_from_db,
+                               "Template content doesn't match")
+        v_utils.delete_template(db_row['uuid'])
 
     def _add_templates(self):
         v_utils.add_template(STANDARD_TEMPLATE,

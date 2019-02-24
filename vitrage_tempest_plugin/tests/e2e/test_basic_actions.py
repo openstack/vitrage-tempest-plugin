@@ -116,9 +116,6 @@ class TestBasicActions(TestActionsBase):
                 self.orig_host.get(VProps.VITRAGE_AGGREGATED_STATE),
                 curr_host.get(VProps.VITRAGE_AGGREGATED_STATE),
                 'state should change after undo set_state action')
-        except Exception as e:
-            self._handle_exception(e)
-            raise
         finally:
             self._trigger_undo_action(trigger_name)
 
@@ -152,9 +149,6 @@ class TestBasicActions(TestActionsBase):
                 orig_instance.get(VProps.VITRAGE_AGGREGATED_STATE),
                 curr_instance.get(VProps.VITRAGE_AGGREGATED_STATE),
                 'state should change after undo set_state action')
-        except Exception as e:
-            self._handle_exception(e)
-            raise
         finally:
             self._trigger_undo_action(trigger_name)
             nova_utils.delete_all_instances(id=vm_id)
@@ -182,9 +176,6 @@ class TestBasicActions(TestActionsBase):
             nova_service = TempestClients.nova().services.list(
                 host=host_name, binary='nova-compute')[0]
             self.assertEqual("up", nova_service.state)
-        except Exception as e:
-            self._handle_exception(e)
-            raise
         finally:
             self._trigger_undo_action(trigger_name)
             # nova.host datasource may take up to snapshot_intreval to update
@@ -211,11 +202,7 @@ class TestBasicActions(TestActionsBase):
             self._trigger_undo_action(trigger_name)
             nova_instance = TempestClients.nova().servers.get(vm_id)
             self.assertEqual("ACTIVE", nova_instance.status)
-        except Exception as e:
-            self._handle_exception(e)
-            raise
         finally:
-            pass
             self._trigger_undo_action(trigger_name)
             nova_utils.delete_all_instances(id=vm_id)
 
@@ -238,9 +225,6 @@ class TestBasicActions(TestActionsBase):
             # Undo
             self._trigger_undo_action(trigger_name)
             self._check_deduced(0, deduced_props, host_id)
-        except Exception as e:
-            self._handle_exception(e)
-            raise
         finally:
             self._trigger_undo_action(trigger_name)
 
@@ -286,8 +270,5 @@ class TestBasicActions(TestActionsBase):
             rca = TempestClients.vitrage().rca.get(
                 trigger[VProps.VITRAGE_ID], all_tenants=True)
             self._check_rca(rca, [deduced, trigger], trigger_alarm_props)
-        except Exception as e:
-            self._handle_exception(e)
-            raise
         finally:
             self._trigger_undo_action(trigger_name)

@@ -13,10 +13,8 @@
 #    under the License.
 
 from datetime import datetime
-import json
 import six
 
-from networkx.readwrite import json_graph
 from oslo_log import log as logging
 from oslo_utils import timeutils
 from tempest.common import credentials_factory as common_creds
@@ -336,22 +334,6 @@ class BaseVitrageTempest(test.BaseTestCase):
     @staticmethod
     def _get_value(item, key):
         return utils.uni2str(item[key])
-
-    def _print_entity_graph(self):
-        api_graph = TempestClients.vitrage().topology.get(all_tenants=True)
-        graph = self._create_graph_from_graph_dictionary(api_graph)
-
-        node_link_data = json_graph.node_link_data(graph._g)
-        for index, node in enumerate(node_link_data['nodes']):
-            if VProps.ID in graph._g.node[node[VProps.ID]]:
-                node[VProps.ID] = graph._g.node[node[VProps.ID]][VProps.ID]
-                node[VProps.GRAPH_INDEX] = index
-
-        LOG.info('Entity Graph: \n%s', json.dumps(node_link_data))
-
-    def _handle_exception(self, exception):
-        LOG.exception(exception)
-        self._print_entity_graph()
 
     @classmethod
     def _calc_num_admin_tenant_networks(cls):

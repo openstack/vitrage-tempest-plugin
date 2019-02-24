@@ -76,17 +76,12 @@ class TestTemplateActions(TestActionsBase):
         This checks that the evaluators are reloaded and run on all existing
          vertices.
         """
-        try:
-            host_id = self.orig_host.get(VProps.VITRAGE_ID)
-            self._trigger_do_action(TRIGGER_ALARM_1)
-            self.added_template = v_util.add_template(TEST_TEMPLATE,
-                                                      folder=FOLDER_PATH)
-            time.sleep(2)
-            self._check_deduced(1, DEDUCED_PROPS, host_id)
-
-        except Exception as e:
-            self._handle_exception(e)
-            raise
+        host_id = self.orig_host.get(VProps.VITRAGE_ID)
+        self._trigger_do_action(TRIGGER_ALARM_1)
+        self.added_template = v_util.add_template(TEST_TEMPLATE,
+                                                  folder=FOLDER_PATH)
+        time.sleep(2)
+        self._check_deduced(1, DEDUCED_PROPS, host_id)
 
     @utils.tempest_logger
     def test_evaluator_reload_with_existing_template(self):
@@ -97,16 +92,11 @@ class TestTemplateActions(TestActionsBase):
         3. check action is executed
         This checks that new workers execute new template
         """
-        try:
-            host_id = self.orig_host.get(VProps.VITRAGE_ID)
-            self.added_template = v_util.add_template(TEST_TEMPLATE,
-                                                      folder=FOLDER_PATH)
-            self._trigger_do_action(TRIGGER_ALARM_1)
-            self._check_deduced(1, DEDUCED_PROPS, host_id)
-
-        except Exception as e:
-            self._handle_exception(e)
-            raise
+        host_id = self.orig_host.get(VProps.VITRAGE_ID)
+        self.added_template = v_util.add_template(TEST_TEMPLATE,
+                                                  folder=FOLDER_PATH)
+        self._trigger_do_action(TRIGGER_ALARM_1)
+        self._check_deduced(1, DEDUCED_PROPS, host_id)
 
     @utils.tempest_logger
     def test_evaluator_reload_with_new_template_v2(self):
@@ -120,22 +110,17 @@ class TestTemplateActions(TestActionsBase):
          vertices.
          Checks temporary worker that was added to delete template.
         """
-        try:
-            host_id = self.orig_host.get(VProps.VITRAGE_ID)
+        host_id = self.orig_host.get(VProps.VITRAGE_ID)
 
-            self._trigger_do_action(TRIGGER_ALARM_1)
-            self.added_template = v_util.add_template(TEST_TEMPLATE,
-                                                      folder=FOLDER_PATH)
-            time.sleep(2)
-            self._check_deduced(1, DEDUCED_PROPS, host_id)
-            v_util.delete_template(self.added_template['uuid'])
-            self.added_template = None
-            time.sleep(2)
-            self._check_deduced(0, DEDUCED_PROPS, host_id)
-
-        except Exception as e:
-            self._handle_exception(e)
-            raise
+        self._trigger_do_action(TRIGGER_ALARM_1)
+        self.added_template = v_util.add_template(TEST_TEMPLATE,
+                                                  folder=FOLDER_PATH)
+        time.sleep(2)
+        self._check_deduced(1, DEDUCED_PROPS, host_id)
+        v_util.delete_template(self.added_template['uuid'])
+        self.added_template = None
+        time.sleep(2)
+        self._check_deduced(0, DEDUCED_PROPS, host_id)
 
     @utils.tempest_logger
     def test_evaluator_reload_with_existing_template_v2(self):
@@ -148,18 +133,13 @@ class TestTemplateActions(TestActionsBase):
         This checks that template deleted properly and no action executed.
         :return:
         """
-        try:
-            host_id = self.orig_host.get(VProps.VITRAGE_ID)
-            self.added_template = v_util.add_template(TEST_TEMPLATE,
-                                                      folder=FOLDER_PATH)
-            v_util.delete_template(self.added_template['uuid'])
-            self.added_template = None
-            self._trigger_do_action(TRIGGER_ALARM_1)
-            self._check_deduced(0, DEDUCED_PROPS, host_id)
-
-        except Exception as e:
-            self._handle_exception(e)
-            raise
+        host_id = self.orig_host.get(VProps.VITRAGE_ID)
+        self.added_template = v_util.add_template(TEST_TEMPLATE,
+                                                  folder=FOLDER_PATH)
+        v_util.delete_template(self.added_template['uuid'])
+        self.added_template = None
+        self._trigger_do_action(TRIGGER_ALARM_1)
+        self._check_deduced(0, DEDUCED_PROPS, host_id)
 
     @utils.tempest_logger
     def test_evaluator_reload_with_multiple_new_template(self):
@@ -181,10 +161,6 @@ class TestTemplateActions(TestActionsBase):
             second_template = v_util.get_first_template(name=INFILE_NAME_2)
             self._check_deduced(1, DEDUCED_PROPS, host_id)
             self._check_deduced(1, DEDUCED_PROPS_2, host_id)
-
-        except Exception as e:
-            self._handle_exception(e)
-            raise
         finally:
             if second_template:
                 v_util.delete_template(second_template['uuid'])

@@ -62,9 +62,6 @@ class TestNeutron(BaseTopologyTest):
                                              num_entities,
                                              num_edges,
                                              entities)
-        except Exception as e:
-            self._handle_exception(e)
-            raise
         finally:
             nova_utils.delete_all_instances()
 
