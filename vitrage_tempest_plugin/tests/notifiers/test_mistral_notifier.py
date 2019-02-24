@@ -12,10 +12,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import json
 import time
 
 from oslo_log import log as logging
+from oslo_serialization import jsonutils
 from testtools.matchers import HasLength
 
 from vitrage_tempest_plugin.tests.api.event.base import BaseTestEvents
@@ -140,7 +140,7 @@ class TestMistralNotifier(BaseTestEvents):
             # are at the end. Check the last `num_instances` executions.
             execution = \
                 self.mistral_client.executions.get(executions[-i].id)
-            execution_input = json.loads(execution.input)
+            execution_input = jsonutils.loads(execution.input)
             executed_on_instances.add(execution_input['farewell'])
 
         msg = "There are %d instances in the graph but only %d distinct " \
@@ -160,7 +160,7 @@ class TestMistralNotifier(BaseTestEvents):
                              'The last execution had no input')
         self.assertIn('farewell', execution_input_str,
                       'No \'farewell\' key in the last execution input')
-        execution_input = json.loads(execution_input_str)
+        execution_input = jsonutils.loads(execution_input_str)
         farewell_value = execution_input['farewell']
         self.assertIsNotNone(farewell_value, '\'farewell\' input parameter is '
                                              'None in last workflow execution')

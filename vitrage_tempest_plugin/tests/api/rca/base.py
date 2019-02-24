@@ -12,9 +12,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import json
-
 from oslo_log import log as logging
+from oslo_serialization import jsonutils
 from testtools import matchers
 
 from vitrage_tempest_plugin.tests.base import BaseVitrageTempest
@@ -70,7 +69,7 @@ class BaseRcaTest(BaseVitrageTempest):
         LOG.debug("The rca taken from cli is : %s", cli_rca)
         LOG.debug("The rca taken by api is : %s", api_rca)
 
-        parsed_rca = json.loads(cli_rca)
+        parsed_rca = jsonutils.loads(cli_rca)
         sorted_cli_graph = self._clean_timestamps(sorted(parsed_rca.items()))
         sorted_api_graph = self._clean_timestamps(sorted(api_rca.items()))
         self.assert_list_equal(sorted_cli_graph, sorted_api_graph)

@@ -11,9 +11,12 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-import json
+
 import random
 import time
+
+from oslo_serialization import jsonutils
+
 from vitrage_tempest_plugin.tests.common.constants import AodhProperties as \
     AodhProps
 from vitrage_tempest_plugin.tests.common.tempest_clients import TempestClients
@@ -125,7 +128,7 @@ def _aodh_request(type, resource_id=None, name=None, rule=None):
         # alarms, update accordingly
         query[0].update(dict(field='resource_id'))
         rule[AodhProps.RESOURCES_THRESHOLD_RULE].update(dict(
-            query=json.dumps(query)))
+            query=jsonutils.dump_as_bytes(query)))
 
     request.update(rule)
     return request

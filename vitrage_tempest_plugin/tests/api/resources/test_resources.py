@@ -12,9 +12,8 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import json
-
 from oslo_log import log as logging
+from oslo_serialization import jsonutils
 from testtools import matchers
 
 from vitrage_tempest_plugin.tests.base import BaseVitrageTempest
@@ -172,7 +171,7 @@ class TestResource(BaseVitrageTempest):
                         'The resources taken from rest api is empty')
 
         sorted_cli_resources = sorted(
-            json.loads(cli_resources),
+            jsonutils.loads(cli_resources),
             key=lambda resource: resource["ID"])
         sorted_api_resources = sorted(
             api_resources,
