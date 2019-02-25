@@ -43,4 +43,4 @@ class VitrageTempestPlugin(plugins.TempestPlugin):
         return [(config_rca_service.rca_service_group.name,
                  config_rca_service.RcaServiceGroup),
                 (config_rca_service.service_available_group.name,
-                 [config_rca_service.ServiceAvailableGroup])]
+                 config_rca_service.ServiceAvailableGroup)]
