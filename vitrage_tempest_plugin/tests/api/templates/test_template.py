@@ -23,7 +23,6 @@ from vitrage_tempest_plugin.tests.common.constants import TemplateStatus
 from vitrage_tempest_plugin.tests.common.constants import TemplateTypes as \
     TTypes
 from vitrage_tempest_plugin.tests.common import general_utils as g_utils
-from vitrage_tempest_plugin.tests.common.tempest_clients import TempestClients
 from vitrage_tempest_plugin.tests.common import vitrage_utils as v_utils
 
 import vitrage_tempest_plugin.tests.utils as utils
@@ -110,11 +109,6 @@ class TestValidate(BaseTemplateTest):
 class TemplatesDBTest(BaseTemplateTest):
     """Template DB test class for vitrage API tests"""
 
-    @classmethod
-    def setUpClass(cls):
-        super(TemplatesDBTest, cls).setUpClass()
-        cls.client = TempestClients.vitrage()
-
     def test_template_add(self):
         """template add test
 
@@ -193,7 +187,7 @@ class TemplatesDBTest(BaseTemplateTest):
             templates_names = self._add_templates()
             cli_templates_list = utils.run_vitrage_command(
                 "vitrage template list")
-            api_templates_list = self.client.template.list()
+            api_templates_list = self.vitrage_client.template.list()
 
             self.assertThat(api_templates_list, IsNotEmpty(),
                             'The template list taken from api is empty')
@@ -220,7 +214,7 @@ class TemplatesDBTest(BaseTemplateTest):
             name='host_high_memory_usage_scenarios',
             type=TTypes.STANDARD,
             status=TemplateStatus.ACTIVE)
-        payload_from_db = self.client.template.show(db_row['uuid'])
+        payload_from_db = self.vitrage_client.template.show(db_row['uuid'])
         with open(template_path, 'r') as stream:
             payload_from_file = yaml.load(stream, Loader=yaml.BaseLoader)
         self.assert_dict_equal(payload_from_file, payload_from_db,

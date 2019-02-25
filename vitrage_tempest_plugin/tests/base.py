@@ -117,6 +117,8 @@ class BaseVitrageTempest(test.BaseTestCase):
         warnings.filterwarnings(action="ignore",
                                 message="unclosed",
                                 category=ResourceWarning)
+        logger = logging.getLogger('urllib3.connectionpool').logger
+        logger.setLevel(logging.INFO)
 
     def tearDown(self):
         super(BaseVitrageTempest, self).tearDown()
