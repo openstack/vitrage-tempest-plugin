@@ -91,30 +91,26 @@ class TestTopology(BaseTopologyTest):
         This test validate correctness of default topology graph when queried
         by another tenant.
         """
-        try:
-            # Action - create entities as the default tenant
-            self._create_entities(num_instances=self.NUM_INSTANCE,
-                                  num_volumes=self.NUM_VOLUME)
+        # Action - create entities as the default tenant
+        self._create_entities(num_instances=self.NUM_INSTANCE,
+                              num_volumes=self.NUM_VOLUME)
 
-            # Calculate expected results for another tenant - the other tenant
-            # should not see instances and volumes of the default tenant.
-            # All it can see is its private network.
-            tenant_client = self.vitrage_client_for_demo_user
-            api_graph = tenant_client.topology.get(all_tenants=False)
-            graph = self._create_graph_from_graph_dictionary(api_graph)
+        # Calculate expected results for another tenant - the other tenant
+        # should not see instances and volumes of the default tenant.
+        # All it can see is its private network.
+        tenant_client = self.vitrage_client_for_demo_user
+        api_graph = tenant_client.topology.get(all_tenants=False)
+        graph = self._create_graph_from_graph_dictionary(api_graph)
 
-            entities = self._entities_validation_data(
-                cluster_entities=0, cluster_edges=0, zone_entities=0,
-                zone_edges=0, host_entities=0, host_edges=0,
-                instance_entities=0, instance_edges=0, volume_entities=0,
-                volume_edges=0)
-            num_entities = self._calc_num_tenant_networks()
+        entities = self._entities_validation_data(
+            cluster_entities=0, cluster_edges=0, zone_entities=0,
+            zone_edges=0, host_entities=0, host_edges=0,
+            instance_entities=0, instance_edges=0, volume_entities=0,
+            volume_edges=0)
+        num_entities = self._calc_num_tenant_networks()
 
-            # Test Assertions
-            self._validate_graph_correctness(graph, num_entities, 0, entities)
-
-        finally:
-            self._rollback_to_default()
+        # Test Assertions
+        self._validate_graph_correctness(graph, num_entities, 0, entities)
 
     @utils.tempest_logger
     def test_graph_with_query(self):
@@ -123,31 +119,28 @@ class TestTopology(BaseTopologyTest):
         This test validate correctness of topology graph
         with query
         """
-        try:
-            # Action
-            self._create_entities(num_instances=self.NUM_INSTANCE,
-                                  num_volumes=self.NUM_VOLUME)
+        # Action
+        self._create_entities(num_instances=self.NUM_INSTANCE,
+                              num_volumes=self.NUM_VOLUME)
 
-            # Calculate expected results
-            api_graph = self.vitrage_client.topology.get(
-                query=self._graph_query(),
-                all_tenants=True)
-            graph = self._create_graph_from_graph_dictionary(api_graph)
-            entities = self._entities_validation_data(
-                host_entities=1,
-                host_edges=self.NUM_INSTANCE + 1,
-                instance_entities=self.NUM_INSTANCE,
-                instance_edges=self.NUM_INSTANCE)
-            num_entities = self.num_default_entities + self.NUM_INSTANCE
-            num_edges = self.num_default_edges + self.NUM_INSTANCE
+        # Calculate expected results
+        api_graph = self.vitrage_client.topology.get(
+            query=self._graph_query(),
+            all_tenants=True)
+        graph = self._create_graph_from_graph_dictionary(api_graph)
+        entities = self._entities_validation_data(
+            host_entities=1,
+            host_edges=self.NUM_INSTANCE + 1,
+            instance_entities=self.NUM_INSTANCE,
+            instance_edges=self.NUM_INSTANCE)
+        num_entities = self.num_default_entities + self.NUM_INSTANCE
+        num_edges = self.num_default_edges + self.NUM_INSTANCE
 
-            # Test Assertions
-            self._validate_graph_correctness(graph,
-                                             num_entities,
-                                             num_edges,
-                                             entities)
-        finally:
-            self._rollback_to_default()
+        # Test Assertions
+        self._validate_graph_correctness(graph,
+                                         num_entities,
+                                         num_edges,
+                                         entities)
 
     @utils.tempest_logger
     def test_graph_with_query_for_tenant(self):
@@ -156,27 +149,24 @@ class TestTopology(BaseTopologyTest):
         This test validate correctness of topology graph
         with query, when queried by another tenant.
         """
-        try:
-            # Action - create entities as the default tenant
-            self._create_entities(num_instances=self.NUM_INSTANCE,
-                                  num_volumes=self.NUM_VOLUME)
+        # Action - create entities as the default tenant
+        self._create_entities(num_instances=self.NUM_INSTANCE,
+                              num_volumes=self.NUM_VOLUME)
 
-            # Calculate expected results - the other tenant should not see
-            # instances and volumes of the default tenant
-            tenant_client = self.vitrage_client_for_demo_user
-            api_graph = tenant_client.topology.get(query=self._graph_query())
-            graph = self._create_graph_from_graph_dictionary(api_graph)
+        # Calculate expected results - the other tenant should not see
+        # instances and volumes of the default tenant
+        tenant_client = self.vitrage_client_for_demo_user
+        api_graph = tenant_client.topology.get(query=self._graph_query())
+        graph = self._create_graph_from_graph_dictionary(api_graph)
 
-            entities = self._entities_validation_data(
-                cluster_entities=0, cluster_edges=0, zone_entities=0,
-                zone_edges=0, host_entities=0, host_edges=0,
-                instance_entities=0, instance_edges=0, volume_entities=0,
-                volume_edges=0)
+        entities = self._entities_validation_data(
+            cluster_entities=0, cluster_edges=0, zone_entities=0,
+            zone_edges=0, host_entities=0, host_edges=0,
+            instance_entities=0, instance_edges=0, volume_entities=0,
+            volume_edges=0)
 
-            # Test Assertions
-            self._validate_graph_correctness(graph, 0, 0, entities)
-        finally:
-            self._rollback_to_default()
+        # Test Assertions
+        self._validate_graph_correctness(graph, 0, 0, entities)
 
     @utils.tempest_logger
     def test_nova_tree(self):
@@ -184,30 +174,27 @@ class TestTopology(BaseTopologyTest):
 
         This test validate correctness of topology tree
         """
-        try:
-            # Action
-            self._create_entities(num_instances=self.NUM_INSTANCE,
-                                  num_volumes=self.NUM_VOLUME)
+        # Action
+        self._create_entities(num_instances=self.NUM_INSTANCE,
+                              num_volumes=self.NUM_VOLUME)
 
-            # Calculate expected results
-            api_graph = self.vitrage_client.topology.get(
-                graph_type='tree', query=NOVA_QUERY, all_tenants=True)
-            graph = self._create_graph_from_tree_dictionary(api_graph)
-            entities = self._entities_validation_data(
-                host_entities=1,
-                host_edges=self.NUM_INSTANCE + 1,
-                instance_entities=self.NUM_INSTANCE,
-                instance_edges=self.NUM_INSTANCE)
-            num_entities = self.num_default_entities + self.NUM_INSTANCE
-            num_edges = self.num_default_edges + self.NUM_INSTANCE
+        # Calculate expected results
+        api_graph = self.vitrage_client.topology.get(
+            graph_type='tree', query=NOVA_QUERY, all_tenants=True)
+        graph = self._create_graph_from_tree_dictionary(api_graph)
+        entities = self._entities_validation_data(
+            host_entities=1,
+            host_edges=self.NUM_INSTANCE + 1,
+            instance_entities=self.NUM_INSTANCE,
+            instance_edges=self.NUM_INSTANCE)
+        num_entities = self.num_default_entities + self.NUM_INSTANCE
+        num_edges = self.num_default_edges + self.NUM_INSTANCE
 
-            # Test Assertions
-            self._validate_graph_correctness(graph,
-                                             num_entities,
-                                             num_edges,
-                                             entities)
-        finally:
-            self._rollback_to_default()
+        # Test Assertions
+        self._validate_graph_correctness(graph,
+                                         num_entities,
+                                         num_edges,
+                                         entities)
 
     @utils.tempest_logger
     def test_tree_with_query(self):
@@ -216,24 +203,21 @@ class TestTopology(BaseTopologyTest):
         This test validate correctness of topology tree
         with query
         """
-        try:
-            # Action
-            self._create_entities(num_instances=self.NUM_INSTANCE)
+        # Action
+        self._create_entities(num_instances=self.NUM_INSTANCE)
 
-            # Calculate expected results
-            api_graph = self.vitrage_client.topology.get(
-                graph_type='tree', query=self._tree_query(), all_tenants=True)
-            graph = self._create_graph_from_tree_dictionary(api_graph)
-            entities = self._entities_validation_data(
-                host_entities=1, host_edges=1)
+        # Calculate expected results
+        api_graph = self.vitrage_client.topology.get(
+            graph_type='tree', query=self._tree_query(), all_tenants=True)
+        graph = self._create_graph_from_tree_dictionary(api_graph)
+        entities = self._entities_validation_data(
+            host_entities=1, host_edges=1)
 
-            # Test Assertions
-            self._validate_graph_correctness(graph,
-                                             self.num_default_entities,
-                                             self.num_default_edges,
-                                             entities)
-        finally:
-            self._rollback_to_default()
+        # Test Assertions
+        self._validate_graph_correctness(graph,
+                                         self.num_default_entities,
+                                         self.num_default_edges,
+                                         entities)
 
     @utils.tempest_logger
     def test_tree_with_depth_exclude_instance(self):
@@ -242,24 +226,21 @@ class TestTopology(BaseTopologyTest):
         This test validate correctness of topology tree
         with query
         """
-        try:
-            # Action
-            self._create_entities(num_instances=self.NUM_INSTANCE)
+        # Action
+        self._create_entities(num_instances=self.NUM_INSTANCE)
 
-            # Calculate expected results
-            api_graph = self.vitrage_client.topology.get(
-                limit=2, graph_type='tree', query=NOVA_QUERY, all_tenants=True)
-            graph = self._create_graph_from_tree_dictionary(api_graph)
-            entities = self._entities_validation_data(
-                host_entities=1, host_edges=1)
+        # Calculate expected results
+        api_graph = self.vitrage_client.topology.get(
+            limit=2, graph_type='tree', query=NOVA_QUERY, all_tenants=True)
+        graph = self._create_graph_from_tree_dictionary(api_graph)
+        entities = self._entities_validation_data(
+            host_entities=1, host_edges=1)
 
-            # Test Assertions
-            self._validate_graph_correctness(graph,
-                                             self.num_default_entities,
-                                             self.num_default_edges,
-                                             entities)
-        finally:
-            self._rollback_to_default()
+        # Test Assertions
+        self._validate_graph_correctness(graph,
+                                         self.num_default_entities,
+                                         self.num_default_edges,
+                                         entities)
 
     @utils.tempest_logger
     def test_tree_with_depth_include_instance(self):
@@ -268,29 +249,26 @@ class TestTopology(BaseTopologyTest):
         This test validate correctness of topology tree
         with query
         """
-        try:
-            # Action
-            self._create_entities(num_instances=self.NUM_INSTANCE)
+        # Action
+        self._create_entities(num_instances=self.NUM_INSTANCE)
 
-            # Calculate expected results
-            api_graph = self.vitrage_client.topology.get(
-                limit=3, graph_type='tree', query=NOVA_QUERY, all_tenants=True)
-            graph = self._create_graph_from_tree_dictionary(api_graph)
-            entities = self._entities_validation_data(
-                host_entities=1,
-                host_edges=self.NUM_INSTANCE + 1,
-                instance_entities=self.NUM_INSTANCE,
-                instance_edges=self.NUM_INSTANCE)
-            num_entities = self.num_default_entities + self.NUM_INSTANCE
-            num_edges = self.num_default_edges + self.NUM_INSTANCE
+        # Calculate expected results
+        api_graph = self.vitrage_client.topology.get(
+            limit=3, graph_type='tree', query=NOVA_QUERY, all_tenants=True)
+        graph = self._create_graph_from_tree_dictionary(api_graph)
+        entities = self._entities_validation_data(
+            host_entities=1,
+            host_edges=self.NUM_INSTANCE + 1,
+            instance_entities=self.NUM_INSTANCE,
+            instance_edges=self.NUM_INSTANCE)
+        num_entities = self.num_default_entities + self.NUM_INSTANCE
+        num_edges = self.num_default_edges + self.NUM_INSTANCE
 
-            # Test Assertions
-            self._validate_graph_correctness(graph,
-                                             num_entities,
-                                             num_edges,
-                                             entities)
-        finally:
-            self._rollback_to_default()
+        # Test Assertions
+        self._validate_graph_correctness(graph,
+                                         num_entities,
+                                         num_edges,
+                                         entities)
 
     @utils.tempest_logger
     def test_graph_with_depth_and_no_root(self):
@@ -314,8 +292,6 @@ class TestTopology(BaseTopologyTest):
             self.assertEqual(
                 "Graph-type 'graph' requires a 'root' with 'depth'",
                 str(e.message))
-        finally:
-            self._rollback_to_default()
 
     @utils.tempest_logger
     def test_graph_with_no_match_query(self):
@@ -324,21 +300,18 @@ class TestTopology(BaseTopologyTest):
         This test validate correctness of topology graph
         with no match query
         """
-        try:
-            # Action
-            self._create_entities(num_instances=self.NUM_INSTANCE,
-                                  num_volumes=self.NUM_VOLUME)
+        # Action
+        self._create_entities(num_instances=self.NUM_INSTANCE,
+                              num_volumes=self.NUM_VOLUME)
 
-            # Calculate expected results
-            api_graph = self.vitrage_client.topology.get(
-                query=self._graph_no_match_query(), all_tenants=True)
+        # Calculate expected results
+        api_graph = self.vitrage_client.topology.get(
+            query=self._graph_no_match_query(), all_tenants=True)
 
-            # Test Assertions
-            self.assertThat(api_graph['nodes'],
-                            IsEmpty(), 'num of vertex node')
-            self.assertThat(api_graph['links'], IsEmpty(), 'num of edges')
-        finally:
-            self._rollback_to_default()
+        # Test Assertions
+        self.assertThat(api_graph['nodes'],
+                        IsEmpty(), 'num of vertex node')
+        self.assertThat(api_graph['links'], IsEmpty(), 'num of edges')
 
     @utils.tempest_logger
     def test_tree_with_no_match_query(self):
@@ -347,20 +320,17 @@ class TestTopology(BaseTopologyTest):
         This test validate correctness of topology tree
         with no match query
         """
-        try:
-            # Action
-            self._create_entities(num_instances=self.NUM_INSTANCE)
+        # Action
+        self._create_entities(num_instances=self.NUM_INSTANCE)
 
-            # Calculate expected results
-            api_graph = self.vitrage_client.topology.get(
-                graph_type='tree',
-                query=self._tree_no_match_query(),
-                all_tenants=True)
+        # Calculate expected results
+        api_graph = self.vitrage_client.topology.get(
+            graph_type='tree',
+            query=self._tree_no_match_query(),
+            all_tenants=True)
 
-            # Test Assertions
-            self.assert_is_empty(api_graph)
-        finally:
-            self._rollback_to_default()
+        # Test Assertions
+        self.assert_is_empty(api_graph)
 
     @utils.tempest_logger
     def _do_test_default_graph(self, num_default_networks, all_tenants):
@@ -368,32 +338,29 @@ class TestTopology(BaseTopologyTest):
 
         This test validate correctness of default topology graph
         """
-        try:
-            # Action
-            self._create_entities(num_instances=self.NUM_INSTANCE,
-                                  num_volumes=self.NUM_VOLUME)
+        # Action
+        self._create_entities(num_instances=self.NUM_INSTANCE,
+                              num_volumes=self.NUM_VOLUME)
 
-            # Calculate expected results
-            api_graph = \
-                self.vitrage_client.topology.get(all_tenants=all_tenants)
-            graph = self._create_graph_from_graph_dictionary(api_graph)
-            entities = self._entities_validation_data(
-                host_entities=1,
-                host_edges=self.NUM_INSTANCE + 1,
-                instance_entities=self.NUM_INSTANCE,
-                instance_edges=2 * self.NUM_INSTANCE + self.NUM_VOLUME,
-                volume_entities=self.NUM_VOLUME,
-                volume_edges=self.NUM_VOLUME)
-            num_entities = self.num_default_entities + self.NUM_VOLUME + \
-                2 * self.NUM_INSTANCE + num_default_networks + \
-                self.num_default_ports
-            num_edges = self.num_default_edges + 3 * self.NUM_INSTANCE + \
-                self.NUM_VOLUME + self.num_default_ports
+        # Calculate expected results
+        api_graph = \
+            self.vitrage_client.topology.get(all_tenants=all_tenants)
+        graph = self._create_graph_from_graph_dictionary(api_graph)
+        entities = self._entities_validation_data(
+            host_entities=1,
+            host_edges=self.NUM_INSTANCE + 1,
+            instance_entities=self.NUM_INSTANCE,
+            instance_edges=2 * self.NUM_INSTANCE + self.NUM_VOLUME,
+            volume_entities=self.NUM_VOLUME,
+            volume_edges=self.NUM_VOLUME)
+        num_entities = self.num_default_entities + self.NUM_VOLUME + \
+            2 * self.NUM_INSTANCE + num_default_networks + \
+            self.num_default_ports
+        num_edges = self.num_default_edges + 3 * self.NUM_INSTANCE + \
+            self.NUM_VOLUME + self.num_default_ports
 
-            # Test Assertions
-            self._validate_graph_correctness(graph,
-                                             num_entities,
-                                             num_edges,
-                                             entities)
-        finally:
-            self._rollback_to_default()
+        # Test Assertions
+        self._validate_graph_correctness(graph,
+                                         num_entities,
+                                         num_edges,
+                                         entities)

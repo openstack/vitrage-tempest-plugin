@@ -25,31 +25,28 @@ class TestCinderVolume(BaseTopologyTest):
 
     @utils.tempest_logger
     def test_volume(self):
-        try:
-            # Action
-            self._create_entities(num_instances=self.NUM_INSTANCE,
-                                  num_volumes=self.NUM_VOLUME)
+        # Action
+        self._create_entities(num_instances=self.NUM_INSTANCE,
+                              num_volumes=self.NUM_VOLUME)
 
-            # Calculate expected results
-            api_graph = self.vitrage_client.topology.get(all_tenants=True)
-            graph = self._create_graph_from_graph_dictionary(api_graph)
-            entities = self._entities_validation_data(
-                host_entities=1,
-                host_edges=self.NUM_INSTANCE + 1,
-                instance_entities=self.NUM_INSTANCE,
-                instance_edges=2 * self.NUM_INSTANCE + self.NUM_VOLUME,
-                volume_entities=self.NUM_VOLUME,
-                volume_edges=self.NUM_VOLUME)
-            num_entities = self.num_default_entities + self.NUM_VOLUME + \
-                2 * self.NUM_INSTANCE + self.num_default_ports + \
-                self.num_default_networks
-            num_edges = self.num_default_edges + 3 * self.NUM_INSTANCE + \
-                self.NUM_VOLUME + self.num_default_ports
+        # Calculate expected results
+        api_graph = self.vitrage_client.topology.get(all_tenants=True)
+        graph = self._create_graph_from_graph_dictionary(api_graph)
+        entities = self._entities_validation_data(
+            host_entities=1,
+            host_edges=self.NUM_INSTANCE + 1,
+            instance_entities=self.NUM_INSTANCE,
+            instance_edges=2 * self.NUM_INSTANCE + self.NUM_VOLUME,
+            volume_entities=self.NUM_VOLUME,
+            volume_edges=self.NUM_VOLUME)
+        num_entities = self.num_default_entities + self.NUM_VOLUME + \
+            2 * self.NUM_INSTANCE + self.num_default_ports + \
+            self.num_default_networks
+        num_edges = self.num_default_edges + 3 * self.NUM_INSTANCE + \
+            self.NUM_VOLUME + self.num_default_ports
 
-            # Test Assertions
-            self._validate_graph_correctness(graph,
-                                             num_entities,
-                                             num_edges,
-                                             entities)
-        finally:
-            self._rollback_to_default()
+        # Test Assertions
+        self._validate_graph_correctness(graph,
+                                         num_entities,
+                                         num_edges,
+                                         entities)
