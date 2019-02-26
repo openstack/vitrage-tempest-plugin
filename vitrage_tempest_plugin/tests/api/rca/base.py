@@ -35,7 +35,6 @@ from vitrage_tempest_plugin.tests.common.constants import VertexProperties \
 from vitrage_tempest_plugin.tests.common.constants import VITRAGE_DATASOURCE
 from vitrage_tempest_plugin.tests.common import general_utils as g_utils
 from vitrage_tempest_plugin.tests.common import nova_utils
-from vitrage_tempest_plugin.tests.common.tempest_clients import TempestClients
 from vitrage_tempest_plugin.tests.common import vitrage_utils
 
 LOG = logging.getLogger(__name__)
@@ -45,7 +44,8 @@ VITRAGE_ALARM_NAME = 'instance_deduce'
 
 class BaseRcaTest(BaseAlarmsTest):
 
-    def _clean_all(self):
+    @staticmethod
+    def _clean_all():
         nova_utils.delete_all_instances()
         aodh_utils.delete_all_aodh_alarms()
 
@@ -102,7 +102,7 @@ class BaseRcaTest(BaseAlarmsTest):
         LOG.info("The alarms list is : " + str(json.dumps(alarms)))
 
         # Find the vitrage_id of the deduced alarms using their original id.
-        vitrage_resources = TempestClients.vitrage().resource.list(
+        vitrage_resources = self.vitrage_client.resource.list(
             all_tenants=False)
         vitrage_instance_0_id = g_utils.first_match(vitrage_resources,
                                                     id=instances[0].id)

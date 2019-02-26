@@ -169,7 +169,7 @@ class TestOverlappingActions(TestActionsBase):
             # ---- Do first & second ----
             self._trigger_do_action(TRIGGER_ALARM_1)
             self._trigger_do_action(TRIGGER_ALARM_2)
-            alarms = TempestClients.vitrage().alarm.list(
+            alarms = self.vitrage_client.alarm.list(
                 vitrage_id=self.orig_host.get(VProps.VITRAGE_ID),
                 all_tenants=True)
 
@@ -178,23 +178,23 @@ class TestOverlappingActions(TestActionsBase):
             trigger2 = g_utils.first_match(alarms, **TRIGGER_ALARM_2_PROPS)
 
             # Get Rca for the deduced
-            rca = TempestClients.vitrage().rca.get(
-                deduced[VProps.VITRAGE_ID], all_tenants=True)
+            rca = self.vitrage_client.rca.get(deduced[VProps.VITRAGE_ID],
+                                              all_tenants=True)
             self._check_rca(rca, [deduced, trigger1, trigger2], DEDUCED_PROPS)
 
             # Get Rca for trigger 1
-            rca = TempestClients.vitrage().rca.get(
-                trigger1[VProps.VITRAGE_ID], all_tenants=True)
+            rca = self.vitrage_client.rca.get(trigger1[VProps.VITRAGE_ID],
+                                              all_tenants=True)
             self._check_rca(rca, [deduced, trigger1], TRIGGER_ALARM_1_PROPS)
 
             # Get Rca for trigger 2
-            rca = TempestClients.vitrage().rca.get(
-                trigger2[VProps.VITRAGE_ID], all_tenants=True)
+            rca = self.vitrage_client.rca.get(trigger2[VProps.VITRAGE_ID],
+                                              all_tenants=True)
             self._check_rca(rca, [deduced, trigger2], TRIGGER_ALARM_2_PROPS)
 
             # ---- Undo - first ----
             self._trigger_undo_action(TRIGGER_ALARM_1)
-            alarms = TempestClients.vitrage().alarm.list(
+            alarms = self.vitrage_client.alarm.list(
                 vitrage_id=self.orig_host.get(VProps.VITRAGE_ID),
                 all_tenants=True)
 
@@ -202,18 +202,18 @@ class TestOverlappingActions(TestActionsBase):
             trigger2 = g_utils.first_match(alarms, **TRIGGER_ALARM_2_PROPS)
 
             # Get Rca for the deduced
-            rca = TempestClients.vitrage().rca.get(
-                deduced[VProps.VITRAGE_ID], all_tenants=True)
+            rca = self.vitrage_client.rca.get(deduced[VProps.VITRAGE_ID],
+                                              all_tenants=True)
             self._check_rca(rca, [deduced, trigger2], DEDUCED_PROPS)
 
             # Get Rca for trigger 2
-            rca = TempestClients.vitrage().rca.get(
-                trigger2[VProps.VITRAGE_ID], all_tenants=True)
+            rca = self.vitrage_client.rca.get(trigger2[VProps.VITRAGE_ID],
+                                              all_tenants=True)
             self._check_rca(rca, [deduced, trigger2], TRIGGER_ALARM_2_PROPS)
 
             # ---- Undo - second ----
             self._trigger_undo_action(TRIGGER_ALARM_2)
-            alarms = TempestClients.vitrage().alarm.list(
+            alarms = self.vitrage_client.alarm.list(
                 vitrage_id=self.orig_host.get(VProps.VITRAGE_ID),
                 all_tenants=True)
             self.assertThat(

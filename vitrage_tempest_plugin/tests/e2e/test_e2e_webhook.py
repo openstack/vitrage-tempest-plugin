@@ -24,7 +24,6 @@ import time
 from vitrage_tempest_plugin.tests.base import IsEmpty
 from vitrage_tempest_plugin.tests.common.constants import VertexProperties as \
     VProps
-from vitrage_tempest_plugin.tests.common.tempest_clients import TempestClients
 from vitrage_tempest_plugin.tests.common import vitrage_utils as v_utils
 
 from vitrage_tempest_plugin.tests.e2e.test_actions_base import TestActionsBase
@@ -100,11 +99,9 @@ class TestWebhook(TestActionsBase):
         try:
 
             # Add webhook with filter matching alarm
-            TempestClients.vitrage().webhook.add(
-                url=self.URL_PROPS,
-                regex_filter=NAME_FILTER,
-                headers=HEADERS_PROPS
-            )
+            self.vitrage_client.webhook.add(url=self.URL_PROPS,
+                                            regex_filter=NAME_FILTER,
+                                            headers=HEADERS_PROPS)
 
             # Raise alarm
             self._trigger_do_action(TRIGGER_ALARM_1)
@@ -133,10 +130,8 @@ class TestWebhook(TestActionsBase):
         try:
 
             # Add webhook
-            TempestClients.vitrage().webhook.add(
-                url=self.URL_PROPS,
-                regex_filter=NAME_FILTER,
-            )
+            self.vitrage_client.webhook.add(url=self.URL_PROPS,
+                                            regex_filter=NAME_FILTER)
 
             # Raise alarm
             self._trigger_do_action(TRIGGER_ALARM_1)
@@ -163,10 +158,8 @@ class TestWebhook(TestActionsBase):
         try:
 
             # Add webhook
-            TempestClients.vitrage().webhook.add(
-                url=self.URL_PROPS,
-                regex_filter=FILTER_NO_MATCH,
-            )
+            self.vitrage_client.webhook.add(url=self.URL_PROPS,
+                                            regex_filter=FILTER_NO_MATCH)
 
             # Raise alarm
             self._trigger_do_action(TRIGGER_ALARM_1)
@@ -196,14 +189,10 @@ class TestWebhook(TestActionsBase):
         try:
 
             # Add webhook
-            TempestClients.vitrage().webhook.add(
-                url=self.URL_PROPS,
-                regex_filter=TYPE_FILTER,
-            )
+            self.vitrage_client.webhook.add(url=self.URL_PROPS,
+                                            regex_filter=TYPE_FILTER)
 
-            TempestClients.vitrage().webhook.add(
-                url=self.URL_PROPS
-            )
+            self.vitrage_client.webhook.add(url=self.URL_PROPS)
 
             # Raise alarm
             self._trigger_do_action(TRIGGER_ALARM_1)
@@ -228,11 +217,10 @@ class TestWebhook(TestActionsBase):
 
         try:
             # Add webhook with filter for the deduced alarm
-            TempestClients.vitrage().webhook.add(
+            self.vitrage_client.webhook.add(
                 url=self.URL_PROPS,
                 regex_filter=NAME_FILTER_FOR_DEDUCED,
-                headers=HEADERS_PROPS
-            )
+                headers=HEADERS_PROPS)
 
             # Raise the trigger alarm
             self._trigger_do_action(TRIGGER_ALARM_WITH_DEDUCED)
@@ -261,10 +249,8 @@ class TestWebhook(TestActionsBase):
 
         try:
 
-            TempestClients.vitrage().webhook.add(
-                url=self.URL_PROPS,
-                headers=HEADERS_PROPS
-            )
+            self.vitrage_client.webhook.add(url=self.URL_PROPS,
+                                            headers=HEADERS_PROPS)
 
             # Raise the trigger alarm
             self._trigger_do_action(TRIGGER_ALARM_1)
@@ -319,11 +305,11 @@ class TestWebhook(TestActionsBase):
         finally:
             self._trigger_undo_action(TRIGGER_ALARM_1)
 
-    @staticmethod
-    def _delete_webhooks():
-        webhooks = TempestClients.vitrage().webhook.list()
+    @classmethod
+    def _delete_webhooks(cls):
+        webhooks = cls.vitrage_client.webhook.list()
         for webhook in webhooks:
-            TempestClients.vitrage().webhook.delete(webhook['id'])
+            cls.vitrage_client.webhook.delete(webhook['id'])
 
 
 def _get_free_port():

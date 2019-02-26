@@ -253,7 +253,7 @@ class TestBasicActions(TestActionsBase):
         try:
             # Do
             self._trigger_do_action(trigger_name)
-            alarms = TempestClients.vitrage().alarm.list(
+            alarms = self.vitrage_client.alarm.list(
                 vitrage_id=self.orig_host.get(VProps.VITRAGE_ID),
                 all_tenants=True)
             self.assertTrue(len(alarms) >= 2, 'alarms %s' % str(alarms))
@@ -262,13 +262,13 @@ class TestBasicActions(TestActionsBase):
             trigger = g_utils.first_match(alarms, **trigger_alarm_props)
 
             # Get Rca for the deduced
-            rca = TempestClients.vitrage().rca.get(
-                deduced[VProps.VITRAGE_ID], all_tenants=True)
+            rca = self.vitrage_client.rca.get(deduced[VProps.VITRAGE_ID],
+                                              all_tenants=True)
             self._check_rca(rca, [deduced, trigger], deduced_props)
 
             # Get Rca for the trigger
-            rca = TempestClients.vitrage().rca.get(
-                trigger[VProps.VITRAGE_ID], all_tenants=True)
+            rca = self.vitrage_client.rca.get(trigger[VProps.VITRAGE_ID],
+                                              all_tenants=True)
             self._check_rca(rca, [deduced, trigger], trigger_alarm_props)
         finally:
             self._trigger_undo_action(trigger_name)

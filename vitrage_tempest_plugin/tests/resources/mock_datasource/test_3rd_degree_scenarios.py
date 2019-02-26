@@ -21,7 +21,6 @@ from tempest import config
 
 from vitrage_tempest_plugin.tests.common.constants import VertexProperties
 from vitrage_tempest_plugin.tests.common import general_utils as g_utils
-from vitrage_tempest_plugin.tests.common.tempest_clients import TempestClients
 from vitrage_tempest_plugin.tests.common import vitrage_utils as v_utils
 from vitrage_tempest_plugin.tests.e2e.test_actions_base import TestActionsBase
 from vitrage_tempest_plugin.tests import utils
@@ -86,8 +85,7 @@ class TestLongProcessing(TestActionsBase):
             time.sleep(MAX_FAIL_OVER_TIME)
             doctor_events_thread.join(timeout=10)
 
-            alarm_count = TempestClients.vitrage().alarm.count(
-                all_tenants=True)
+            alarm_count = self.vitrage_client.alarm.count(all_tenants=True)
             self.assertTrue(self.num_of_sent_events > 0,
                             'Test did not create events')
             self.assertEqual(
@@ -106,12 +104,12 @@ class TestLongProcessing(TestActionsBase):
         self._check_template_instance_3rd_degree_scenarios()
 
         # 2. check fast fail-over - start from database
-        topo1 = TempestClients.vitrage().topology.get(all_tenants=True)
+        topo1 = self.vitrage_client.topology.get(all_tenants=True)
         v_utils.restart_graph()
         time.sleep(MAX_FAIL_OVER_TIME)
         for i in range(5):
             self._check_template_instance_3rd_degree_scenarios()
-            topo2 = TempestClients.vitrage().topology.get(all_tenants=True)
+            topo2 = self.vitrage_client.topology.get(all_tenants=True)
             self.assert_graph_equal(
                 topo1, topo2, 'comparing graph items iteration ' + str(i))
             time.sleep(CONF.root_cause_analysis_service.snapshots_interval)
@@ -122,8 +120,7 @@ class TestLongProcessing(TestActionsBase):
 
     def _check_template_instance_3rd_degree_scenarios(self):
 
-        alarm_count = TempestClients.vitrage().alarm.count(
-            all_tenants=True)
+        alarm_count = self.vitrage_client.alarm.count(all_tenants=True)
         self.assertEqual(
             CONF.root_cause_analysis_service.instances_per_host,
             alarm_count['SEVERE'],
@@ -138,8 +135,8 @@ class TestLongProcessing(TestActionsBase):
         expected_rca.extend([{'name': DEDUCED_1}, {'name': DEDUCED_2}])
 
         def check_rca(alarm):
-            rca = TempestClients.vitrage().rca.get(alarm['vitrage_id'],
-                                                   all_tenants=True)
+            rca = self.vitrage_client.rca.get(alarm['vitrage_id'],
+                                              all_tenants=True)
             try:
                 self._check_rca(rca, expected_rca, alarm)
                 return True
@@ -148,8 +145,8 @@ class TestLongProcessing(TestActionsBase):
                 return False
 
         # 10 threads calling rca api
-        alarms = TempestClients.vitrage().alarm.list(all_tenants=True,
-                                                     vitrage_id='all')
+        alarms = self.vitrage_client.alarm.list(all_tenants=True,
+                                                vitrage_id='all')
         deduced_alarms = g_utils.all_matches(
             alarms, vitrage_type='vitrage', name=DEDUCED_2)
         workers = futures.ThreadPoolExecutor(max_workers=10)
@@ -158,8 +155,7 @@ class TestLongProcessing(TestActionsBase):
         self.assertTrue(all(workers_result))
 
     def _check_template_instance_3rd_degree_scenarios_deleted(self):
-        alarm_count = TempestClients.vitrage().alarm.count(
-            all_tenants=True)
+        alarm_count = self.vitrage_client.alarm.count(all_tenants=True)
         self.assertEqual(
             0,
             alarm_count['SEVERE'],

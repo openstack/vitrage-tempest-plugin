@@ -178,10 +178,10 @@ class TestMistralNotifier(BaseTestEvents):
             num_alarms=num_alarms),
             'Vitrage trigger alarm was not deleted')
 
-    @staticmethod
-    def _check_num_vitrage_alarms(num_alarms):
-        vitrage_alarms = TempestClients.vitrage().alarm.list(vitrage_id='all',
-                                                             all_tenants=True)
+    @classmethod
+    def _check_num_vitrage_alarms(cls, num_alarms):
+        vitrage_alarms = cls.vitrage_client.alarm.list(vitrage_id='all',
+                                                       all_tenants=True)
         if len(vitrage_alarms) == num_alarms:
             return True
         return False

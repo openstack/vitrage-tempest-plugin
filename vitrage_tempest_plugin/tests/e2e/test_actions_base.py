@@ -20,7 +20,6 @@ from vitrage_tempest_plugin.tests.base import BaseVitrageTempest
 from vitrage_tempest_plugin.tests.common.constants import VertexProperties as \
     VProps
 from vitrage_tempest_plugin.tests.common import general_utils as g_utils
-from vitrage_tempest_plugin.tests.common.tempest_clients import TempestClients
 from vitrage_tempest_plugin.tests.common import vitrage_utils
 
 LOG = logging.getLogger(__name__)
@@ -54,9 +53,8 @@ class TestActionsBase(BaseVitrageTempest):
         time.sleep(2)
 
     def _check_deduced(self, deduced_count, deduced_props, resource_id):
-        alarms = TempestClients.vitrage().alarm.list(
-            vitrage_id=resource_id,
-            all_tenants=True)
+        alarms = self.vitrage_client.alarm.list(vitrage_id=resource_id,
+                                                all_tenants=True)
         deduces = g_utils.all_matches(alarms, **deduced_props)
         self.assertThat(deduces, matchers.HasLength(deduced_count),
                         'Expected %s deduces\n - \n%s\n - \n%s' %
