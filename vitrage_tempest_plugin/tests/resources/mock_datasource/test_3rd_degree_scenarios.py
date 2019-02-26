@@ -38,9 +38,17 @@ MAX_FAIL_OVER_TIME = 20
 
 class TestLongProcessing(TestActionsBase):
 
+    def tearDown(self):
+        super(TestLongProcessing, self).tearDown()
+        if v_utils.get_first_template(name=TEMPLATE_NAME):
+            v_utils.delete_template(name=TEMPLATE_NAME)
+            time.sleep(SLEEP)
+
     @classmethod
     def setUpClass(cls):
         super(TestLongProcessing, cls).setUpClass()
+        logger = logging.getLogger('vitrageclient.v1.client').logger
+        logger.setLevel(logging.INFO)
         if v_utils.get_first_template(name=TEMPLATE_NAME):
             v_utils.delete_template(name=TEMPLATE_NAME)
             time.sleep(SLEEP)
@@ -88,79 +96,66 @@ class TestLongProcessing(TestActionsBase):
                 'CRITICAL doctor events expected')
         finally:
             self._remove_doctor_events()
-            if v_utils.get_first_template(name=TEMPLATE_NAME):
-                v_utils.delete_template(name=TEMPLATE_NAME)
-            time.sleep(SLEEP)
 
     @utils.tempest_logger
     def test_db_init(self):
-        try:
-            v_utils.add_template(TEMPLATE_NAME)
-            time.sleep(SLEEP)
+        v_utils.add_template(TEMPLATE_NAME)
+        time.sleep(SLEEP)
 
-            # 1. check template works well
+        # 1. check template works well
+        self._check_template_instance_3rd_degree_scenarios()
+
+        # 2. check fast fail-over - start from database
+        topo1 = TempestClients.vitrage().topology.get(all_tenants=True)
+        v_utils.restart_graph()
+        time.sleep(MAX_FAIL_OVER_TIME)
+        for i in range(5):
             self._check_template_instance_3rd_degree_scenarios()
+            topo2 = TempestClients.vitrage().topology.get(all_tenants=True)
+            self.assert_graph_equal(
+                topo1, topo2, 'comparing graph items iteration ' + str(i))
+            time.sleep(CONF.root_cause_analysis_service.snapshots_interval)
 
-            # 2. check fast fail-over - start from database
-            topo1 = TempestClients.vitrage().topology.get(all_tenants=True)
-            v_utils.restart_graph()
-            time.sleep(MAX_FAIL_OVER_TIME)
-            for i in range(5):
-                self._check_template_instance_3rd_degree_scenarios()
-                topo2 = TempestClients.vitrage().topology.get(all_tenants=True)
-                self.assert_graph_equal(
-                    topo1, topo2, 'comparing graph items iteration ' + str(i))
-                time.sleep(CONF.root_cause_analysis_service.snapshots_interval)
-
-            v_utils.delete_template(name=TEMPLATE_NAME)
-            time.sleep(SLEEP)
-            self._check_template_instance_3rd_degree_scenarios_deleted()
-
-        finally:
-            if v_utils.get_first_template(name=TEMPLATE_NAME):
-                v_utils.delete_template(name=TEMPLATE_NAME)
-                time.sleep(SLEEP)
+        v_utils.delete_template(name=TEMPLATE_NAME)
+        time.sleep(SLEEP)
+        self._check_template_instance_3rd_degree_scenarios_deleted()
 
     def _check_template_instance_3rd_degree_scenarios(self):
 
-        try:
-            alarm_count = TempestClients.vitrage().alarm.count(
-                all_tenants=True)
-            self.assertEqual(
-                CONF.root_cause_analysis_service.instances_per_host,
-                alarm_count['SEVERE'],
-                'Each instance should have one SEVERE deduced alarm')
-            self.assertEqual(
-                CONF.root_cause_analysis_service.instances_per_host,
-                alarm_count['CRITICAL'],
-                'Each instance should have one CRITICAL deduced alarm')
+        alarm_count = TempestClients.vitrage().alarm.count(
+            all_tenants=True)
+        self.assertEqual(
+            CONF.root_cause_analysis_service.instances_per_host,
+            alarm_count['SEVERE'],
+            'Each instance should have one SEVERE deduced alarm')
+        self.assertEqual(
+            CONF.root_cause_analysis_service.instances_per_host,
+            alarm_count['CRITICAL'],
+            'Each instance should have one CRITICAL deduced alarm')
 
-            expected_rca = [{VertexProperties.VITRAGE_TYPE: 'zabbix'}] * self.\
-                conf.mock_graph_datasource.zabbix_alarms_per_host
-            expected_rca.extend([{'name': DEDUCED_1}, {'name': DEDUCED_2}])
+        expected_rca = [{VertexProperties.VITRAGE_TYPE: 'zabbix'}] * CONF.\
+            root_cause_analysis_service.zabbix_alarms_per_host
+        expected_rca.extend([{'name': DEDUCED_1}, {'name': DEDUCED_2}])
 
-            def check_rca(alarm):
-                rca = TempestClients.vitrage().rca.get(alarm['vitrage_id'],
-                                                       all_tenants=True)
-                try:
-                    self._check_rca(rca, expected_rca, alarm)
-                    return True
-                except Exception:
-                    LOG.exception('check_rca failed')
-                    return False
+        def check_rca(alarm):
+            rca = TempestClients.vitrage().rca.get(alarm['vitrage_id'],
+                                                   all_tenants=True)
+            try:
+                self._check_rca(rca, expected_rca, alarm)
+                return True
+            except Exception:
+                LOG.exception('check_rca failed')
+                return False
 
-            # 10 threads calling rca api
-            alarms = TempestClients.vitrage().alarm.list(all_tenants=True,
-                                                         vitrage_id='all')
-            deduced_alarms = g_utils.all_matches(
-                alarms, vitrage_type='vitrage', name=DEDUCED_2)
-            workers = futures.ThreadPoolExecutor(max_workers=10)
-            workers_result = [r for r in workers.map(check_rca,
-                                                     deduced_alarms)]
-            self.assertTrue(all(workers_result))
-
-        finally:
-            v_utils.delete_template(name=TEMPLATE_NAME)
+        # 10 threads calling rca api
+        alarms = TempestClients.vitrage().alarm.list(all_tenants=True,
+                                                     vitrage_id='all')
+        deduced_alarms = g_utils.all_matches(
+            alarms, vitrage_type='vitrage', name=DEDUCED_2)
+        workers = futures.ThreadPoolExecutor(max_workers=10)
+        workers_result = [r for r in workers.map(check_rca,
+                                                 deduced_alarms)]
+        self.assertTrue(all(workers_result))
 
     def _check_template_instance_3rd_degree_scenarios_deleted(self):
         alarm_count = TempestClients.vitrage().alarm.count(
