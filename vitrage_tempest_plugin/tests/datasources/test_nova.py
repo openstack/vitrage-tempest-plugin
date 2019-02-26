@@ -22,6 +22,10 @@ LOG = logging.getLogger(__name__)
 class TestNova(BaseTopologyTest):
     NUM_INSTANCE = 3
 
+    def tearDown(self):
+        super(TestNova, self).tearDown()
+        self._rollback_to_default()
+
     @utils.tempest_logger
     def test_nova_entities(self):
         # Action

@@ -132,11 +132,11 @@ class TestOverlappingActions(TestActionsBase):
             self._trigger_undo_action(TRIGGER_ALARM_4)
             nova_service = TempestClients.nova().services.list(
                 host=host_name, binary='nova-compute')[0]
-            self.assertEqual("up", str(nova_service.state))
+            self.assertEqual("up", nova_service.state)
         finally:
             self._trigger_undo_action(TRIGGER_ALARM_3)
             self._trigger_undo_action(TRIGGER_ALARM_4)
-            # nova.host datasource may take up to snapshot_intreval to update
+            # nova.host datasource may take up to snapshot_interval to update
             time.sleep(130)
 
     @utils.tempest_logger

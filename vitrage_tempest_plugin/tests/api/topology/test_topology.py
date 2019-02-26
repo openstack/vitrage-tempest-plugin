@@ -13,13 +13,10 @@
 #    under the License.
 
 from oslo_log import log as logging
-
+from testtools import ExpectedException
 
 from vitrage_tempest_plugin.tests.api.topology.base import BaseTopologyTest
 from vitrage_tempest_plugin.tests.base import IsEmpty
-from vitrage_tempest_plugin.tests.common.constants import OPENSTACK_CLUSTER
-from vitrage_tempest_plugin.tests.common.constants import VertexProperties as \
-    VProps
 import vitrage_tempest_plugin.tests.utils as utils
 from vitrageclient.exceptions import ClientException
 
@@ -39,10 +36,9 @@ class TestTopology(BaseTopologyTest):
     NUM_INSTANCE = 3
     NUM_VOLUME = 1
 
-    def _get_root_vertex_id(self):
-        items = self.vitrage_client.resource.list(
-            resource_type=OPENSTACK_CLUSTER, all_tenants=True)
-        return items[0][VProps.VITRAGE_ID]
+    def tearDown(self):
+        super(TestTopology, self).tearDown()
+        self._rollback_to_default()
 
     @utils.tempest_logger
     def test_compare_api_and_cli(self):
@@ -277,21 +273,18 @@ class TestTopology(BaseTopologyTest):
         This test validate correctness of topology
         graph with depth and without root
         """
-        try:
-            # Action
-            self._create_entities(num_instances=self.NUM_INSTANCE,
-                                  num_volumes=self.NUM_VOLUME)
+        # Action
+        self._create_entities(num_instances=self.NUM_INSTANCE,
+                              num_volumes=self.NUM_VOLUME)
 
-            # Calculate expected results
+        with ExpectedException(ClientException,
+                               "Graph-type 'graph' "
+                               "requires a 'root' with 'depth'"):
+
             self.vitrage_client.topology.get(
                 limit=2,
                 root=None,
                 all_tenants=True)
-        except ClientException as e:
-            self.assertEqual(403, e.code)
-            self.assertEqual(
-                "Graph-type 'graph' requires a 'root' with 'depth'",
-                str(e.message))
 
     @utils.tempest_logger
     def test_graph_with_no_match_query(self):

@@ -41,7 +41,7 @@ def create_instances(num_instances=1, set_public_network=False, name='vm'):
             return resources
         if not success:
             LOG.warning("create instance failed, delete and retry %s",
-                        str(resources))
+                        resources)
             delete_created_instances(resources)
             time.sleep(10)
     raise AssertionError("Unable to create vms, retries failed")

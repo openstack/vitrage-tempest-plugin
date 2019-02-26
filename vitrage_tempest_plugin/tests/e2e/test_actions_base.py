@@ -33,7 +33,7 @@ class TestActionsBase(BaseVitrageTempest):
         if not host:
             raise Exception("No host found")
         if not host.get(VProps.VITRAGE_AGGREGATED_STATE) == 'AVAILABLE':
-            raise Exception("Host is not running %s", str(host))
+            raise Exception("Host is not running %s" % host)
         cls.orig_host = host
 
     def _trigger_do_action(self, trigger_name):
@@ -58,7 +58,7 @@ class TestActionsBase(BaseVitrageTempest):
         deduces = g_utils.all_matches(alarms, **deduced_props)
         self.assertThat(deduces, matchers.HasLength(deduced_count),
                         'Expected %s deduces\n - \n%s\n - \n%s' %
-                        (str(deduced_count), str(alarms), str(deduces)))
+                        (deduced_count, alarms, deduces))
 
     def _check_rca(self, rca, expected_alarms, inspected):
         rca_nodes = [n for n in rca['nodes'] if not n.get('end_timestamp')]
@@ -66,8 +66,8 @@ class TestActionsBase(BaseVitrageTempest):
         for expected_alarm in expected_alarms:
             self.assertIsNotNone(
                 g_utils.first_match(rca_nodes, **expected_alarm),
-                'expected_alarm is not in the rca %s' % str(expected_alarm))
+                'expected_alarm is not in the rca %s' % expected_alarm)
         rca_inspected = rca['nodes'][rca['inspected_index']]
         self.assertTrue(g_utils.is_subset(inspected, rca_inspected),
                         'Invalid inspected item \n%s\n%s' %
-                        (str(rca_inspected), str(inspected)))
+                        (rca_inspected, inspected))

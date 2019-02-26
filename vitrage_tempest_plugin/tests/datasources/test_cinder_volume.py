@@ -23,6 +23,10 @@ class TestCinderVolume(BaseTopologyTest):
     NUM_INSTANCE = 3
     NUM_VOLUME = 1
 
+    def tearDown(self):
+        super(TestCinderVolume, self).tearDown()
+        self._rollback_to_default()
+
     @utils.tempest_logger
     def test_volume(self):
         # Action

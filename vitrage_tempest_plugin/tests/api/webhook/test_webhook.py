@@ -93,7 +93,7 @@ class TestWebhook(BaseVitrageTempest):
     def test_delete_non_existing_webhook(self):
         self.assertRaises(ClientException,
                           self.vitrage_client.webhook.delete,
-                          ('non existant'))
+                          'non existent')
 
     def test_list_webhook(self):
 

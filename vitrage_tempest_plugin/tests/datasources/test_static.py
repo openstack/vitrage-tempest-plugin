@@ -29,35 +29,37 @@ class TestStatic(BaseVitrageTempest):
     NUM_SWITCH = 1
     NUM_NIC = 1
 
+    def setUp(self):
+        super(TestStatic, self).setUp()
+        self._create_switches()
+
+    def tearDown(self):
+        super(TestStatic, self).tearDown()
+        self._delete_switches()
+
     @utils.tempest_logger
     def test_switches(self):
-        try:
-            # Action
-            self._create_switches()
+        # Calculate expected results
+        api_graph = self.vitrage_client.topology.get(all_tenants=True)
+        graph = self._create_graph_from_graph_dictionary(api_graph)
+        entities = self._entities_validation_data(
+            host_entities=1,
+            host_edges=1,
+            switch_entities=self.NUM_SWITCH,
+            switch_edges=1,
+            nic_entities=self.NUM_NIC,
+            nic_edges=1)
+        num_entities = self.num_default_entities + self.NUM_SWITCH + \
+            self.NUM_NIC + self.num_default_networks + \
+            self.num_default_ports
+        num_edges = self.num_default_edges + self.NUM_SWITCH + \
+            self.num_default_ports
 
-            # Calculate expected results
-            api_graph = self.vitrage_client.topology.get(all_tenants=True)
-            graph = self._create_graph_from_graph_dictionary(api_graph)
-            entities = self._entities_validation_data(
-                host_entities=1,
-                host_edges=1,
-                switch_entities=self.NUM_SWITCH,
-                switch_edges=1,
-                nic_entities=self.NUM_NIC,
-                nic_edges=1)
-            num_entities = self.num_default_entities + self.NUM_SWITCH + \
-                self.NUM_NIC + self.num_default_networks + \
-                self.num_default_ports
-            num_edges = self.num_default_edges + self.NUM_SWITCH + \
-                self.num_default_ports
-
-            # Test Assertions
-            self._validate_graph_correctness(graph,
-                                             num_entities,
-                                             num_edges,
-                                             entities)
-        finally:
-            self._delete_switches()
+        # Test Assertions
+        self._validate_graph_correctness(graph,
+                                         num_entities,
+                                         num_edges,
+                                         entities)
 
     @staticmethod
     def _create_switches():

@@ -69,13 +69,10 @@ class TestValidate(BaseTemplateTest):
         There negative test - validate error message
          in case of non-exist template file
         """
-        try:
-            path = self.TEST_PATH + self.NON_EXIST_FILE
-            validation = self.vitrage_client.template.validate(path=path)
-            self.assertIsNone(validation)
-        except Exception as up:
-            self.assertEqual('No such file or directory', up.strerror)
-            self.assertEqual(2, up.errno)
+        path = self.TEST_PATH + self.NON_EXIST_FILE
+        self.assertRaises(IOError,
+                          self.vitrage_client.template.validate,
+                          path=path)
 
     def test_templates_validate_corrupted_templates(self):
         """templates_validate test
@@ -83,27 +80,21 @@ class TestValidate(BaseTemplateTest):
         There negative test - validate correctness of error
         message in case of corrupted template file
         """
-        try:
-            path = self.TEST_PATH + self.ERROR_FILE
-            validation = self.vitrage_client.template.validate(path=path)
-            self.assertThat(validation['results'], matchers.HasLength(1))
-            self._assert_validate_result(
-                validation, path, negative=True, status_code=3)
-        except Exception:
-            LOG.error('Failed to get validation of corrupted template file')
+        path = self.TEST_PATH + self.ERROR_FILE
+        validation = self.vitrage_client.template.validate(path=path)
+        self.assertThat(validation['results'], matchers.HasLength(1))
+        self._assert_validate_result(validation, path,
+                                     negative=True, status_code=3)
 
     def test_templates_validate_correct_template(self):
         """templates_validate test
 
         There test validate correctness of template file
         """
-        try:
-            path = self.TEST_PATH + self.OK_FILE
-            validation = self.vitrage_client.template.validate(path=path)
-            self.assertThat(validation['results'], matchers.HasLength(1))
-            self._assert_validate_result(validation, path)
-        except Exception:
-            LOG.error('Failed to get validation of template file')
+        path = self.TEST_PATH + self.OK_FILE
+        validation = self.vitrage_client.template.validate(path=path)
+        self.assertThat(validation['results'], matchers.HasLength(1))
+        self._assert_validate_result(validation, path)
 
 
 class TemplatesDBTest(BaseTemplateTest):
@@ -114,47 +105,42 @@ class TemplatesDBTest(BaseTemplateTest):
 
         test standard , definition and equivalence templates
         """
-        templates_names = list()
-        try:
-            # TODO(ikinory): add folder of templates
-            # Add standard ,equivalence and definition templates
-            templates_names = self._add_templates()
-            # assert standard template
-            db_row = v_utils.get_first_template(
-                name='host_high_memory_usage_scenarios', type=TTypes.STANDARD)
-            self.assertEqual(db_row['name'],
-                             'host_high_memory_usage_scenarios',
-                             'standard template not found in list')
+        # TODO(ikinory): add folder of templates
+        # Add standard ,equivalence and definition templates
+        self._add_templates()
+        # assert standard template
+        db_row = v_utils.get_first_template(
+            name='host_high_memory_usage_scenarios', type=TTypes.STANDARD)
+        self.assertEqual(db_row['name'],
+                         'host_high_memory_usage_scenarios',
+                         'standard template not found in list')
 
-            # assert equivalence template
-            db_row = v_utils.get_first_template(
-                name='entity equivalence example',
-                type=TTypes.EQUIVALENCE)
-            self.assertEqual(db_row['name'],
-                             'entity equivalence example',
-                             'equivalence template not found in list')
+        # assert equivalence template
+        db_row = v_utils.get_first_template(
+            name='entity equivalence example',
+            type=TTypes.EQUIVALENCE)
+        self.assertEqual(db_row['name'],
+                         'entity equivalence example',
+                         'equivalence template not found in list')
 
-            # assert definition template
-            db_row = v_utils.get_first_template(
-                name='basic_def_template',
-                type=TTypes.DEFINITION,
-                status=TemplateStatus.ACTIVE)
+        # assert definition template
+        db_row = v_utils.get_first_template(
+            name='basic_def_template',
+            type=TTypes.DEFINITION,
+            status=TemplateStatus.ACTIVE)
 
-            self.assertEqual(db_row['name'],
-                             'basic_def_template',
-                             'definition template not found in list')
+        self.assertEqual(db_row['name'],
+                         'basic_def_template',
+                         'definition template not found in list')
 
-            # assert corrupted template - validate failed
-            db_row = v_utils.get_first_template(
-                name='corrupted_template',
-                type=TTypes.STANDARD,
-                status=TemplateStatus.ERROR)
-            self.assertIsNotNone(
-                db_row,
-                'corrupted template template presented in list')
-
-        finally:
-            self._rollback_to_default(templates_names)
+        # assert corrupted template - validate failed
+        db_row = v_utils.get_first_template(
+            name='corrupted_template',
+            type=TTypes.STANDARD,
+            status=TemplateStatus.ERROR)
+        self.assertIsNotNone(
+            db_row,
+            'corrupted template template presented in list')
 
     def test_template_delete(self):
 
@@ -181,26 +167,22 @@ class TemplatesDBTest(BaseTemplateTest):
         to cli template list
         compares each template in list
         """
-        templates_names = list()
-        try:
-            # Add standard ,equivalence and definition templates
-            templates_names = self._add_templates()
-            cli_templates_list = utils.run_vitrage_command(
-                "vitrage template list")
-            api_templates_list = self.vitrage_client.template.list()
+        # Add standard ,equivalence and definition templates
+        self._add_templates()
+        cli_templates_list = utils.run_vitrage_command(
+            "vitrage template list")
+        api_templates_list = self.vitrage_client.template.list()
 
-            self.assertThat(api_templates_list, IsNotEmpty(),
-                            'The template list taken from api is empty')
-            self.assertIsNotNone(cli_templates_list,
-                                 'The template list taken from cli is empty')
-            self._validate_templates_list_length(api_templates_list,
-                                                 cli_templates_list)
-            self._validate_passed_templates_length(api_templates_list,
-                                                   cli_templates_list)
-            self._compare_each_template_in_list(api_templates_list,
-                                                cli_templates_list)
-        finally:
-            self._rollback_to_default(templates_names)
+        self.assertThat(api_templates_list, IsNotEmpty(),
+                        'The template list taken from api is empty')
+        self.assertIsNotNone(cli_templates_list,
+                             'The template list taken from cli is empty')
+        self._validate_templates_list_length(api_templates_list,
+                                             cli_templates_list)
+        self._validate_passed_templates_length(api_templates_list,
+                                               cli_templates_list)
+        self._compare_each_template_in_list(api_templates_list,
+                                            cli_templates_list)
 
     def test_template_show(self):
         """Compare template content from file to DB"""
@@ -221,7 +203,8 @@ class TemplatesDBTest(BaseTemplateTest):
                                "Template content doesn't match")
         v_utils.delete_template(db_row['uuid'])
 
-    def _add_templates(self):
+    @staticmethod
+    def _add_templates():
         v_utils.add_template(STANDARD_TEMPLATE,
                              template_type=TTypes.STANDARD)
         v_utils.add_template(EQUIVALENCE_TEMPLATE,

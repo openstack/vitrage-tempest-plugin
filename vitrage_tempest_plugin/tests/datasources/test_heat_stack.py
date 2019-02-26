@@ -28,6 +28,10 @@ LOG = logging.getLogger(__name__)
 class TestHeatStack(BaseTopologyTest):
     NUM_STACKS = 1
 
+    def tearDown(self):
+        super(TestHeatStack, self).tearDown()
+        heat_utils.delete_all_stacks()
+
     @utils.tempest_logger
     def test_nested_heat_stack(self):
         self._test_heat_stack(nested=True,
@@ -44,34 +48,31 @@ class TestHeatStack(BaseTopologyTest):
         """
         template_file = tempest_resources_dir() + '/heat/' + tmpl_file
         image = glance_utils.get_first_image()
-        try:
-            # Action
-            heat_utils.create_stacks(self.NUM_STACKS, nested, template_file,
-                                     image['name'])
+        # Action
+        heat_utils.create_stacks(self.NUM_STACKS, nested, template_file,
+                                 image['name'])
 
-            # Calculate expected results
-            api_graph = self.vitrage_client.topology.get(all_tenants=True)
-            graph = self._create_graph_from_graph_dictionary(api_graph)
-            entities = self._entities_validation_data(
-                host_entities=1,
-                host_edges=1 + self.NUM_STACKS,
-                instance_entities=self.NUM_STACKS,
-                instance_edges=3 * self.NUM_STACKS,
-                network_entities=self.num_default_networks,
-                network_edges=self.num_default_ports + self.NUM_STACKS,
-                port_entities=self.num_default_ports + self.NUM_STACKS,
-                port_edges=self.num_default_ports + 2 * self.NUM_STACKS,
-                stack_entities=self.NUM_STACKS,
-                stack_edges=self.NUM_STACKS)
-            num_entities = self.num_default_entities + 3 * self.NUM_STACKS + \
-                self.num_default_networks + self.num_default_ports
-            num_edges = self.num_default_edges + 4 * self.NUM_STACKS + \
-                self.num_default_ports
+        # Calculate expected results
+        api_graph = self.vitrage_client.topology.get(all_tenants=True)
+        graph = self._create_graph_from_graph_dictionary(api_graph)
+        entities = self._entities_validation_data(
+            host_entities=1,
+            host_edges=1 + self.NUM_STACKS,
+            instance_entities=self.NUM_STACKS,
+            instance_edges=3 * self.NUM_STACKS,
+            network_entities=self.num_default_networks,
+            network_edges=self.num_default_ports + self.NUM_STACKS,
+            port_entities=self.num_default_ports + self.NUM_STACKS,
+            port_edges=self.num_default_ports + 2 * self.NUM_STACKS,
+            stack_entities=self.NUM_STACKS,
+            stack_edges=self.NUM_STACKS)
+        num_entities = self.num_default_entities + 3 * self.NUM_STACKS + \
+            self.num_default_networks + self.num_default_ports
+        num_edges = self.num_default_edges + 4 * self.NUM_STACKS + \
+            self.num_default_ports
 
-            # Test Assertions
-            self._validate_graph_correctness(graph,
-                                             num_entities,
-                                             num_edges,
-                                             entities)
-        finally:
-            heat_utils.delete_all_stacks()
+        # Test Assertions
+        self._validate_graph_correctness(graph,
+                                         num_entities,
+                                         num_edges,
+                                         entities)

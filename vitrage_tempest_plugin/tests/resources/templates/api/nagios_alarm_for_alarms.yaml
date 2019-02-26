@@ -1,5 +1,7 @@
 metadata:
  name: first_deduced_alarm_ever_nagios
+ type: standard
+ version: 2
 definitions:
  entities:
   - entity:

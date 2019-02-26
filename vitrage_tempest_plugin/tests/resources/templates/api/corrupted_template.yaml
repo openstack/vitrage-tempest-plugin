@@ -1,5 +1,7 @@
 metadata:
  name: corrupted_template
+ type: standard
+ version: 2
 definitions:
  entities:
   - entity:

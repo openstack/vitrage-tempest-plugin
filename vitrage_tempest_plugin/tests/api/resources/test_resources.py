@@ -200,14 +200,3 @@ class TestResource(BaseVitrageTempest):
                 self.assertEqual(
                     cli_resource.get("State").lower(),
                     api_resource.get(VProps.VITRAGE_OPERATIONAL_STATE).lower())
-
-    def _compare_resource_show(self, api_resource_show,
-                               cli_resource_show):
-        self.assertIsNotNone(api_resource_show,
-                             'The resource show taken from rest api is empty')
-        self.assertIsNotNone(cli_resource_show,
-                             'The resource show taken from terminal is empty')
-
-        for item in self.properties:
-            self.assertEqual(api_resource_show.get(item),
-                             cli_resource_show.get(item))

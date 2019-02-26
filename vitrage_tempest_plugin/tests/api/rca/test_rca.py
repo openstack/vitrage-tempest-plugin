@@ -26,6 +26,10 @@ LOG = logging.getLogger(__name__)
 class TestRca(BaseRcaTest):
     """RCA test class for Vitrage API tests."""
 
+    def tearDown(self):
+        super(TestRca, self).tearDown()
+        self._clean_all()
+
     @classmethod
     def setUpClass(cls):
         super(TestRca, cls).setUpClass()
@@ -45,19 +49,16 @@ class TestRca(BaseRcaTest):
         (created by special template file), and equals there
         resource_id with created instances id
         """
-        try:
-            instances = nova_utils.create_instances(num_instances=2,
-                                                    set_public_network=True)
-            self._create_alarm(
-                resource_id=self._get_hostname(),
-                alarm_name=RCA_ALARM_NAME)
-            api_alarms = self.vitrage_client.alarm.list(vitrage_id='all',
-                                                        all_tenants=True)
+        instances = nova_utils.create_instances(num_instances=2,
+                                                set_public_network=True)
+        self._create_alarm(
+            resource_id=self._get_hostname(),
+            alarm_name=RCA_ALARM_NAME)
+        api_alarms = self.vitrage_client.alarm.list(vitrage_id='all',
+                                                    all_tenants=True)
 
-            self._validate_deduce_alarms(alarms=api_alarms,
-                                         instances=instances)
-        finally:
-            self._clean_all()
+        self._validate_deduce_alarms(alarms=api_alarms,
+                                     instances=instances)
 
     @utils.tempest_logger
     def test_validate_set_state(self):
@@ -68,18 +69,12 @@ class TestRca(BaseRcaTest):
         source state - ERROR
         target state - SUBOPTIMAL (caused 2 created instance)
         """
-        try:
-            instances = nova_utils.create_instances(num_instances=2,
-                                                    set_public_network=True)
-            self._create_alarm(
-                resource_id=self._get_hostname(),
-                alarm_name=RCA_ALARM_NAME)
-            topology = self.vitrage_client.topology.get(all_tenants=True)
+        instances = nova_utils.create_instances(num_instances=2,
+                                                set_public_network=True)
+        self._create_alarm(
+            resource_id=self._get_hostname(),
+            alarm_name=RCA_ALARM_NAME)
+        topology = self.vitrage_client.topology.get(all_tenants=True)
 
-            self._validate_set_state(topology=topology['nodes'],
-                                     instances=instances)
-        except Exception as e:
-            self._handle_exception(e)
-            raise
-        finally:
-            self._clean_all()
+        self._validate_set_state(topology=topology['nodes'],
+                                 instances=instances)

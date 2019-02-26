@@ -32,15 +32,11 @@ TEMPLATE_VALIDATION_OK = 'Template validation is OK'
 
 class TestTemplatesApis(BaseTemplateTest):
 
-    def tearDown(self):
-        super(TestTemplatesApis, self).tearDown()
-        self._delete_templates()
-
     def _validate_no_type_templates(self, template_name):
         path = self.TEST_PATH + template_name
         validation = self.vitrage_client.template.validate(path=path)
         self._assert_validate_result(
-            validation, path, negative=True, status_code='')
+            validation, path, negative=True, status_code=66)
 
     def _validate_standard_template(self, template_name):
         path = self.TEST_PATH + template_name
@@ -98,17 +94,8 @@ class TestTemplatesApis(BaseTemplateTest):
         result = self.vitrage_client.template.add(path=path, params=params)
         self._assert_add_result(result, LOADING_STATUS, TEMPLATE_VALIDATION_OK)
 
-    def _delete_templates(self):
-        templates = self.vitrage_client.template.list()
-        template_ids = [template['uuid'] for template in templates]
-        self.vitrage_client.template.delete(template_ids)
-
 
 class TestTemplatesV2(TestTemplatesApis):
-
-    def tearDown(self):
-        super(TestTemplatesV2, self).tearDown()
-        self._delete_templates()
 
     def test_templates_validate_no_type_templates(self):
         self._validate_no_type_templates(NO_TYPE_TEMPLATE)

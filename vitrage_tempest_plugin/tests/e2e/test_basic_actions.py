@@ -256,7 +256,7 @@ class TestBasicActions(TestActionsBase):
             alarms = self.vitrage_client.alarm.list(
                 vitrage_id=self.orig_host.get(VProps.VITRAGE_ID),
                 all_tenants=True)
-            self.assertTrue(len(alarms) >= 2, 'alarms %s' % str(alarms))
+            self.assertTrue(len(alarms) >= 2, 'alarms %s' % alarms)
 
             deduced = g_utils.first_match(alarms, **deduced_props)
             trigger = g_utils.first_match(alarms, **trigger_alarm_props)

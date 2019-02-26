@@ -334,11 +334,7 @@ class BaseVitrageTempest(test.BaseTestCase):
                               (timestamp_name, vertex, utils.TIMESTAMP_FORMAT))
 
     @staticmethod
-    def _get_value(item, key):
-        return utils.uni2str(item[key])
-
-    @classmethod
-    def _calc_num_admin_tenant_networks(cls):
+    def _calc_num_admin_tenant_networks():
         neutron_client = TempestClients.neutron()
         admin_creds = common_creds.get_configured_admin_credentials()
         tenant_networks = neutron_client.list_networks(

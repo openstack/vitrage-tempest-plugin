@@ -39,6 +39,15 @@ class BaseTemplateTest(BaseVitrageTempest):
     VALIDATION_OK = 'validation OK'
     OK_MSG = 'Template validation is OK'
 
+    def tearDown(self):
+        super(BaseTemplateTest, self).tearDown()
+        self._delete_templates()
+
+    def _delete_templates(self):
+        templates = self.vitrage_client.template.list()
+        template_ids = [template['uuid'] for template in templates]
+        self.vitrage_client.template.delete(template_ids)
+
     def _compare_template_lists(self, api_templates, cli_templates):
         self.assertThat(api_templates, IsNotEmpty(),
                         'The template list taken from api is empty')
@@ -53,22 +62,6 @@ class BaseTemplateTest(BaseVitrageTempest):
         self._validate_templates_list_length(api_templates, cli_templates)
         self._validate_passed_templates_length(api_templates, cli_templates)
         self._compare_each_template_in_list(api_templates, cli_templates)
-
-    def _compare_template_validations(self, api_templates, cli_templates):
-        self.assertThat(api_templates, IsNotEmpty(),
-                        'The template validations taken from api is empty')
-        self.assertIsNotNone(
-            cli_templates, 'The template validations taken from cli is empty')
-
-        LOG.info("The template validations taken from cli is : " +
-                 str(cli_templates))
-        LOG.info("The template validations taken by api is : " +
-                 str(json.dumps(api_templates)))
-
-        parsed_topology = json.loads(cli_templates)
-        sorted_cli_templates = sorted(parsed_topology.items())
-        sorted_api_templates = sorted(api_templates.items())
-        self.assert_list_equal(sorted_api_templates, sorted_cli_templates)
 
     def _validate_templates_list_length(self, api_templates, cli_templates):
         self.assertEqual(len(cli_templates.splitlines()),
@@ -93,16 +86,6 @@ class BaseTemplateTest(BaseVitrageTempest):
                     break
         self.assertThat(api_templates, matchers.HasLength(counter))
 
-    def _run_default_template_validation(
-            self, template, validation, path):
-        self.assertThat(validation, IsNotEmpty(),
-                        'The template validation is empty')
-        self.assertEqual(path, validation['file path'])
-        self.assertEqual(0, validation['status code'])
-        self.assertEqual(self.VALIDATION_OK, validation['status'])
-        self.assertEqual(self.OK_MSG, validation['message'])
-        self.assertEqual(validation['message'], template['status details'])
-
     def _assert_validate_result(self, validation, path, negative=False,
                                 status_code=0):
         self.assertThat(validation['results'], matchers.HasLength(1))
@@ -110,36 +93,20 @@ class BaseTemplateTest(BaseVitrageTempest):
         self.assertIn(path, result['file path'])
 
         if negative:
-            self.assertEqual(status_code, result['status code'])
             self.assertEqual(self.VALIDATION_FAILED, result['status'])
             self.assertNotEqual(result['message'], self.OK_MSG)
+            self.assertEqual(status_code, result['status code'])
             return
 
-        self.assertEqual(0, result['status code'])
         self.assertEqual(self.VALIDATION_OK, result['status'])
         self.assertEqual(self.OK_MSG, result['message'])
+        self.assertEqual(0, result['status code'])
 
     def _assert_add_result(self, result, status, message):
         self.assertThat(result, matchers.HasLength(1))
         self.assertEqual(status, result[0]['status'])
         self.assertThat(result[0]['status details'],
                         matchers.StartsWith(message))
-
-    def _compare_template_show(self, api_templates, cli_templates):
-        self.assertThat(api_templates, IsNotEmpty(),
-                        'The template validations taken from api is empty')
-        self.assertIsNotNone(
-            cli_templates, 'The template validations taken from cli is empty')
-
-        LOG.info("The template validations taken from cli is : " +
-                 str(cli_templates))
-        LOG.info("The template validations taken by api is : " +
-                 str(json.dumps(api_templates)))
-
-        parsed_topology = json.loads(cli_templates)
-        sorted_cli_templates = sorted(parsed_topology.items())
-        sorted_api_templates = sorted(api_templates.items())
-        self.assert_list_equal(sorted_api_templates, sorted_cli_templates)
 
     @staticmethod
     def _rollback_to_default(templates):

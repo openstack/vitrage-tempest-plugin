@@ -329,7 +329,7 @@ class MockHTTPServer(BaseHTTPServer.HTTPServer):
 
     def process_request(self, request, client_address):
         self.requests.append(request)
-        LOG.info('received request: %s', str(request))
+        LOG.info('received request: %s', request)
         BaseHTTPServer.HTTPServer.process_request(
             self, client_address=client_address, request=request)
 
