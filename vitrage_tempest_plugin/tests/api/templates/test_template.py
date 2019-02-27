@@ -47,6 +47,7 @@ class TestValidate(BaseTemplateTest):
 
     @classmethod
     def tearDownClass(cls):
+        super(TestValidate, cls).tearDownClass()
         if cls._template is not None:
             v_utils.delete_template(cls._template['uuid'])
 
