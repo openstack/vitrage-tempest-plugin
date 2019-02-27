@@ -13,8 +13,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+STACK_USER=${STACK_USER:stack}
+
 source $BASE/new/devstack/functions
-sudo chown -R $USER:stack $BASE/new/tempest
+sudo chown -R $USER:$STACK_USER $BASE/new/tempest
 
 DEVSTACK_PATH="$BASE/new"
 TEMPEST_CONFIG=$BASE/new/tempest/etc/tempest.conf
