@@ -38,6 +38,7 @@ class TestRca(BaseRcaTest):
     # noinspection PyPep8Naming
     @classmethod
     def tearDownClass(cls):
+        super(TestRca, cls).tearDownClass()
         if cls._template is not None:
             v_utils.delete_template(cls._template['uuid'])
 
