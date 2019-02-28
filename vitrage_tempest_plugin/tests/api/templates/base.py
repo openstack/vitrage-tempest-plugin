@@ -11,7 +11,6 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
-import json
 
 from oslo_log import log as logging
 from testtools import matchers
@@ -54,10 +53,8 @@ class BaseTemplateTest(BaseVitrageTempest):
         self.assertIsNotNone(cli_templates,
                              'The template list taken from cli is empty')
 
-        LOG.info("The template list taken from cli is : " +
-                 str(cli_templates))
-        LOG.info("The template list taken by api is : " +
-                 str(json.dumps(api_templates)))
+        LOG.debug("The template list taken from cli is : %s", cli_templates)
+        LOG.debug("The template list taken by api is : %s", api_templates)
 
         self._validate_templates_list_length(api_templates, cli_templates)
         self._validate_passed_templates_length(api_templates, cli_templates)

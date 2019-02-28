@@ -67,8 +67,8 @@ class BaseRcaTest(BaseVitrageTempest):
                         'The rca taken from api is empty')
         self.assertIsNotNone(cli_rca, 'The rca taken from cli is empty')
 
-        LOG.info("The rca taken from cli is : " + str(cli_rca))
-        LOG.info("The rca taken by api is : " + str(json.dumps(api_rca)))
+        LOG.debug("The rca taken from cli is : %s", cli_rca)
+        LOG.debug("The rca taken by api is : %s", api_rca)
 
         parsed_rca = json.loads(cli_rca)
         sorted_cli_graph = self._clean_timestamps(sorted(parsed_rca.items()))
@@ -77,7 +77,7 @@ class BaseRcaTest(BaseVitrageTempest):
 
     def _validate_rca(self, rca):
         self.assertThat(rca, IsNotEmpty, 'The rca is empty')
-        LOG.info("The rca alarms list is : " + str(json.dumps(rca)))
+        LOG.debug("The rca alarms list is : %s", rca)
 
         resource_alarm = g_utils.all_matches(
             rca,
@@ -97,7 +97,7 @@ class BaseRcaTest(BaseVitrageTempest):
     def _validate_deduce_alarms(self, alarms, instances):
         """Validate alarm existence """
         self.assertThat(alarms, IsNotEmpty(), 'The alarms list is empty')
-        LOG.info("The alarms list is : " + str(json.dumps(alarms)))
+        LOG.debug("The alarms list is : %s", alarms)
 
         # Find the vitrage_id of the deduced alarms using their original id.
         vitrage_resources = self.vitrage_client.resource.list(

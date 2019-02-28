@@ -169,6 +169,41 @@ class BaseVitrageTempest(test.BaseTestCase):
 
         return graph
 
+    def _assert_graph_equal(self, g1, g2, msg=''):
+        """Checks that two graphs are equals.
+
+        This relies on assert_dict_equal when comparing the nodes and the
+        edges of each graph.
+        """
+        g1_nodes = g1['nodes']
+        g1_links = g1['links']
+
+        g2_nodes = g2['nodes']
+        g2_links = g1['links']
+
+        to_remove = {'vitrage_sample_timestamp',
+                     'update_timestamp',
+                     'graph_index'}
+
+        self._remove_keys_from_dicts(g1_nodes, g2_nodes, to_remove)
+
+        self.assert_items_equal(g1_nodes, g2_nodes,
+                                msg + "Nodes of each graph are not equal")
+        self.assert_items_equal(g1_links, g2_links,
+                                msg + "Edges of each graph are not equal")
+
+    def _remove_keys_from_dicts(self, dictionaries1,
+                                dictionaries2, keys_to_remove):
+        self._delete_keys_from_dict(dictionaries1, keys_to_remove)
+        self._delete_keys_from_dict(dictionaries2, keys_to_remove)
+
+    @staticmethod
+    def _delete_keys_from_dict(dictionaries, keys_to_remove):
+        for dictionary in dictionaries:
+            for key in keys_to_remove:
+                if key in dictionary:
+                    del dictionary[key]
+
     def _create_graph_from_tree_dictionary(self,
                                            api_graph,
                                            graph=None,

@@ -12,7 +12,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import json
 import time
 
 
@@ -20,8 +19,6 @@ from vitrage_tempest_plugin.tests.base import BaseVitrageTempest
 from vitrage_tempest_plugin.tests.base import IsNotEmpty
 from vitrage_tempest_plugin.tests.base import LOG
 from vitrage_tempest_plugin.tests.common import cinder_utils
-from vitrage_tempest_plugin.tests.common.constants import VertexProperties as \
-    VProps
 from vitrage_tempest_plugin.tests.common import nova_utils
 
 
@@ -72,32 +69,6 @@ class BaseTopologyTest(BaseVitrageTempest):
         # waiting until all the entities deletion were processed by the
         # entity graph processor
         time.sleep(2)
-
-    def _compare_graphs(self, api_graph, cli_graph):
-        """Compare Graph object to graph form terminal """
-        self.assertThat(api_graph, IsNotEmpty(),
-                        'The topology graph taken from rest api is empty')
-        self.assertThat(cli_graph, IsNotEmpty(),
-                        'The topology graph taken from terminal is empty')
-
-        parsed_topology = json.loads(cli_graph)
-
-        sorted_cli_graph = sorted(parsed_topology.items())
-        sorted_api_graph = sorted(api_graph.items())
-
-        for item in sorted_cli_graph[4][1]:
-            item.pop(VProps.UPDATE_TIMESTAMP, None)
-
-        for item in sorted_api_graph[4][1]:
-            item.pop(VProps.UPDATE_TIMESTAMP, None)
-
-        for item in sorted_cli_graph[4][1]:
-            item.pop(VProps.VITRAGE_SAMPLE_TIMESTAMP, None)
-
-        for item in sorted_api_graph[4][1]:
-            item.pop(VProps.VITRAGE_SAMPLE_TIMESTAMP, None)
-
-        self.assert_list_equal(sorted_cli_graph, sorted_api_graph)
 
     @staticmethod
     def _graph_query():

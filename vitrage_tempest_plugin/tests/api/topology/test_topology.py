@@ -11,6 +11,7 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
+import json
 
 from oslo_log import log as logging
 from testtools import ExpectedException
@@ -51,10 +52,7 @@ class TestTopology(BaseTopologyTest):
         cli_graph = utils.run_vitrage_command(
             'vitrage topology show --all-tenants')
 
-        LOG.info('api-graph=%(api)s cli-graph=%(cli)s', {'api': api_graph,
-                                                         'cli': cli_graph})
-
-        self._compare_graphs(api_graph, cli_graph)
+        self._assert_graph_equal(api_graph, json.loads(cli_graph))
 
     @utils.tempest_logger
     def test_default_graph_all_tenants(self):

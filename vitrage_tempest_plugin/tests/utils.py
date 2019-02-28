@@ -61,7 +61,7 @@ def run_vitrage_command(command):
                                              user_domain_id_param,
                                              project_domain_id_par)
 
-    LOG.info('Full command: %s', full_command)
+    LOG.debug('Full command: %s', full_command)
 
     child = subprocess.Popen(full_command,
                              shell=True,
@@ -76,7 +76,7 @@ def run_vitrage_command(command):
 
     output = stdout.decode('utf-8')
 
-    LOG.info('cli stdout: %s', output)
+    LOG.debug('cli stdout: %s', output)
 
     if child.returncode:
         LOG.error('process return code is not 0 : return code = %d',

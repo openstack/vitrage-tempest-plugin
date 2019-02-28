@@ -110,8 +110,8 @@ class TestLongProcessing(TestActionsBase):
         for i in range(5):
             self._check_template_instance_3rd_degree_scenarios()
             topo2 = self.vitrage_client.topology.get(all_tenants=True)
-            self.assert_graph_equal(
-                topo1, topo2, 'comparing graph items iteration ' + str(i))
+            self._assert_graph_equal(
+                topo1, topo2, 'comparing graph items iteration %s' % i)
             time.sleep(CONF.root_cause_analysis_service.snapshots_interval)
 
         v_utils.delete_template(name=TEMPLATE_NAME)
@@ -165,41 +165,6 @@ class TestLongProcessing(TestActionsBase):
             alarm_count['CRITICAL'],
             'found CRITICAL deduced alarms after template delete')
 
-    def assert_graph_equal(self, g1, g2, msg):
-        """Checks that two graphs are equals.
-
-        This relies on assert_dict_equal when comparing the nodes and the
-        edges of each graph.
-        """
-        g1_nodes = g1['nodes']
-        g1_links = g1['links']
-
-        g2_nodes = g2['nodes']
-        g2_links = g1['links']
-
-        to_remove = {'vitrage_sample_timestamp',
-                     'update_timestamp',
-                     'graph_index'}
-
-        self._remove_keys_from_dicts(g1_nodes, g2_nodes, to_remove)
-
-        self.assert_items_equal(g1_nodes, g2_nodes,
-                                msg + "Nodes of each graph are not equal")
-        self.assert_items_equal(g1_links, g2_links,
-                                "Edges of each graph are not equal")
-
-    def _remove_keys_from_dicts(self, dictionaries1,
-                                dictionaries2, keys_to_remove):
-        self._delete_keys_from_dict(dictionaries1, keys_to_remove)
-        self._delete_keys_from_dict(dictionaries2, keys_to_remove)
-
-    @staticmethod
-    def _delete_keys_from_dict(dictionaries, keys_to_remove):
-        for dictionary in dictionaries:
-            for key in keys_to_remove:
-                if key in dictionary:
-                    del dictionary[key]
-
     def _async_doctor_events(self, spacing=1):
 
         def do_create():
@@ -226,7 +191,7 @@ class TestLongProcessing(TestActionsBase):
             try:
                 v_utils.generate_fake_host_alarm(
                     'nova.host-0-nova.zone-0-openstack.cluster-0',
-                    'test_high_availability_events' + str(i),
+                    'test_high_availability_events %s' % i,
                     enabled=False)
             except Exception:
                 continue
