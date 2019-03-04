@@ -35,17 +35,17 @@ fi
 
 
 #Argument is received from Zuul
-if [ "$1" = "api" ]; then
+if [[ "$1" = "api" ]]; then
   TESTS="topology|test_rca|test_alarms|test_resources|test_template|test_webhook|test_service"
-elif [ "$1" = "datasources" ]; then
+elif [[ "$1" = "datasources" ]]; then
   TESTS="datasources|test_events|notifiers|e2e|database"
-elif [ "$1" = "mock" ]; then
+elif [[ "$1" = "mock" ]]; then
   TESTS="mock_datasource"
-else
-  TESTS="topology"
+else # used for internal testing shouldn't get here in gate
+  TESTS="$1"
 fi
 
-if [ "$DEVSTACK_GATE_USE_PYTHON3" == "True" ]; then
+if [[ "$DEVSTACK_GATE_USE_PYTHON3" == "True" ]]; then
         export PYTHON=python3
 fi
 

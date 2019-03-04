@@ -13,7 +13,12 @@
 #    under the License.
 
 from datetime import datetime
+from itertools import islice
+
+import networkx as nx
+from networkx.readwrite import json_graph
 import six
+from six.moves import zip
 
 from oslo_log import log as logging
 from oslo_utils import timeutils
@@ -21,10 +26,6 @@ from tempest.common import credentials_factory as common_creds
 from tempest import test
 from testtools.matchers import HasLength
 from testtools.matchers import Not
-
-from vitrage.graph.driver.networkx_graph import NXGraph
-from vitrage.graph import Edge
-from vitrage.graph import Vertex
 
 from vitrage_tempest_plugin.tests.common.constants import AODH_DATASOURCE
 from vitrage_tempest_plugin.tests.common.constants import \
@@ -153,22 +154,6 @@ class BaseVitrageTempest(test.BaseTestCase):
         LOG.debug('ports: %s, nova_ports: %s', ports, nova_ports)
         return len(nova_ports)
 
-    def _create_graph_from_graph_dictionary(self, api_graph):
-        self.assertIsNotNone(api_graph)
-        graph = NXGraph()
-
-        nodes = api_graph['nodes']
-        for i in range(len(nodes)):
-            graph.add_vertex(Vertex(str(i), nodes[i]))
-
-        edges = api_graph['links']
-        for i in range(len(edges)):
-            graph.add_edge(Edge(str(edges[i]['source']),
-                                str(edges[i]['target']),
-                                edges[i][EdgeProperties.RELATIONSHIP_TYPE]))
-
-        return graph
-
     def _assert_graph_equal(self, g1, g2, msg=''):
         """Checks that two graphs are equals.
 
@@ -203,29 +188,6 @@ class BaseVitrageTempest(test.BaseTestCase):
             for key in keys_to_remove:
                 if key in dictionary:
                     del dictionary[key]
-
-    def _create_graph_from_tree_dictionary(self,
-                                           api_graph,
-                                           graph=None,
-                                           ancestor=None):
-        children = []
-        graph = NXGraph() if not graph else graph
-
-        if 'children' in api_graph:
-            children = api_graph.copy()['children']
-            del api_graph['children']
-
-        vertex = Vertex(api_graph[VProps.VITRAGE_ID], api_graph)
-        graph.add_vertex(vertex)
-        if ancestor:
-            graph.add_edge(Edge(ancestor[VProps.VITRAGE_ID],
-                                vertex[VProps.VITRAGE_ID],
-                                'label'))
-
-        for entity in children:
-            self._create_graph_from_tree_dictionary(entity, graph, vertex)
-
-        return graph
 
     def _entities_validation_data(self, **kwargs):
         validation_data = []
@@ -318,6 +280,55 @@ class BaseVitrageTempest(test.BaseTestCase):
 
         return validation_data
 
+    def _create_graph_from_tree_dictionary(self,
+                                           api_graph,
+                                           graph=None,
+                                           ancestor=None):
+        children = []
+        graph = nx.MultiDiGraph() if not graph else graph
+
+        if 'children' in api_graph:
+            children = api_graph.copy()['children']
+            del api_graph['children']
+
+        vitrage_id = api_graph[VProps.VITRAGE_ID]
+        graph.add_node(vitrage_id, **api_graph)
+        if ancestor:
+            graph.add_edge(ancestor[VProps.VITRAGE_ID], vitrage_id, 'label')
+
+        for entity in children:
+            self._create_graph_from_tree_dictionary(entity, graph, api_graph)
+
+        return graph
+
+    def _create_graph_from_graph_dictionary(self, api_graph):
+        self.assertIsNotNone(api_graph)
+        graph = nx.MultiDiGraph()
+
+        nodes = api_graph['nodes']
+        for i in range(len(nodes)):
+            graph.add_node(str(i), **nodes[i])
+
+        edges = api_graph['links']
+        for i in range(len(edges)):
+            graph.add_edge(str(edges[i]['source']),
+                           str(edges[i]['target']),
+                           EdgeProperties.RELATIONSHIP_TYPE)
+
+        return graph
+
+    @staticmethod
+    def _get_vertices(graph, _filter):
+
+        def check_vertex(data):
+            data = data[1]
+            for key, content in _filter.items():
+                if not data.get(key) == content:
+                    return False
+            return True
+
+        return list(filter(check_vertex, graph.nodes(data=True)))
+
     def _validate_graph_correctness(self,
                                     graph,
                                     num_entities,
@@ -327,38 +338,50 @@ class BaseVitrageTempest(test.BaseTestCase):
         self.assertIsNotNone(entities)
 
         for entity in entities:
+            vitrage_type = entity[VProps.VITRAGE_TYPE]
+            vitrage_category = entity[VProps.VITRAGE_CATEGORY]
             query = {
-                VProps.VITRAGE_CATEGORY: entity[VProps.VITRAGE_CATEGORY],
-                VProps.VITRAGE_TYPE: entity[VProps.VITRAGE_TYPE],
+                VProps.VITRAGE_CATEGORY: vitrage_category,
+                VProps.VITRAGE_TYPE: vitrage_type,
                 VProps.VITRAGE_IS_DELETED: False,
                 VProps.VITRAGE_IS_PLACEHOLDER: False
             }
-            vertices = graph.get_vertices(vertex_attr_filter=query)
-            self.assertEqual(entity[self.NUM_VERTICES_PER_TYPE],
-                             len(vertices),
-                             '%s%s' % ('Num vertices is incorrect for: ',
-                                       entity[VProps.VITRAGE_TYPE]))
+            vertices = self._get_vertices(graph, _filter=query)
+
+            failed_msg = 'Num vertices is incorrect for: %s\n %s' % \
+                         (vitrage_type, json_graph.node_link_data(graph))
+            expected_num_vertices = entity[self.NUM_VERTICES_PER_TYPE]
+            self.assertEqual(expected_num_vertices, len(vertices), failed_msg)
 
             # TODO(iafek): bug - edges between entities of the same type are
             # counted twice
-            entity_num_edges = sum([len(graph.get_edges(vertex.vertex_id))
+            entity_num_edges = sum([len(graph.out_edges(vertex[0])) +
+                                    len(graph.in_edges(vertex[0]))
                                     for vertex in vertices])
-            self.assertEqual(entity[self.NUM_EDGES_PER_TYPE],
-                             entity_num_edges,
-                             '%s%s' % ('Num edges is incorrect for: ',
-                                       entity[VProps.VITRAGE_TYPE]))
 
-        self.assertEqual(num_entities, graph.num_vertices())
-        self.assertEqual(num_edges, graph.num_edges())
+            failed_msg = 'Num edges is incorrect for: %s\n %s' % \
+                         (vitrage_type, json_graph.node_link_data(graph))
+            expected_num_edges = entity[self.NUM_EDGES_PER_TYPE]
+            self.assertEqual(expected_num_edges, entity_num_edges, failed_msg)
 
-        self._validate_timestamps(graph)
+        # this will unzip the vertices and create a tuple of
+        # vertices with data only
+        nodes = graph.nodes(data=True)
+        graph_vertices = next(islice(zip(*nodes), 1, 2)) if len(nodes) else []
+        self.assertEqual(num_entities, len(graph_vertices),
+                         json_graph.node_link_data(graph))
+        self.assertEqual(num_edges, len(graph.edges()),
+                         json_graph.node_link_data(graph))
 
-    def _validate_timestamps(self, graph):
-        self._validate_timestamp(graph, VProps.UPDATE_TIMESTAMP)
-        self._validate_timestamp(graph, VProps.VITRAGE_SAMPLE_TIMESTAMP)
+        self._validate_timestamps(graph_vertices)
 
-    def _validate_timestamp(self, graph, timestamp_name):
-        for vertex in graph.get_vertices():
+    def _validate_timestamps(self, graph_vertices):
+        self._validate_timestamp(graph_vertices, VProps.UPDATE_TIMESTAMP)
+        self._validate_timestamp(graph_vertices,
+                                 VProps.VITRAGE_SAMPLE_TIMESTAMP)
+
+    def _validate_timestamp(self, graph_vertices, timestamp_name):
+        for vertex in graph_vertices:
             timestamp = vertex.get(timestamp_name)
             if timestamp:
                 try:
