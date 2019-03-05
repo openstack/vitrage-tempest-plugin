@@ -21,6 +21,25 @@ LOG = logging.getLogger(__name__)
 
 WITH_PARAMS_TEMPLATE = 'v3_with_params.yaml'
 
+TEMPLATE_STRING = """
+metadata:
+ version: 3
+ name: template1
+ description: simple template
+ type: standard
+entities:
+ alarm:
+  name: cpu problem
+ host:
+  type: nova.host
+scenarios:
+ - condition: alarm [ on ] host
+   actions:
+     - set_state:
+        state: ERROR
+        target: host
+"""
+
 
 class TestTemplatesV3(TestTemplatesApis):
 
@@ -41,3 +60,6 @@ class TestTemplatesV3(TestTemplatesApis):
 
     def test_template_add_with_parameters(self):
         self._add_with_parameters(WITH_PARAMS_TEMPLATE)
+
+    def test_template_add_by_string(self):
+        self._add_by_string(TEMPLATE_STRING)
