@@ -288,7 +288,7 @@ class BaseVitrageTempest(test.BaseTestCase):
         graph = nx.MultiDiGraph() if not graph else graph
 
         if 'children' in api_graph:
-            children = api_graph.copy()['children']
+            children = api_graph['children']
             del api_graph['children']
 
         vitrage_id = api_graph[VProps.VITRAGE_ID]
@@ -306,13 +306,13 @@ class BaseVitrageTempest(test.BaseTestCase):
         graph = nx.MultiDiGraph()
 
         nodes = api_graph['nodes']
-        for i in range(len(nodes)):
-            graph.add_node(str(i), **nodes[i])
+        for i, node in enumerate(nodes):
+            graph.add_node(str(i), **node)
 
         edges = api_graph['links']
-        for i in range(len(edges)):
-            graph.add_edge(str(edges[i]['source']),
-                           str(edges[i]['target']),
+        for edge in edges:
+            graph.add_edge(str(edge['source']),
+                           str(edge['target']),
                            EdgeProperties.RELATIONSHIP_TYPE)
 
         return graph
