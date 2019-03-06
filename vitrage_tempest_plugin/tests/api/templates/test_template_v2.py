@@ -94,6 +94,45 @@ class TestTemplatesApis(BaseTemplateTest):
         result = self.vitrage_client.template.add(path=path, params=params)
         self._assert_add_result(result, LOADING_STATUS, TEMPLATE_VALIDATION_OK)
 
+    def _add_by_string(self, template_str):
+        result = self.vitrage_client.template.add(template_str=template_str)
+        self._assert_add_result(result, LOADING_STATUS, TEMPLATE_VALIDATION_OK)
+
+
+TEMPLATE_STRING = """
+metadata:
+ name: host_down_scenarios
+ description: scenarios triggered by Doctor monitor 'compute.host.down' alarm
+ version: 2
+ type: standard
+definitions:
+ entities:
+  - entity:
+     category: ALARM
+     name: compute.host.down
+     template_id: host_down_alarm
+  - entity:
+     category: RESOURCE
+     type: nova.host
+     template_id: host
+ relationships:
+  - relationship:
+     source: host_down_alarm
+     relationship_type: on
+     target: host
+     template_id : host_down_alarm_on_host
+scenarios:
+ - scenario:
+    condition: host_down_alarm_on_host
+    actions:
+     - action:
+        action_type: set_state
+        action_target:
+         target: host
+        properties:
+         state: ERROR
+"""
+
 
 class TestTemplatesV2(TestTemplatesApis):
 
@@ -123,3 +162,6 @@ class TestTemplatesV2(TestTemplatesApis):
 
     def test_template_add_with_parameters(self):
         self._add_with_parameters(WITH_PARAMS_TEMPLATE)
+
+    def test_template_add_by_string(self):
+        self._add_by_string(TEMPLATE_STRING)
