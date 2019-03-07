@@ -13,6 +13,7 @@
 #    under the License.
 
 from datetime import datetime
+from itertools import chain
 from itertools import islice
 
 import networkx as nx
@@ -170,20 +171,15 @@ class BaseVitrageTempest(test.BaseTestCase):
                      'update_timestamp',
                      'graph_index'}
 
-        self._remove_keys_from_dicts(g1_nodes, g2_nodes, to_remove)
+        self._delete_keys_from_dicts(chain(g1_nodes, g2_nodes), to_remove)
 
         self.assert_items_equal(g1_nodes, g2_nodes,
-                                msg + "Nodes of each graph are not equal")
+                                '%s Nodes of each graph are not equal' % msg)
         self.assert_items_equal(g1_links, g2_links,
-                                msg + "Edges of each graph are not equal")
-
-    def _remove_keys_from_dicts(self, dictionaries1,
-                                dictionaries2, keys_to_remove):
-        self._delete_keys_from_dict(dictionaries1, keys_to_remove)
-        self._delete_keys_from_dict(dictionaries2, keys_to_remove)
+                                '%s Edges of each graph are not equal' % msg)
 
     @staticmethod
-    def _delete_keys_from_dict(dictionaries, keys_to_remove):
+    def _delete_keys_from_dicts(dictionaries, keys_to_remove):
         for dictionary in dictionaries:
             for key in keys_to_remove:
                 if key in dictionary:
@@ -320,10 +316,10 @@ class BaseVitrageTempest(test.BaseTestCase):
     @staticmethod
     def _get_vertices(graph, _filter):
 
-        def check_vertex(data):
-            data = data[1]
+        def check_vertex(node):
+            _, node_data = node
             for key, content in _filter.items():
-                if not data.get(key) == content:
+                if not node_data.get(key) == content:
                     return False
             return True
 
@@ -346,42 +342,61 @@ class BaseVitrageTempest(test.BaseTestCase):
                 VProps.VITRAGE_IS_DELETED: False,
                 VProps.VITRAGE_IS_PLACEHOLDER: False
             }
-            vertices = self._get_vertices(graph, _filter=query)
+            entity_vertices = self._get_vertices(graph, _filter=query)
 
-            failed_msg = 'Num vertices is incorrect for: %s\n %s' % \
-                         (vitrage_type, json_graph.node_link_data(graph))
             expected_num_vertices = entity[self.NUM_VERTICES_PER_TYPE]
-            self.assertEqual(expected_num_vertices, len(vertices), failed_msg)
+            observed_num_vertices = len(entity_vertices)
+            failed_msg = ('Num entity_vertices is incorrect for: %s\n %s' %
+                          (vitrage_type, self._to_dict(graph)))
+
+            self.assertEqual(expected_num_vertices,
+                             observed_num_vertices,
+                             failed_msg)
+
+            def num_of_edges_for(v_id):
+                return len(graph.out_edges(v_id)) + len(graph.in_edges(v_id))
 
             # TODO(iafek): bug - edges between entities of the same type are
             # counted twice
-            entity_num_edges = sum([len(graph.out_edges(vertex[0])) +
-                                    len(graph.in_edges(vertex[0]))
-                                    for vertex in vertices])
+            observed_entity_num_edges = sum(
+                (num_of_edges_for(v_id) for v_id, _ in entity_vertices)
+            )
 
-            failed_msg = 'Num edges is incorrect for: %s\n %s' % \
-                         (vitrage_type, json_graph.node_link_data(graph))
-            expected_num_edges = entity[self.NUM_EDGES_PER_TYPE]
-            self.assertEqual(expected_num_edges, entity_num_edges, failed_msg)
+            expected_entity_num_edges = entity[self.NUM_EDGES_PER_TYPE]
+            failed_msg = ('Num edges is incorrect for: %s\n %s' %
+                          (vitrage_type, self._to_dict(graph)))
 
-        # this will unzip the vertices and create a tuple of
-        # vertices with data only
+            self.assertEqual(expected_entity_num_edges,
+                             observed_entity_num_edges,
+                             failed_msg)
+
         nodes = graph.nodes(data=True)
-        graph_vertices = next(islice(zip(*nodes), 1, 2)) if len(nodes) else []
-        self.assertEqual(num_entities, len(graph_vertices),
-                         json_graph.node_link_data(graph))
-        self.assertEqual(num_edges, len(graph.edges()),
-                         json_graph.node_link_data(graph))
+        vertices = self._extract_graph_vertices_data(nodes)
+        self.assertEqual(num_entities, len(vertices), self._to_dict(graph))
+        self.assertEqual(num_edges, len(graph.edges()), self._to_dict(graph))
 
-        self._validate_timestamps(graph_vertices)
+        self._validate_timestamps(vertices)
 
-    def _validate_timestamps(self, graph_vertices):
-        self._validate_timestamp(graph_vertices, VProps.UPDATE_TIMESTAMP)
-        self._validate_timestamp(graph_vertices,
-                                 VProps.VITRAGE_SAMPLE_TIMESTAMP)
+    @staticmethod
+    def _to_dict(graph):
+        return json_graph.node_link_data(graph)
 
-    def _validate_timestamp(self, graph_vertices, timestamp_name):
-        for vertex in graph_vertices:
+    # This will unzip the nodes and create a tuple of nodes with data only.
+    # Using next and islice because zip returns iterator on py3
+    # e.g. (id1, data1), (id2, data2) --> (data1, data2)
+    @staticmethod
+    def _extract_graph_vertices_data(nodes):
+        def unzip(_nodes):
+            return zip(*_nodes)
+
+        return next(islice(unzip(nodes), 1, 2), ())
+
+    def _validate_timestamps(self, vertices):
+        self._validate_timestamp(vertices, VProps.UPDATE_TIMESTAMP)
+        self._validate_timestamp(vertices, VProps.VITRAGE_SAMPLE_TIMESTAMP)
+
+    def _validate_timestamp(self, vertices, timestamp_name):
+        for vertex in vertices:
             timestamp = vertex.get(timestamp_name)
             if timestamp:
                 try:
