@@ -23,6 +23,7 @@ EQUIVALENCE_TEMPLATE = 'v2_equivalence_templates.yaml'
 DEFINITION_TEMPLATE = 'v2_definition_template.yaml'
 NO_TYPE_TEMPLATE = 'v2_no_type_template.yaml'
 WITH_PARAMS_TEMPLATE = 'v2_with_params.yaml'
+WITH_DEFAULT_PARAMS_TEMPLATE = 'v2_with_default_params.yaml'
 
 FAILED_TO_RESOLVE_PARAM = 'Failed to resolve parameter'
 ERROR_STATUS = 'ERROR'
@@ -73,6 +74,12 @@ class TestTemplatesApis(BaseTemplateTest):
             self.vitrage_client.template.validate(path=path, params=params)
         self._assert_validate_result(validation, path)
 
+    def _validate_with_default_parameters(self, template_name):
+        path = self.TEST_PATH + template_name
+        validation = \
+            self.vitrage_client.template.validate(path=path, params=None)
+        self._assert_validate_result(validation, path)
+
     def _add_with_missing_parameters(self, template_name):
         path = self.TEST_PATH + template_name
         result = self.vitrage_client.template.add(path=path)
@@ -92,6 +99,11 @@ class TestTemplatesApis(BaseTemplateTest):
                   'alarm_name': 'My alarm',
                   'new_state': 'SUBOPTIMAL'}
         result = self.vitrage_client.template.add(path=path, params=params)
+        self._assert_add_result(result, LOADING_STATUS, TEMPLATE_VALIDATION_OK)
+
+    def _add_with_default_parameters(self, template_name):
+        path = self.TEST_PATH + template_name
+        result = self.vitrage_client.template.add(path=path, params=None)
         self._assert_add_result(result, LOADING_STATUS, TEMPLATE_VALIDATION_OK)
 
     def _add_by_string(self, template_str):
@@ -154,6 +166,9 @@ class TestTemplatesV2(TestTemplatesApis):
     def test_template_validate_with_parameters(self):
         self._validate_with_parameters(WITH_PARAMS_TEMPLATE)
 
+    def test_template_validate_with_default_parameters(self):
+        self._validate_with_default_parameters(WITH_DEFAULT_PARAMS_TEMPLATE)
+
     def test_template_add_with_missing_parameters(self):
         self._add_with_missing_parameters(WITH_PARAMS_TEMPLATE)
 
@@ -162,6 +177,9 @@ class TestTemplatesV2(TestTemplatesApis):
 
     def test_template_add_with_parameters(self):
         self._add_with_parameters(WITH_PARAMS_TEMPLATE)
+
+    def test_template_add_with_default_parameters(self):
+        self._add_with_default_parameters(WITH_DEFAULT_PARAMS_TEMPLATE)
 
     def test_template_add_by_string(self):
         self._add_by_string(TEMPLATE_STRING)

@@ -20,6 +20,7 @@ from vitrage_tempest_plugin.tests.api.templates.test_template_v2 \
 LOG = logging.getLogger(__name__)
 
 WITH_PARAMS_TEMPLATE = 'v3_with_params.yaml'
+WITH_DEFAULT_PARAMS_TEMPLATE = 'v3_with_default_params.yaml'
 
 TEMPLATE_STRING = """
 metadata:
@@ -52,6 +53,9 @@ class TestTemplatesV3(TestTemplatesApis):
     def test_template_validate_with_parameters(self):
         self._validate_with_parameters(WITH_PARAMS_TEMPLATE)
 
+    def test_template_validate_with_default_parameters(self):
+        self._validate_with_default_parameters(WITH_DEFAULT_PARAMS_TEMPLATE)
+
     def test_template_add_with_missing_parameters(self):
         self._add_with_missing_parameters(WITH_PARAMS_TEMPLATE)
 
@@ -60,6 +64,9 @@ class TestTemplatesV3(TestTemplatesApis):
 
     def test_template_add_with_parameters(self):
         self._add_with_parameters(WITH_PARAMS_TEMPLATE)
+
+    def test_template_add_with_default_parameters(self):
+        self._add_with_default_parameters(WITH_DEFAULT_PARAMS_TEMPLATE)
 
     def test_template_add_by_string(self):
         self._add_by_string(TEMPLATE_STRING)
