@@ -88,10 +88,11 @@ class TestLongProcessing(TestActionsBase):
             alarm_count = self.vitrage_client.alarm.count(all_tenants=True)
             self.assertTrue(self.num_of_sent_events > 0,
                             'Test did not create events')
-            self.assertEqual(
+            self.assertAlmostEqual(
                 self.num_of_sent_events,
                 alarm_count['CRITICAL'],
-                'CRITICAL doctor events expected')
+                msg='CRITICAL doctor events expected',
+                delta=1)
         finally:
             self._remove_doctor_events()
 
