@@ -17,6 +17,7 @@ from oslo_log import log as logging
 from testtools.matchers import HasLength
 
 from vitrage_tempest_plugin.tests.api.event.base import BaseTestEvents
+from vitrage_tempest_plugin.tests.common import nova_utils
 from vitrage_tempest_plugin.tests.common.tempest_clients import TempestClients
 from vitrage_tempest_plugin.tests.common import vitrage_utils as v_utils
 from vitrage_tempest_plugin.tests import utils
@@ -60,12 +61,19 @@ class TestMistralNotifier(BaseTestEvents):
         cls._templates.append(v_utils.add_template('v2_execute_mistral.yaml'))
         cls._templates.append(v_utils.add_template('v3_execute_mistral.yaml'))
 
+        # Create a Mistral workflow
+        cls.mistral_client.workflows.create(WF_DEFINITION)
+
     @classmethod
     def tearDownClass(cls):
         if cls._templates is not None:
             v_utils.delete_template(cls._templates[0]['uuid'])
             v_utils.delete_template(cls._templates[1]['uuid'])
             v_utils.delete_template(cls._templates[2]['uuid'])
+
+        # Delete the workflow
+        cls.mistral_client.workflows.delete(WF_NAME)
+        nova_utils.delete_all_instances()
 
     @utils.tempest_logger
     def test_execute_mistral_v1(self):
@@ -91,6 +99,50 @@ class TestMistralNotifier(BaseTestEvents):
         self._do_test_execute_mistral(self.TRIGGER_ALARM_FOR_FUNCTION_v3)
         self._do_test_function(self.TRIGGER_ALARM_FOR_FUNCTION_v3)
 
+    @utils.tempest_logger
+    def test_execute_mistral_more_than_once(self):
+        executions = self.mistral_client.executions.list()
+        self.assertIsNotNone(executions,
+                             'Failed to get the list of workflow executions')
+        num_executions = len(executions)
+
+        # Make sure there are at least two instances in the environment
+        nova_utils.create_instances(num_instances=2, set_public_network=True)
+        num_instances = len(TempestClients.nova().servers.list())
+
+        # Add a template that executes the same Mistral workflow for every
+        # instance. This should immediately trigger execute_mistral actions.
+        template = None
+        try:
+            template = v_utils.add_template('v3_execute_mistral_twice.yaml')
+        finally:
+            if template:
+                v_utils.delete_template(template['uuid'])   # no longer needed
+
+        # Verify that there is an execution for every instance
+        executions = self.mistral_client.executions.list()
+        self.assertIsNotNone(executions,
+                             'Failed to get the list of workflow executions')
+
+        msg = "There are %d executions. Expected number of executions: %d " \
+              "(old number of executions) + %d (number of instances)" % \
+              (len(executions), num_executions, num_instances)
+        self.assertThat(executions, HasLength(num_executions + num_instances),
+                        msg)
+
+        executed_on_instances = set()
+        for i in range(num_instances):
+            # There may be many old executions in the list. The relevant ones
+            # are at the end. Check the last `num_instances` executions.
+            execution = \
+                self.mistral_client.executions.get(executions[-i].id)
+            execution_input = json.loads(execution.input)
+            executed_on_instances.add(execution_input['farewell'])
+
+        msg = "There are %d instances in the graph but only %d distinct " \
+              "executions" % (num_instances, len(executed_on_instances))
+        self.assertThat(executed_on_instances, HasLength(num_instances), msg)
+
     def _do_test_function(self, trigger):
         # Make sure that the workflow execution was done with the correct input
         # (can be checked even if the Vitrage alarm is already down)
@@ -113,10 +165,6 @@ class TestMistralNotifier(BaseTestEvents):
                          'alarm name')
 
     def _do_test_execute_mistral(self, trigger_alarm):
-        workflows = self.mistral_client.workflows.list()
-        self.assertIsNotNone(workflows, 'Failed to get the list of workflows')
-        num_workflows = len(workflows)
-
         executions = self.mistral_client.executions.list()
         self.assertIsNotNone(executions,
                              'Failed to get the list of workflow executions')
@@ -127,16 +175,6 @@ class TestMistralNotifier(BaseTestEvents):
         num_alarms = len(alarms)
 
         try:
-            # Create a Mistral workflow
-            self.mistral_client.workflows.create(WF_DEFINITION)
-
-            # Validate the workflow creation
-            workflows = self.mistral_client.workflows.list()
-            self.assertIsNotNone(workflows,
-                                 'Failed to get the list of workflows')
-            self.assertThat(workflows, HasLength(num_workflows + 1),
-                            'Mistral workflow was not created')
-
             # Trigger an alarm. According to v1_execute_mistral.yaml template,
             # the alarm should cause execution of the workflow
             self._trigger_do_action(trigger_alarm)
@@ -156,19 +194,9 @@ class TestMistralNotifier(BaseTestEvents):
                 'Mistral workflow was not executed')
 
         finally:
-            self._rollback_to_default(WF_NAME, num_workflows,
-                                      trigger_alarm, num_alarms)
+            self._rollback_to_default(trigger_alarm, num_alarms)
 
-    def _rollback_to_default(self, workflow_name, num_workflows,
-                             trigger_alarm, num_alarms):
-        # Delete the workflow
-        self.mistral_client.workflows.delete(workflow_name)
-
-        workflows = self.mistral_client.workflows.list()
-        self.assertIsNotNone(workflows, 'Failed to get the list of workflows')
-        self.assertThat(workflows, HasLength(num_workflows),
-                        'Failed to remove the test workflow')
-
+    def _rollback_to_default(self, trigger_alarm, num_alarms):
         # Clear the trigger alarm and wait it to be deleted
         self._trigger_undo_action(trigger_alarm)
 
