@@ -13,6 +13,8 @@
 # under the License.
 
 import json
+import time
+
 from oslo_log import log as logging
 from testtools.matchers import HasLength
 
@@ -118,6 +120,8 @@ class TestMistralNotifier(BaseTestEvents):
         finally:
             if template:
                 v_utils.delete_template(template['uuid'])   # no longer needed
+
+        time.sleep(2)   # wait for the evaluator to process the new template
 
         # Verify that there is an execution for every instance
         executions = self.mistral_client.executions.list()
