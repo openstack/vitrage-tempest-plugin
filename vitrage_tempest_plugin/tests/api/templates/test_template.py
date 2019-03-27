@@ -12,7 +12,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-
 from oslo_log import log as logging
 from testtools import matchers
 import yaml
@@ -26,6 +25,7 @@ from vitrage_tempest_plugin.tests.common import general_utils as g_utils
 from vitrage_tempest_plugin.tests.common import vitrage_utils as v_utils
 
 import vitrage_tempest_plugin.tests.utils as utils
+from vitrageclient.exceptions import ClientException
 
 LOG = logging.getLogger(__name__)
 
@@ -144,23 +144,14 @@ class TemplatesDBTest(BaseTemplateTest):
             'corrupted template template presented in list')
 
     def test_template_delete(self):
+        self._add_delete_template()
 
-        # add standard template
-        v_utils.add_template(STANDARD_TEMPLATE,
-                             template_type=TTypes.STANDARD)
-        db_row = v_utils.get_first_template(
-            name='host_high_memory_usage_scenarios',
-            type=TTypes.STANDARD,
-            status=TemplateStatus.ACTIVE)
-        self.assertIsNotNone(db_row,
-                             'Template should appear in templates list')
+    def test_template_dont_show_deleted_template(self):
 
-        # delete template
-        uuid = db_row['uuid']
-        v_utils.delete_template(uuid)
-        db_row = v_utils.get_first_template(
-            name='host_high_memory_usage_scenarios', type=TTypes.STANDARD)
-        self.assertIsNone(db_row, 'Template should not appear in list')
+        uuid = self._add_delete_template()
+        self.assertRaises(ClientException,
+                          self.vitrage_client.template.show,
+                          uuid)
 
     def test_compare_cli_to_api(self):
         """Compare between api template list
@@ -219,3 +210,29 @@ class TemplatesDBTest(BaseTemplateTest):
                 'entity equivalence example',
                 'basic_def_template',
                 'corrupted_template']
+
+    def _add_delete_template(self):
+        """A helper function:
+
+            Adds and deletes a template.
+            Returns its uuid.
+        """
+
+        # add a template
+        v_utils.add_template(STANDARD_TEMPLATE, template_type=TTypes.STANDARD)
+        db_row = v_utils.get_first_template(
+            name='host_high_memory_usage_scenarios',
+            type=TTypes.STANDARD,
+            status=TemplateStatus.ACTIVE)
+        self.assertIsNotNone(db_row,
+                             'Template should appear in templates list')
+
+        # delete it
+        uuid = db_row['uuid']
+        v_utils.delete_template(uuid)
+        db_row = v_utils.get_first_template(
+            name='host_high_memory_usage_scenarios',
+            type=TTypes.STANDARD)
+        self.assertIsNone(db_row, 'Template should not appear in list')
+
+        return uuid
