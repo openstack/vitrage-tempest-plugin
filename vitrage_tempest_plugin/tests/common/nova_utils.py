@@ -24,7 +24,7 @@ from vitrage_tempest_plugin.tests.utils import wait_for_status
 LOG = logging.getLogger(__name__)
 
 
-def create_instances(num_instances=1, set_public_network=False, name='vm'):
+def create_instances(num_instances=1, set_public_network=True, name='vm'):
     nics = []
     flavor = get_first_flavor()
     image = glance_utils.get_first_image()

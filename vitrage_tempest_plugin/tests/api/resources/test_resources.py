@@ -76,7 +76,7 @@ class TestResource(BaseVitrageTempest):
         # TODO(e0ne): split this test to verify that only network,
         # instance and port are returned to non-admin user.
         resources = self.vitrage_client.resource.list(all_tenants=False)
-        self.assertThat(resources, matchers.HasLength(6))
+        self.assertThat(resources, matchers.HasLength(7))
 
     @utils.tempest_logger
     def test_resource_list_with_all_tenants(self):
