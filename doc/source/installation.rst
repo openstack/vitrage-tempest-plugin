@@ -8,6 +8,6 @@ the same environment where Tempest is installed.
 
 At the command line::
 
-    $ git clone https://git.openstack.org/openstack/vitrage-tempest-plugin
+    $ git clone https://opendev.org/openstack/vitrage-tempest-plugin
     $ cd vitrage-tempest-plugin/
     $ pip install vitrage-tempest-plugin
