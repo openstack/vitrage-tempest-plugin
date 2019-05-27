@@ -92,6 +92,14 @@ def delete_template(uuid=None, **kwargs):
         _id=uuid)
 
 
+def delete_template_with_name(name):
+    TempestClients.vitrage().template.delete(name)
+    wait_for_status(
+        100,
+        lambda name: True if not get_first_template(name=name) else False,
+        name=name)
+
+
 def restart_graph():
     os.system("sudo service devstack@vitrage-graph restart")
 

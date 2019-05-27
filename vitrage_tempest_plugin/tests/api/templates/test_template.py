@@ -146,6 +146,9 @@ class TemplatesDBTest(BaseTemplateTest):
     def test_template_delete(self):
         self._add_delete_template()
 
+    def test_template_delete_with_name(self):
+        self._add_delete_template_with_name()
+
     def test_template_dont_show_deleted_template(self):
 
         uuid = self._add_delete_template()
@@ -195,6 +198,26 @@ class TemplatesDBTest(BaseTemplateTest):
                                "Template content doesn't match")
         v_utils.delete_template(db_row['uuid'])
 
+    def test_template_show_with_name(self):
+        """Compare template content from file to DB"""
+        # add standard template
+        template_path = \
+            g_utils.tempest_resources_dir() + '/templates/api/' \
+            + STANDARD_TEMPLATE
+        v_utils.add_template(STANDARD_TEMPLATE,
+                             template_type=TTypes.STANDARD)
+        name = 'host_high_memory_usage_scenarios'
+        db_row = v_utils.get_first_template(
+            name=name,
+            type=TTypes.STANDARD,
+            status=TemplateStatus.ACTIVE)
+        payload_from_db = self.vitrage_client.template.show(name)
+        with open(template_path, 'r') as stream:
+            payload_from_file = yaml.load(stream, Loader=yaml.BaseLoader)
+        self.assert_dict_equal(payload_from_file, payload_from_db,
+                               "Template content doesn't match")
+        v_utils.delete_template(db_row['uuid'])
+
     @staticmethod
     def _add_templates():
         v_utils.add_template(STANDARD_TEMPLATE,
@@ -236,3 +259,29 @@ class TemplatesDBTest(BaseTemplateTest):
         self.assertIsNone(db_row, 'Template should not appear in list')
 
         return uuid
+
+    def _add_delete_template_with_name(self):
+        """A helper function:
+
+            Adds and deletes a template.
+            Returns its name.
+        """
+
+        # add a template
+        v_utils.add_template(STANDARD_TEMPLATE, template_type=TTypes.STANDARD)
+        db_row = v_utils.get_first_template(
+            name='host_high_memory_usage_scenarios',
+            type=TTypes.STANDARD,
+            status=TemplateStatus.ACTIVE)
+        self.assertIsNotNone(db_row,
+                             'Template should appear in templates list')
+
+        # delete it
+        name = db_row['name']
+        v_utils.delete_template_with_name(name)
+        db_row = v_utils.get_first_template(
+            name='host_high_memory_usage_scenarios',
+            type=TTypes.STANDARD)
+        self.assertIsNone(db_row, 'Template should not appear in list')
+
+        return name
