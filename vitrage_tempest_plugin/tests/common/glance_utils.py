@@ -15,4 +15,4 @@ from vitrage_tempest_plugin.tests.common.tempest_clients import TempestClients
 
 
 def get_first_image():
-    return TempestClients.glance().images.list().next()
+    return next(TempestClients.glance().images.list(sort='size:asc'))

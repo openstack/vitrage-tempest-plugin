@@ -48,6 +48,7 @@ def create_instances(num_instances=1, set_public_network=True, name='vm'):
 
 
 def _create_instances(flavor, image, name, nics, num_instances):
+    LOG.info("create instance with flavor=%s image=%s" % (flavor, image))
     resources = [TempestClients.nova().servers.create(
         name='%s-%s' % (name, index),
         flavor=flavor,
