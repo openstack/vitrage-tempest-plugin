@@ -41,7 +41,7 @@ project = u'openstack'
 copyright = u'2017, OpenStack Developers'
 
 # openstackdocstheme options
-repository_name = 'openstack/openstack'
+repository_name = 'openstack/vitrage-tempest-plugin'
 use_storyboard = True
 
 # If true, '()' will be appended to :func: etc. cross-reference text.
