@@ -25,6 +25,7 @@ from vitrage_tempest_plugin.tests.common.constants import \
     NOVA_INSTANCE_DATASOURCE
 from vitrage_tempest_plugin.tests.common.constants import VertexProperties as \
     VProps
+from vitrage_tempest_plugin.tests.common import neutron_utils
 from vitrage_tempest_plugin.tests.common import nova_utils
 from vitrage_tempest_plugin.tests import utils
 from vitrageclient.exceptions import ClientException
@@ -75,7 +76,9 @@ class TestResource(BaseVitrageTempest):
         # TODO(e0ne): split this test to verify that only network,
         # instance and port are returned to non-admin user.
         resources = self.vitrage_client.resource.list(all_tenants=False)
-        self.assertThat(resources, matchers.HasLength(7))
+        has_shared_network = neutron_utils.get_shared_network()
+        num_resources = 7 if has_shared_network else 6
+        self.assertThat(resources, matchers.HasLength(num_resources))
 
     @utils.tempest_logger
     def test_resource_list_with_all_tenants(self):
