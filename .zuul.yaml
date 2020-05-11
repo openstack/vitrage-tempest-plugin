@@ -3,5 +3,32 @@
       - check-requirements
       - tempest-plugin-jobs
       - publish-openstack-docs-pti
+    check:
+      jobs:
+        - vitrage-dsvm-api-py3-ussuri
+        - vitrage-dsvm-api-py3-train
+        - vitrage-dsvm-api-py3-stein
     gate:
       queue: vitrage
+
+- job:
+    name: vitrage-dsvm-api-py3-ussuri
+    parent: vitrage-dsvm-api-py3
+    override-checkout: stable/ussuri
+
+- job:
+    name: vitrage-dsvm-api-py3-train
+    parent: vitrage-dsvm-api-py3
+    override-checkout: stable/train
+    vars:
+      devstack_localrc:
+        USE_PYTHON3: True
+
+- job:
+    name: vitrage-dsvm-api-py3-stein
+    parent: vitrage-dsvm-api-py35
+    override-checkout: stable/stein
+    vars:
+      devstack_localrc:
+        CHERRY_PICK: True
+        USE_PYTHON3: True
