@@ -47,6 +47,6 @@ def _check_num_volumes(num_volumes=0, state=''):
     if len(TempestClients.cinder().volumes.list()) != num_volumes:
         return False
 
-    return all(volume.__dict__['status'].upper() == state.upper() and
-               len(volume.__dict__['attachments']) == 1
+    return all(vars(volume)['status'].upper() == state.upper() and
+               len(vars(volume)['attachments']) == 1
                for volume in TempestClients.cinder().volumes.list())

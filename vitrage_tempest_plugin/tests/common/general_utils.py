@@ -32,7 +32,7 @@ def is_subset(subset, full):
         return True
     full_dict = full
     if type(full) is not dict:
-        full_dict = full.__dict__
+        full_dict = vars(full)
     return six.viewitems(subset) <= six.viewitems(full_dict)
 
 
