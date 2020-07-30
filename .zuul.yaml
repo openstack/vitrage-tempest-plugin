@@ -22,11 +22,13 @@
 - job:
     name: vitrage-dsvm-api-py3-ussuri
     parent: vitrage-dsvm-api-py3
+    nodeset: openstack-single-node-bionic
     override-checkout: stable/ussuri
 
 - job:
     name: vitrage-dsvm-api-py3-train
     parent: vitrage-dsvm-api-py3
+    nodeset: openstack-single-node-bionic
     override-checkout: stable/train
     vars:
       devstack_localrc:
@@ -35,6 +37,7 @@
 - job:
     name: vitrage-dsvm-api-py3-stein
     parent: vitrage-dsvm-api-py35
+    nodeset: openstack-single-node-bionic
     override-checkout: stable/stein
     vars:
       devstack_localrc:
@@ -43,11 +46,13 @@
 - job:
     name: vitrage-dsvm-datasources-py3-ussuri
     parent: vitrage-dsvm-datasources-py3
+    nodeset: openstack-single-node-bionic
     override-checkout: stable/ussuri
 
 - job:
     name: vitrage-dsvm-datasources-py3-train
     parent: vitrage-dsvm-datasources-py3
+    nodeset: openstack-single-node-bionic
     override-checkout: stable/train
     vars:
       devstack_localrc:
@@ -56,6 +61,7 @@
 - job:
     name: vitrage-dsvm-datasources-py3-stein
     parent: vitrage-dsvm-datasources-py35
+    nodeset: openstack-single-node-bionic
     override-checkout: stable/stein
     vars:
       devstack_localrc:
