@@ -1,0 +1,36 @@
+- hosts: tempest
+  tasks:
+    - name: Create /etc/vitrage and make it available to stack and tempest user
+      file:
+        path: /etc/vitrage
+        state: directory
+        mode: 0777
+        owner: tempest
+        group: stack
+      become: yes
+    - name: Create /etc/vitrage/static_datasources and make it available to stack and tempest user
+      file:
+        path: /etc/vitrage/static_datasources
+        state: directory
+        mode: 0777
+        owner: tempest
+        group: stack
+      become: yes
+    - name: Copy prometheus_conf to vitrage folder
+      blockinfile:
+        path: "/etc/vitrage/prometheus_conf.yaml"
+        mode: 0644
+        create: yes
+        block: |
+          alerts:
+            - key:
+                alertname: HighCpuOnVmAlert
+                job: libvirt
+              resource:
+                instance_name: domain
+                host_id: instance
+            - key:
+                alertname: HighInodeUsage
+                job: node
+              resource:
+                id: instance

@@ -5,64 +5,229 @@
       - publish-openstack-docs-pti
     check:
       jobs:
-        - vitrage-dsvm-api-py3
-        - vitrage-dsvm-datasources-py3
-        - vitrage-dsvm-api-py3-ussuri
-        - vitrage-dsvm-datasources-py3-ussuri
-        - vitrage-dsvm-api-py3-train
-        - vitrage-dsvm-datasources-py3-train
-        - vitrage-dsvm-api-py3-stein
-        - vitrage-dsvm-datasources-py3-stein
+        - vitrage-tempest-plugin-api
+        - vitrage-tempest-plugin-datasources
+        - vitrage-tempest-plugin-datasources-ussuri
+        - vitrage-tempest-plugin-api-ussuri
+        - vitrage-tempest-plugin-datasources-train
+        - vitrage-tempest-plugin-api-train
+        - vitrage-tempest-plugin-datasources-stein
+        - vitrage-tempest-plugin-api-stein
     gate:
       queue: vitrage
       jobs:
-        - vitrage-dsvm-api-py3
-        - vitrage-dsvm-datasources-py3
+        - vitrage-tempest-plugin-api
+        - vitrage-tempest-plugin-datasources
 
 - job:
-    name: vitrage-dsvm-api-py3-ussuri
-    parent: vitrage-dsvm-api-py3
+    name: vitrage-tempest-plugin-base
+    parent: devstack-tempest
+    pre-run: playbooks/pre.yaml
+    timeout: 7800
+    required-projects: &base_required_projects
+      - opendev.org/openstack/aodh
+      - opendev.org/openstack/mistral
+      - opendev.org/openstack/python-vitrageclient
+      - opendev.org/openstack/vitrage
+      - opendev.org/openstack/vitrage-tempest-plugin
+      - opendev.org/openstack/ceilometer
+      - opendev.org/openstack/heat
+    irrelevant-files: &base_irrelevant_files
+      - ^.*\.rst$
+      - ^doc/.*$
+      - ^releasenotes/.*$
+    vars: &base_vars
+      devstack_local_conf:
+        post-config:
+          $NOVA_CONF:
+            DEFAULT:
+              notification_topics: 'notifications,vitrage_notifications'
+              notification_driver: messagingv2
+            notifications:
+              versioned_notifications_topics: 'versioned_notifications,vitrage_notifications'
+              notification_driver: messagingv2
+          $NEUTRON_CONF:
+            DEFAULT:
+              notification_topics: 'notifications,vitrage_notifications'
+              notification_driver: messagingv2
+          $CINDER_CONF:
+            DEFAULT:
+              notification_topics: 'notifications,vitrage_notifications'
+              notification_driver: messagingv2
+          $HEAT_CONF:
+            DEFAULT:
+              notification_topics: 'notifications,vitrage_notifications'
+              notification_driver: messagingv2
+              policy_file: /etc/heat/policy.yaml
+          $AODH_CONF:
+            oslo_messaging_notifications:
+              topics: 'notifications,vitrage_notifications'
+              driver: messagingv2
+          $VITRAGE_CONF:
+            DEFAULT:
+              notifiers: 'mistral,nova,webhook'
+            datasources:
+              snapshots_interval: 120
+        test-config:
+          $TEMPEST_CONFIG:
+            service_available:
+              vitrage: True
+            root_cause_analysis_service:
+              zabbix_alarms_per_host: 2
+              instances_per_host: 2
+              snapshots_interval: 120
+      tox_envlist: all
+      tempest_concurrency: 1
+      tempest_test_regex: topology|test_rca|test_alarms|test_resources|test_template|test_webhook|test_service
+      tempest_black_regex: tempest\.api
+      tempest_plugins:
+        - vitrage-tempest-plugin
+      devstack_localrc:
+        VITRAGE_USE_STATIC: 1
+        VITRAGE_USE_DOCTOR: 1
+        VITRAGE_USE_PROMETHEUS: 1
+      devstack_services:
+        s-account: false
+        s-container: false
+        s-object: false
+        s-proxy: false
+        tls-proxy: false
+      devstack_plugins:
+        heat: https://opendev.org/openstack/heat
+        ceilometer: https://opendev.org/openstack/ceilometer
+        aodh: https://opendev.org/openstack/aodh
+        mistral: https://opendev.org/openstack/mistral
+        vitrage: https://opendev.org/openstack/vitrage
+       
+
+- job:
+    name: vitrage-tempest-plugin-api
+    parent: vitrage-tempest-plugin-base
+
+- job:
+    name:  vitrage-tempest-plugin-api-ipv6-only
+    parent: devstack-tempest-ipv6
     nodeset: openstack-single-node-bionic
+    pre-run: playbooks/pre.yaml
+    timeout: 7800
+    required-projects: *base_required_projects
+    irrelevant-files: *base_irrelevant_files
+    vars: *base_vars
+
+- job:
+    name: vitrage-tempest-plugin-datasources
+    parent: vitrage-tempest-plugin-base
+    vars:
+      tempest_test_regex: datasources|test_events|notifiers|e2e|database
+
+- job:
+    name: vitrage-tempest-plugin-mock
+    parent: devstack-tempest
+    timeout: 7800
+    required-projects:
+      - opendev.org/openstack/python-vitrageclient
+      - opendev.org/openstack/vitrage
+      - opendev.org/openstack/vitrage-tempest-plugin
+    irrelevant-files: *base_irrelevant_files
+    vars:
+      devstack_local_conf:
+        post-config:
+          $NOVA_CONF:
+            DEFAULT:
+              notification_topics: 'notifications,vitrage_notifications'
+              notification_driver: messagingv2
+            notifications:
+              versioned_notifications_topics: 'versioned_notifications,vitrage_notifications'
+              notification_driver: messagingv2
+              notification_format: both
+          $CINDER_CONF:
+            DEFAULT:
+              notification_topics: 'notifications,vitrage_notifications'
+              notification_driver: messagingv2
+          $VITRAGE_CONF:
+            DEFAULT:
+              verbose: true
+              debug: false
+              notifiers: 'nova,webhook'
+              rpc_response_timeout: 300
+            datasources:
+              types: 'doctor,mock_graph_datasource'
+              path: 'vitrage.datasources,vitrage.tests.mocks'
+              snapshots_interval: 60
+            mock_graph_datasource:
+              networks: 100
+              zones_per_cluster: 4
+              hosts_per_zone: 16
+              zabbix_alarms_per_host: 8
+              instances_per_host: 50
+              ports_per_instance: 3
+              volumes_per_instance: 2
+              vitrage_alarms_per_instance: 0
+              tripleo_controllers: 3
+              zabbix_alarms_per_controller: 1
+        test-config:
+          $TEMPEST_CONFIG:
+            service_available:
+              vitrage: True
+            root_cause_analysis_service:
+              zabbix_alarms_per_host: 8
+              instances_per_host: 50
+              snapshots_interval: 60
+      tox_envlist: all
+      tempest_concurrency: 1
+      tempest_test_regex: mock_datasource
+      tempest_plugins:
+        - vitrage-tempest-plugin
+      devstack_services:
+        s-account: false
+        s-container: false
+        s-object: false
+        s-proxy: false
+        tls-proxy: false
+      devstack_plugins:
+        vitrage: https://opendev.org/openstack/vitrage
+
+
+- job:
+    name: vitrage-tempest-plugin-api-ussuri
+    parent: vitrage-tempest-plugin-api
     override-checkout: stable/ussuri
 
 - job:
-    name: vitrage-dsvm-api-py3-train
-    parent: vitrage-dsvm-api-py3
-    nodeset: openstack-single-node-bionic
+    name: vitrage-tempest-plugin-datasources-ussuri
+    parent: vitrage-tempest-plugin-datasources
+    override-checkout: stable/ussuri
+
+- job:
+    name: vitrage-tempest-plugin-api-train
+    parent: vitrage-tempest-plugin-api
     override-checkout: stable/train
     vars:
       devstack_localrc:
         USE_PYTHON3: True
 
 - job:
-    name: vitrage-dsvm-api-py3-stein
-    parent: vitrage-dsvm-api-py35
-    nodeset: openstack-single-node-bionic
-    override-checkout: stable/stein
-    vars:
-      devstack_localrc:
-        USE_PYTHON3: True
-
-- job:
-    name: vitrage-dsvm-datasources-py3-ussuri
-    parent: vitrage-dsvm-datasources-py3
-    nodeset: openstack-single-node-bionic
-    override-checkout: stable/ussuri
-
-- job:
-    name: vitrage-dsvm-datasources-py3-train
-    parent: vitrage-dsvm-datasources-py3
-    nodeset: openstack-single-node-bionic
+    name: vitrage-tempest-plugin-datasources-train
+    parent: vitrage-tempest-plugin-datasources
     override-checkout: stable/train
     vars:
       devstack_localrc:
         USE_PYTHON3: True
 
 - job:
-    name: vitrage-dsvm-datasources-py3-stein
-    parent: vitrage-dsvm-datasources-py35
-    nodeset: openstack-single-node-bionic
+    name: vitrage-tempest-plugin-api-stein
+    parent: vitrage-tempest-plugin-api
     override-checkout: stable/stein
     vars:
+      tempest_black_regex: tempest\.api|test_template
+      devstack_localrc:
+        USE_PYTHON3: True
+
+- job:
+    name: vitrage-tempest-plugin-datasources-stein
+    parent: vitrage-tempest-plugin-datasources
+    override-checkout: stable/stein
+    vars:
+      tempest_black_regex: tempest\.api|test_template
       devstack_localrc:
         USE_PYTHON3: True
