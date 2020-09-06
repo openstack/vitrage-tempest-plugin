@@ -107,7 +107,6 @@
 - job:
     name:  vitrage-tempest-plugin-api-ipv6-only
     parent: devstack-tempest-ipv6
-    nodeset: openstack-single-node-bionic
     pre-run: playbooks/pre.yaml
     timeout: 7800
     required-projects: *base_required_projects
@@ -191,16 +190,19 @@
 - job:
     name: vitrage-tempest-plugin-api-ussuri
     parent: vitrage-tempest-plugin-api
+    nodeset: openstack-single-node-bionic
     override-checkout: stable/ussuri
 
 - job:
     name: vitrage-tempest-plugin-datasources-ussuri
     parent: vitrage-tempest-plugin-datasources
+    nodeset: openstack-single-node-bionic
     override-checkout: stable/ussuri
 
 - job:
     name: vitrage-tempest-plugin-api-train
     parent: vitrage-tempest-plugin-api
+    nodeset: openstack-single-node-bionic
     override-checkout: stable/train
     vars:
       devstack_localrc:
@@ -209,6 +211,7 @@
 - job:
     name: vitrage-tempest-plugin-datasources-train
     parent: vitrage-tempest-plugin-datasources
+    nodeset: openstack-single-node-bionic
     override-checkout: stable/train
     vars:
       devstack_localrc:
@@ -217,6 +220,7 @@
 - job:
     name: vitrage-tempest-plugin-api-stein
     parent: vitrage-tempest-plugin-api
+    nodeset: openstack-single-node-bionic
     override-checkout: stable/stein
     vars:
       tempest_black_regex: tempest\.api|test_template
@@ -226,6 +230,7 @@
 - job:
     name: vitrage-tempest-plugin-datasources-stein
     parent: vitrage-tempest-plugin-datasources
+    nodeset: openstack-single-node-bionic
     override-checkout: stable/stein
     vars:
       tempest_black_regex: tempest\.api|test_template
