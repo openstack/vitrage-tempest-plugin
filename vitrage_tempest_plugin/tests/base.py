@@ -148,6 +148,14 @@ class BaseVitrageTempest(test.BaseTestCase):
         cls.num_demo_tenant_networks = cls._calc_num_tenant_networks()
 
     @classmethod
+    def setup_credentials(cls):
+        # Do not create new tempest network resources
+        # We use the default networks that come in devstack
+        # see the set_network_resources doc in tempest base
+        cls.set_network_resources()
+        super(BaseVitrageTempest, cls).setup_credentials()
+
+    @classmethod
     def _get_num_default_ports(cls):
         ports = TempestClients.neutron().list_ports()['ports']
         nova_ports = general_utils.all_matches(ports,
