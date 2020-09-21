@@ -18,8 +18,6 @@ from itertools import islice
 
 import networkx as nx
 from networkx.readwrite import json_graph
-import six
-from six.moves import zip
 
 from oslo_log import log as logging
 from oslo_utils import timeutils
@@ -55,10 +53,6 @@ LOG = logging.getLogger(__name__)
 
 IsEmpty = lambda: HasLength(0)
 IsNotEmpty = lambda: Not(IsEmpty())
-
-if six.PY2:
-    class ResourceWarning(Warning):
-        pass
 
 
 class BaseVitrageTempest(test.BaseTestCase):

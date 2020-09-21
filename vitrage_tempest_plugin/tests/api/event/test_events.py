@@ -12,7 +12,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import six
 
 from datetime import datetime
 from oslo_log import log as logging
@@ -57,7 +56,7 @@ class TestEvents(BaseTestEvents):
                             'Expected host down alarm')
 
             alarm = api_alarms[0]
-            event_time_tz = six.u(event_time.strftime('%Y-%m-%dT%H:%M:%SZ'))
+            event_time_tz = str(event_time.strftime('%Y-%m-%dT%H:%M:%SZ'))
             self._check_alarm(alarm, event_time_tz, event_type, details)
 
             event_time = datetime.now()

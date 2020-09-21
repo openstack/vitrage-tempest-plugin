@@ -13,9 +13,9 @@
 # under the License.
 import ast
 
+import http.server as BaseHTTPServer
 from oslo_log import log as logging
 import requests
-from six.moves import BaseHTTPServer
 import socket
 from testtools import matchers
 from threading import Thread

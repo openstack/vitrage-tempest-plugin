@@ -12,7 +12,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 from os import path
-import six
 
 
 def first_match(list_of_dicts, **kwargs):
@@ -33,7 +32,7 @@ def is_subset(subset, full):
     full_dict = full
     if type(full) is not dict:
         full_dict = vars(full)
-    return six.viewitems(subset) <= six.viewitems(full_dict)
+    return subset.items() <= full_dict.items()
 
 
 def _remove_none_values(**kwargs):
