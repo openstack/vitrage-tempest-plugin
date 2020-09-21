@@ -13,7 +13,6 @@
 # under the License.
 
 from oslo_log import log as logging
-import testtools
 from vitrage_tempest_plugin.tests import utils
 
 from vitrage_tempest_plugin.tests.base import BaseVitrageTempest
@@ -24,7 +23,6 @@ from vitrage_tempest_plugin.tests.common.tempest_clients import TempestClients
 LOG = logging.getLogger(__name__)
 
 
-@testtools.skip('gnocchi is not supported')
 class TestAodhAlarm(BaseVitrageTempest):
     NUM_INSTANCE = 1
     NUM_ALARM = 1
