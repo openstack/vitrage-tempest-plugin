@@ -37,6 +37,8 @@
       - ^doc/.*$
       - ^releasenotes/.*$
     vars: &base_vars
+      # Default swap size got shrinked to 1 GB, it's way too small for us.
+      configure_swap_size: 8192
       devstack_local_conf:
         post-config:
           $NOVA_CONF:
@@ -154,6 +156,8 @@
         aodh: https://opendev.org/openstack/aodh
         mistral: https://opendev.org/openstack/mistral
         vitrage: https://opendev.org/openstack/vitrage
+        ceilometer: https://opendev.org/openstack/ceilometer
+
 
 - job:
     name: vitrage-tempest-plugin-mock
@@ -165,6 +169,8 @@
       - opendev.org/openstack/vitrage-tempest-plugin
     irrelevant-files: *base_irrelevant_files
     vars:
+      # Default swap size got shrinked to 1 GB, it's way too small for us.
+      configure_swap_size: 8192
       devstack_local_conf:
         post-config:
           $NOVA_CONF:
