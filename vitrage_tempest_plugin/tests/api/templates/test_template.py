@@ -11,8 +11,8 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-
 from oslo_log import log as logging
+import testtools
 from testtools import matchers
 import yaml
 
@@ -98,6 +98,7 @@ class TestValidate(BaseTemplateTest):
         self._assert_validate_result(validation, path)
 
 
+@testtools.skip("skip for now")
 class TemplatesDBTest(BaseTemplateTest):
     """Template DB test class for vitrage API tests"""
 
