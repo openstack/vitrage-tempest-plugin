@@ -156,7 +156,7 @@
         aodh: https://opendev.org/openstack/aodh
         mistral: https://opendev.org/openstack/mistral
         vitrage: https://opendev.org/openstack/vitrage
- #       ceilometer: https://opendev.org/openstack/ceilometer
+        ceilometer: https://opendev.org/openstack/ceilometer
 
 
 - job:
