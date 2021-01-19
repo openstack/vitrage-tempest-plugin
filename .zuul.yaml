@@ -240,10 +240,6 @@
     parent: vitrage-tempest-plugin-datasources
     nodeset: openstack-single-node-bionic
     override-checkout: stable/ussuri
-      # FIXME(ramishra): Make it voting once stable/ussuri
-      # starts using available images from mirror.
-      # fedora 31 doesn't exists in repo
-    voting: false
 
 - job:
     name: vitrage-tempest-plugin-api-train
