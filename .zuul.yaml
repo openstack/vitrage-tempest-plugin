@@ -7,12 +7,12 @@
       jobs:
         - vitrage-tempest-plugin-api
         - vitrage-tempest-plugin-datasources
+        - vitrage-tempest-plugin-datasources-victoria
+        - vitrage-tempest-plugin-api-victoria
         - vitrage-tempest-plugin-datasources-ussuri
         - vitrage-tempest-plugin-api-ussuri
         - vitrage-tempest-plugin-datasources-train
         - vitrage-tempest-plugin-api-train
-        - vitrage-tempest-plugin-datasources-stein
-        - vitrage-tempest-plugin-api-stein
     gate:
       queue: vitrage
       jobs:
@@ -228,6 +228,17 @@
       devstack_plugins:
         vitrage: https://opendev.org/openstack/vitrage
 
+- job:
+    name: vitrage-tempest-plugin-api-victoria
+    parent: vitrage-tempest-plugin-api
+    nodeset: openstack-single-node-bionic
+    override-checkout: stable/victoria
+
+- job:
+    name: vitrage-tempest-plugin-datasources-victoria
+    parent: vitrage-tempest-plugin-datasources
+    nodeset: openstack-single-node-bionic
+    override-checkout: stable/victoria
 
 - job:
     name: vitrage-tempest-plugin-api-ussuri
@@ -256,25 +267,5 @@
     nodeset: openstack-single-node-bionic
     override-checkout: stable/train
     vars:
-      devstack_localrc:
-        USE_PYTHON3: True
-
-- job:
-    name: vitrage-tempest-plugin-api-stein
-    parent: vitrage-tempest-plugin-api
-    nodeset: openstack-single-node-bionic
-    override-checkout: stable/stein
-    vars:
-      tempest_black_regex: tempest\.api|test_template
-      devstack_localrc:
-        USE_PYTHON3: True
-
-- job:
-    name: vitrage-tempest-plugin-datasources-stein
-    parent: vitrage-tempest-plugin-datasources
-    nodeset: openstack-single-node-bionic
-    override-checkout: stable/stein
-    vars:
-      tempest_black_regex: tempest\.api|test_template
       devstack_localrc:
         USE_PYTHON3: True
