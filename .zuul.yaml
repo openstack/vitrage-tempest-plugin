@@ -76,7 +76,7 @@
       tox_envlist: all
       tempest_concurrency: 1
       tempest_test_regex: topology|test_rca|test_alarms|test_resources|test_template|test_webhook|test_service
-      tempest_black_regex: tempest\.api
+      tempest_exclude_regex: tempest\.api
       tempest_plugins:
         - vitrage-tempest-plugin
       devstack_localrc:
