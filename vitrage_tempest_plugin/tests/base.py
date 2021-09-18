@@ -54,6 +54,49 @@ LOG = logging.getLogger(__name__)
 IsEmpty = lambda: HasLength(0)
 IsNotEmpty = lambda: Not(IsEmpty())
 
+_MAX_LENGTH = 80
+
+
+def unorderable_list_difference(expected, actual, ignore_duplicate=False):
+    missing = []
+    unexpected = []
+    while expected:
+        item = expected.pop()
+        try:
+            actual.remove(item)
+        except ValueError:
+            missing.append(item)
+        if ignore_duplicate:
+            for lst in expected, actual:
+                try:
+                    while True:
+                        lst.remove(item)
+                except ValueError:
+                    pass
+    if ignore_duplicate:
+        while actual:
+            item = actual.pop()
+            unexpected.append(item)
+            try:
+                while True:
+                    actual.remove(item)
+            except ValueError:
+                pass
+        return missing, unexpected
+
+    # anything left in actual is unexpected
+    return missing, actual
+
+
+def safe_repr(obj, short=False):
+    try:
+        result = repr(obj)
+    except Exception:
+        result = object.__repr__(obj)
+    if not short or len(result) < _MAX_LENGTH:
+        return result
+    return result[:_MAX_LENGTH] + ' [truncated]...'
+
 
 class BaseVitrageTempest(test.BaseTestCase):
     """Base test class for All Vitrage tests."""
@@ -82,6 +125,31 @@ class BaseVitrageTempest(test.BaseTestCase):
 
     def assert_items_equal(self, s1, s2, message=None):
         self.assertItemsEqual(s1, s2, message)
+
+    def assertItemsEqual(self, expected_seq, actual_seq, msg=None):
+        try:
+            expected = sorted(expected_seq)
+            actual = sorted(actual_seq)
+        except TypeError:
+            # Unsortable items (example: set(), complex(), ...)
+            expected = list(expected_seq)
+            actual = list(actual_seq)
+            missing, unexpected = unorderable_list_difference(
+                expected, actual, ignore_duplicate=False
+            )
+        else:
+            return self.assertSequenceEqual(expected, actual, msg=msg)
+
+        errors = []
+        if missing:
+            errors.append('Expected, but missing:\n    %s' %
+                          safe_repr(missing))
+        if unexpected:
+            errors.append('Unexpected, but present:\n    %s' %
+                          safe_repr(unexpected))
+        if errors:
+            standard_msg = '\n'.join(errors)
+            self.fail(self._formatMessage(msg, standard_msg))
 
     def assert_timestamp_equal(self, first, second, msg=None):
         """Checks that two timestamps are equals.
