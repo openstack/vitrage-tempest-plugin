@@ -5,19 +5,23 @@
       - publish-openstack-docs-pti
     check:
       jobs:
-        - vitrage-tempest-plugin-api
-        - vitrage-tempest-plugin-datasources
+        - vitrage-tempest-plugin-api:
+            voting: false
+        - vitrage-tempest-plugin-datasources:
+            voting: false
+        - vitrage-tempest-plugin-datasources-xena
+        - vitrage-tempest-plugin-api-xena
+        - vitrage-tempest-plugin-datasources-wallaby
+        - vitrage-tempest-plugin-api-wallaby
         - vitrage-tempest-plugin-datasources-victoria
         - vitrage-tempest-plugin-api-victoria
-        - vitrage-tempest-plugin-datasources-ussuri
-        - vitrage-tempest-plugin-api-ussuri
-        - vitrage-tempest-plugin-datasources-train
-        - vitrage-tempest-plugin-api-train
     gate:
       queue: vitrage
       jobs:
-        - vitrage-tempest-plugin-api
-        - vitrage-tempest-plugin-datasources
+        - vitrage-tempest-plugin-api:
+            voting: false
+        - vitrage-tempest-plugin-datasources:
+            voting: false
 
 - job:
     name: vitrage-tempest-plugin-base
@@ -231,41 +235,30 @@
 - job:
     name: vitrage-tempest-plugin-api-victoria
     parent: vitrage-tempest-plugin-api
-    nodeset: openstack-single-node-bionic
     override-checkout: stable/victoria
 
 - job:
     name: vitrage-tempest-plugin-datasources-victoria
     parent: vitrage-tempest-plugin-datasources
-    nodeset: openstack-single-node-bionic
     override-checkout: stable/victoria
 
 - job:
-    name: vitrage-tempest-plugin-api-ussuri
+    name: vitrage-tempest-plugin-api-xena
     parent: vitrage-tempest-plugin-api
-    nodeset: openstack-single-node-bionic
-    override-checkout: stable/ussuri
+    override-checkout: stable/xena
 
 - job:
-    name: vitrage-tempest-plugin-datasources-ussuri
+    name: vitrage-tempest-plugin-datasources-xena
     parent: vitrage-tempest-plugin-datasources
-    nodeset: openstack-single-node-bionic
-    override-checkout: stable/ussuri
+    override-checkout: stable/xena
 
 - job:
-    name: vitrage-tempest-plugin-api-train
+    name: vitrage-tempest-plugin-api-wallaby
     parent: vitrage-tempest-plugin-api
-    nodeset: openstack-single-node-bionic
-    override-checkout: stable/train
-    vars:
-      devstack_localrc:
-        USE_PYTHON3: True
+    override-checkout: stable/wallaby
 
 - job:
-    name: vitrage-tempest-plugin-datasources-train
+    name: vitrage-tempest-plugin-datasources-wallaby
     parent: vitrage-tempest-plugin-datasources
-    nodeset: openstack-single-node-bionic
-    override-checkout: stable/train
-    vars:
-      devstack_localrc:
-        USE_PYTHON3: True
+    override-checkout: stable/wallaby
+
