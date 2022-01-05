@@ -5,10 +5,8 @@
       - publish-openstack-docs-pti
     check:
       jobs:
-        - vitrage-tempest-plugin-api:
-            voting: false
-        - vitrage-tempest-plugin-datasources:
-            voting: false
+        - vitrage-tempest-plugin-api
+        - vitrage-tempest-plugin-datasources
         - vitrage-tempest-plugin-datasources-xena
         - vitrage-tempest-plugin-api-xena
         - vitrage-tempest-plugin-datasources-wallaby
@@ -18,10 +16,8 @@
     gate:
       queue: vitrage
       jobs:
-        - vitrage-tempest-plugin-api:
-            voting: false
-        - vitrage-tempest-plugin-datasources:
-            voting: false
+        - vitrage-tempest-plugin-api
+        - vitrage-tempest-plugin-datasources
 
 - job:
     name: vitrage-tempest-plugin-base
