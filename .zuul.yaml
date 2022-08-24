@@ -8,12 +8,13 @@
       jobs:
         - vitrage-tempest-plugin-api
         - vitrage-tempest-plugin-datasources
+        - vitrage-tempest-plugin-datasources-yoga
+        - vitrage-tempest-plugin-api-yoga
         - vitrage-tempest-plugin-datasources-xena
         - vitrage-tempest-plugin-api-xena
-        - vitrage-tempest-plugin-datasources-wallaby
+        - vitrage-tempest-plugin-datasources-wallaby:
+            voting: false
         - vitrage-tempest-plugin-api-wallaby
-        - vitrage-tempest-plugin-datasources-victoria
-        - vitrage-tempest-plugin-api-victoria
     gate:
       jobs:
         - vitrage-tempest-plugin-api
@@ -229,14 +230,14 @@
         vitrage: https://opendev.org/openstack/vitrage
 
 - job:
-    name: vitrage-tempest-plugin-api-victoria
+    name: vitrage-tempest-plugin-api-yoga
     parent: vitrage-tempest-plugin-api
-    override-checkout: stable/victoria
+    override-checkout: stable/yoga
 
 - job:
-    name: vitrage-tempest-plugin-datasources-victoria
+    name: vitrage-tempest-plugin-datasources-yoga
     parent: vitrage-tempest-plugin-datasources
-    override-checkout: stable/victoria
+    override-checkout: stable/yoga
 
 - job:
     name: vitrage-tempest-plugin-api-xena
