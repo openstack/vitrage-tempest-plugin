@@ -25,7 +25,6 @@ CONF = config.CONF
 
 _client_modules = {
     'aodh': 'aodhclient.client',
-    'ceilometer': 'ceilometerclient.client',
     'nova': 'novaclient.client',
     'cinder': 'cinderclient.client',
     'glance': 'glanceclient.client',
@@ -48,7 +47,6 @@ class TempestClients(object):
     def class_init(cls, creds):
         cls.creds = creds
         cls._vitrage = None
-        cls._ceilometer = None
         cls._nova = None
         cls._cinder = None
         cls._glance = None
@@ -83,21 +81,6 @@ class TempestClients(object):
     def neutron_client_for_user(cls):
         session = cls._get_session_for_user()
         return neutron_client.Client(session=session)
-
-    @classmethod
-    def ceilometer(cls):
-        """ceilometer client
-
-        :rtype: ceilometerclient.v2.client.Client
-        """
-        if not cls._ceilometer:
-            cm_client = driver_module('ceilometer')
-            client = cm_client.get_client(
-                version=CONF.root_cause_analysis_service.ceilometer_version,
-                session=cls._get_session_for_admin(),
-            )
-            cls._ceilometer = client
-        return cls._ceilometer
 
     @classmethod
     def nova(cls):
