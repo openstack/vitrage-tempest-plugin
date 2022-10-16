@@ -10,11 +10,9 @@
         - vitrage-tempest-plugin-datasources
         - vitrage-tempest-plugin-datasources-yoga
         - vitrage-tempest-plugin-api-yoga
-        - vitrage-tempest-plugin-datasources-xena
-        - vitrage-tempest-plugin-api-xena
-        - vitrage-tempest-plugin-datasources-wallaby:
+        - vitrage-tempest-plugin-datasources-xena:
             voting: false
-        - vitrage-tempest-plugin-api-wallaby
+        - vitrage-tempest-plugin-api-xena
     gate:
       jobs:
         - vitrage-tempest-plugin-api
@@ -232,30 +230,26 @@
 - job:
     name: vitrage-tempest-plugin-api-yoga
     parent: vitrage-tempest-plugin-api
+    nodeset: openstack-single-node-focal
     override-checkout: stable/yoga
 
 - job:
     name: vitrage-tempest-plugin-datasources-yoga
     parent: vitrage-tempest-plugin-datasources
+    nodeset: openstack-single-node-focal
     override-checkout: stable/yoga
 
 - job:
     name: vitrage-tempest-plugin-api-xena
     parent: vitrage-tempest-plugin-api
+    nodeset: openstack-single-node-focal
     override-checkout: stable/xena
 
 - job:
     name: vitrage-tempest-plugin-datasources-xena
     parent: vitrage-tempest-plugin-datasources
+    nodeset: openstack-single-node-focal
     override-checkout: stable/xena
 
-- job:
-    name: vitrage-tempest-plugin-api-wallaby
-    parent: vitrage-tempest-plugin-api
-    override-checkout: stable/wallaby
 
-- job:
-    name: vitrage-tempest-plugin-datasources-wallaby
-    parent: vitrage-tempest-plugin-datasources
-    override-checkout: stable/wallaby
 
