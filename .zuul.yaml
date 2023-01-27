@@ -8,6 +8,8 @@
       jobs:
         - vitrage-tempest-plugin-api
         - vitrage-tempest-plugin-datasources
+        - vitrage-tempest-plugin-datasources-zed
+        - vitrage-tempest-plugin-api-zed
         - vitrage-tempest-plugin-datasources-yoga
         - vitrage-tempest-plugin-api-yoga
         - vitrage-tempest-plugin-datasources-xena:
@@ -226,6 +228,18 @@
         tls-proxy: false
       devstack_plugins:
         vitrage: https://opendev.org/openstack/vitrage
+
+- job:
+    name: vitrage-tempest-plugin-api-zed
+    parent: vitrage-tempest-plugin-api
+    nodeset: openstack-single-node-focal
+    override-checkout: stable/zed
+
+- job:
+    name: vitrage-tempest-plugin-datasources-zed
+    parent: vitrage-tempest-plugin-datasources
+    nodeset: openstack-single-node-focal
+    override-checkout: stable/zed
 
 - job:
     name: vitrage-tempest-plugin-api-yoga
