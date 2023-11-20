@@ -39,7 +39,7 @@ class ServiceTest(BaseVitrageTempest):
         self.check_different_process_ids_for(services)
 
     def check_all_equal(self, services, expected_svc_names):
-        names = {service['name'].split(' ')[0] for service in services}
+        names = {service['name'].split('_')[0] for service in services}
         self.assert_set_equal(expected_svc_names, names)
 
     def check_all_hosted(self, services, hostname):

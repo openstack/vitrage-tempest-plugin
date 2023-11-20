@@ -8,13 +8,6 @@
       jobs:
         - vitrage-tempest-plugin-api
         - vitrage-tempest-plugin-datasources
-        - vitrage-tempest-plugin-datasources-zed
-        - vitrage-tempest-plugin-api-zed
-        - vitrage-tempest-plugin-datasources-yoga
-        - vitrage-tempest-plugin-api-yoga
-        - vitrage-tempest-plugin-datasources-xena:
-            voting: false
-        - vitrage-tempest-plugin-api-xena
     gate:
       jobs:
         - vitrage-tempest-plugin-api
@@ -81,10 +74,13 @@
       tempest_plugins:
         - vitrage-tempest-plugin
       devstack_localrc:
+        GLOBAL_VENV: False
+        VITRAGE_COORDINATION_URL: memcached://127.0.0.1:11211
         VITRAGE_USE_STATIC: 1
         VITRAGE_USE_DOCTOR: 1
         VITRAGE_USE_PROMETHEUS: 1
       devstack_services:
+        etcd3: false
         s-account: false
         s-container: false
         s-object: false
@@ -264,6 +260,3 @@
     parent: vitrage-tempest-plugin-datasources
     nodeset: openstack-single-node-focal
     override-checkout: stable/xena
-
-
-
