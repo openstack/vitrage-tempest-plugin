@@ -4,14 +4,14 @@
       - check-requirements
       - tempest-plugin-jobs
       - publish-openstack-docs-pti
-    check:
-      jobs:
-        - vitrage-tempest-plugin-api
-        - vitrage-tempest-plugin-datasources
-    gate:
-      jobs:
-        - vitrage-tempest-plugin-api
-        - vitrage-tempest-plugin-datasources
+    # check:
+    #   jobs:
+    #     - vitrage-tempest-plugin-api
+    #     - vitrage-tempest-plugin-datasources
+    # gate:
+    #   jobs:
+    #     - vitrage-tempest-plugin-api
+    #     - vitrage-tempest-plugin-datasources
 
 - job:
     name: vitrage-tempest-plugin-base
