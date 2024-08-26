@@ -29,7 +29,7 @@ def create_instances(num_instances=1, set_public_network=True, name='vm'):
     flavor = get_first_flavor()
     image = glance_utils.get_first_image()
     if set_public_network:
-        public_net = neutron_utils.get_public_network()
+        public_net = neutron_utils.get_neutron_network('public')
         if public_net:
             nics = [{'net-id': public_net['id']}]
 

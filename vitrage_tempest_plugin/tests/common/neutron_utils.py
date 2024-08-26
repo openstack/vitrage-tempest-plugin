@@ -15,11 +15,6 @@ from vitrage_tempest_plugin.tests.common import general_utils as g_utils
 from vitrage_tempest_plugin.tests.common.tempest_clients import TempestClients
 
 
-def get_public_network():
+def get_neutron_network(name):
     nets = TempestClients.neutron().list_networks()
-    return g_utils.first_match(nets['networks'], name='public')
-
-
-def get_shared_network():
-    nets = TempestClients.neutron().list_networks()
-    return g_utils.first_match(nets['networks'], name='shared')
+    return g_utils.first_match(nets['networks'], name=name)

@@ -76,8 +76,13 @@ class TestResource(BaseVitrageTempest):
         # TODO(e0ne): split this test to verify that only network,
         # instance and port are returned to non-admin user.
         resources = self.vitrage_client.resource.list(all_tenants=False)
-        has_shared_network = neutron_utils.get_shared_network()
-        num_resources = 7 if has_shared_network else 6
+        has_shared_network = neutron_utils.get_neutron_network('shared')
+        has_private_network = neutron_utils.get_neutron_network('private')
+        num_resources = 6
+        if has_shared_network:
+            num_resources += 1
+        if has_private_network:
+            num_resources += 1
         self.assertThat(resources, matchers.HasLength(num_resources))
 
     @utils.tempest_logger
