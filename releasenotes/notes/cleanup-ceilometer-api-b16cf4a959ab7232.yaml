@@ -1,5 +1,0 @@
----
-upgrade:
-  - |
-    The ``[root_cause_analysis_service] ceilometer_version`` option has been
-    removed.

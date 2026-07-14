@@ -1,13 +1,19 @@
-======================
-Vitrage Tempest Plugin
-======================
+================================
+OpenStack Vitrage Tempest Plugin
+================================
 
-Tempest plugin for Vitrage Project
+This project is no longer being developed.  Previous releases will
+continue to be supported under the schedule outlined in the
+`OpenStack Stable Branches Policy
+<https://docs.openstack.org/project-team-guide/stable-branches.html>`_.
 
-It contains the tempest plugin for the functional testing of Vitrage Project.
+While stable branches exist, you will be able to see them here,
+but they will be deleted as they reach End of Life.
 
-* Free software: Apache license
-* Documentation: https://docs.openstack.org/vitrage/latest/
-* Release notes: https://docs.openstack.org/releasenotes/vitrage/
-* Source: https://opendev.org/openstack/vitrage-tempest-plugin
-* Stories and Bugs: https://storyboard.openstack.org/#!/project/openstack/vitrage-tempest-plugin
+The contents of this repository are still available in the Git
+source code management system.  To see the contents of this
+repository before it reached its end of life, please check out the
+previous commit with "git checkout HEAD^1".
+
+For any further questions, please email
+openstack-discuss@lists.openstack.org.
